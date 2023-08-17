@@ -1,0 +1,10 @@
+fastapi~=0.68.1
+numpy~=1.21.0
+pandas~=1.2.5
+scikit-learn~=1.0.1
+starlette~=0.14.2
+aiofiles~=0.7.0
+plotly~=5.3.1
+uvicorn>=0.15.0
+python-multipart
+seaborn
