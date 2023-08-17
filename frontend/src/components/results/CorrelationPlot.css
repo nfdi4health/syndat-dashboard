@@ -1,0 +1,16 @@
+.dialog {
+    box-shadow: 0 8px 6px -6px black;
+    position: static;
+    left: 20%;
+    top: 10%;
+  }
+  
+  .image {
+    width: 10px;
+  }
+
+  .small {
+    max-width: 100%;
+    max-height: 100vh;
+    margin: auto;
+  }
