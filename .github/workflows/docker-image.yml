@@ -15,8 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build frontend
-      run: docker build frontend --file Dockerfile --tag syndat-frontend:$(date +%s)
+      run: docker build frontend --file Dockerfile --tag syndat-frontend:latest
     - name: Build backend
-      run: docker build backend --file Dockerfile --tag syndat-backend:$(date +%s)
+      run: docker build backend --file Dockerfile --tag syndat-backend:latest
       
     
