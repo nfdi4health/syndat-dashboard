@@ -1,1 +1,21 @@
 version: "3.8"
+
+services:
+
+  frontend:
+    image: frontend
+    hostname: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+    - "3000:80"
+
+  backend:
+    image: backend
+    hostname: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+    - "8000:80"
