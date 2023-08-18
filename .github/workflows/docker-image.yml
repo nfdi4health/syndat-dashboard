@@ -42,14 +42,14 @@ jobs:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/frontend:latest, ghcr.io/${{ github.repository }}/frontend:${{ env.FRONTEND_VERSION }}
+        tags: ghcr.io/${{ github.repository }}/frontend:latest, ghcr.io/${{ github.repository }}/frontend:$FRONTEND_VERSION
     - name: Build & push backend
       uses: docker/build-push-action@v2
       with:
         context: ./backend
         file: ./backend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/backend:latest, ghcr.io/${{ github.repository }}/backend:${{ env.BACKEND_VERSION }}
+        tags: ghcr.io/${{ github.repository }}/backend:latest, ghcr.io/${{ github.repository }}/backend:$BACKEND_VERSION
 
 
 
