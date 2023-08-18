@@ -23,8 +23,9 @@ jobs:
     - name: npm build
       run: |
         cd frontend
+        npm ci --loglevel verbose --userconfig npmrc --max-old-space-size=16096
         npm install --legacy-peer-deps
-        npm run build --max-old-space-size=16096
+        npm run build --userconfig npmrc --max-old-space-size=16096
     - name: Build & push frontend
       uses: docker/build-push-action@v2
       with:
