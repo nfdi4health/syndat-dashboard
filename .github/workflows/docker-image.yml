@@ -20,6 +20,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: npm build
+        run: |
+          cd frontend
+          npm install
+          npm run build
       - name: Build & push frontend
         uses: docker/build-push-action@v2
         with:
