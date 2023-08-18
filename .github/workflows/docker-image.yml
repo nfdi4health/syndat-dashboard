@@ -20,6 +20,11 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup Node 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: npm
     - name: npm build
       run: |
         cd frontend
