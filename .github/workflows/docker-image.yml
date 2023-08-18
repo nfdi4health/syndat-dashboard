@@ -23,7 +23,7 @@ jobs:
       - name: npm build
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
           npm run build
       - name: Build & push frontend
         uses: docker/build-push-action@v2
