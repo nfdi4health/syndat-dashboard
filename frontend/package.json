@@ -1,10 +1,7 @@
 {
-  "name": "vambn-frontend",
+  "name": "syndat-frontend",
   "version": "0.6.0",
   "private": true,
-  "config": {
-    "imageRepo": "docker.arty.scai.fraunhofer.de/vambn-frontend"
-  },
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
