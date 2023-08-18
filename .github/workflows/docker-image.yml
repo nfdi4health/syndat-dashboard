@@ -27,6 +27,7 @@ jobs:
         cache: npm
     - name: npm build
       run: |
+        export NODE_OPTIONS="--max_old_space_size=4096"
         cd frontend
         npm install --legacy-peer-deps
         npm ci --loglevel verbose --userconfig npmrc --max-old-space-size=16096 -legacy-peer-deps
