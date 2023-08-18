@@ -9,7 +9,8 @@ COPY /api /api
 COPY /datasets /datasets
 
 # Install API requirements
-RUN /bin/bash -c "pip install -r requirements.txt"
+COPY requirements.txt /tmp/
+RUN pip install --requirement /tmp/requirements.txt
 
 EXPOSE 80
 
