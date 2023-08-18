@@ -14,10 +14,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Get Versions
+    - name: Get Version Tags
+      id: versions
       run: |
-        export FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version")
-        export BACKEND_VERSION=$(echo "$(<backend/api/routes.py)" | grep -oP "(?<=version=\")[^\"]+")
+        echo "FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version")"" >> "$GITHUB_OUTPUT"
+        echo "BACKEND_VERSION=$(echo "$(<backend/api/routes.py)" | grep -oP "(?<=version=\")[^\"]+")" >> "$GITHUB_OUTPUT"
     - name: Docker Login
       uses: docker/login-action@v1
       with:
@@ -42,14 +43,14 @@ jobs:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/frontend:latest, ghcr.io/${{ github.repository }}/frontend:$FRONTEND_VERSION
+        tags: ghcr.io/${{ github.repository }}/frontend:latest, ghcr.io/${{ github.repository }}/frontend:${{ steps.versions.outputs.FRONTEND_VERSION }}
     - name: Build & push backend
       uses: docker/build-push-action@v2
       with:
         context: ./backend
         file: ./backend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/backend:latest, ghcr.io/${{ github.repository }}/backend:$BACKEND_VERSION
+        tags: ghcr.io/${{ github.repository }}/backend:latest, ghcr.io/${{ github.repository }}/backend:${{ steps.versions.outputs.BACKEND_VERSION }}
 
 
 
