@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
 
@@ -12,33 +12,33 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: npm build
-        run: |
-          cd frontend
-          npm install --legacy-peer-deps
-          npm run build
-      - name: Build & push frontend
-        uses: docker/build-push-action@v2
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/frontend:latest
-      - name: Build & push backend
-        uses: docker/build-push-action@v2
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/backend:latest
-        
-      
-    
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Docker Login
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: npm build
+      run: |
+        cd frontend
+        npm install --legacy-peer-deps
+        npm run build --max-old-space-size=16096
+    - name: Build & push frontend
+      uses: docker/build-push-action@v2
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: ghcr.io/${{ github.repository }}/frontend:latest
+    - name: Build & push backend
+      uses: docker/build-push-action@v2
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: ghcr.io/${{ github.repository }}/backend:latest
+
+
+
