@@ -33,7 +33,7 @@ docker-compose up
 
 #### Requirements
 
-- [NodeJS 16.x +](https://nodejs.org/de)
+- [NodeJS 18.x +](https://nodejs.org/de)
 - [Docker Compose 2.x +](https://docs.docker.com/compose/)
 - [GNU Make](https://www.gnu.org/software/make/manual/make.html)
 
@@ -41,5 +41,27 @@ Given all dependencies above are satisfied, both the frontend and backend can be
 
 ```bash
 make up
-``````
+```
+
+### Running a local development version
+
+#### Requirements
+
+- [NodeJS 16.x +](https://nodejs.org/de)
+- [Python 3.x.x](https://www.python.org/downloads/)
+
+
+```bash
+# install python dependencies
+pip install --requirement backend/requirements.txt
+
+# start backend
+cd backend && uvicorn api.routes:app --reload
+
+# start frontend
+cd frontend && npm start
+```
+
+You may alternatively start the backend and frontend servers using the make command `make run-local`, given you have all required python dependencies installed already.
+
 
