@@ -3,19 +3,13 @@ version: "3.8"
 services:
 
   frontend:
-    image: frontend
+    image: ghcr.io/nfdi4health/syndat-dashboard/frontend:0.6.0
     hostname: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
     ports:
     - "3000:80"
 
   backend:
-    image: backend
+    image: ghcr.io/nfdi4health/syndat-dashboard/backend:0.6.0
     hostname: backend
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     ports:
     - "8000:80"
