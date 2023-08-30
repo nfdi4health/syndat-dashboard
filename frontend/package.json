@@ -40,7 +40,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build ",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",                       
+    "eject": "react-scripts eject",
     "docker:build": "docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
     "docker:push": "docker image push $npm_package_config_imageRepo:$npm_package_version",
     "deploy:k8s": "kubectl rollout restart deployment vambn-frontend-deployment"
@@ -67,6 +67,7 @@
     "fsevents": "^2.3.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/plotly.js": "^1.54.17",
     "@types/react-plotly.js": "^2.5.0"
   }
