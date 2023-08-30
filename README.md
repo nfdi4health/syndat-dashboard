@@ -43,7 +43,7 @@ Given all dependencies above are satisfied, both the frontend and backend can be
 make up
 ```
 
-### Running a local development version
+### Running a local development version (without docker)
 
 #### Requirements
 

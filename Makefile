@@ -9,5 +9,5 @@ up:
 	docker-compose -f docker-compose.local.yml up
 
 make run-local:
+	cd backend; uvicorn api.routes:app --reload &
 	cd frontend; npm start
-	cd backend; uvicorn api.routes:app --reload
