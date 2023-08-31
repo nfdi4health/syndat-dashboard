@@ -6,7 +6,7 @@ from pandas.core.dtypes.common import is_numeric_dtype
 
 
 def load_virtual_patients_decoded(output_path):
-    df_virtual = pd.read_csv(output_path + "/decodedVP.csv")
+    df_virtual = pd.read_csv(output_path + "/synthetic.csv")
     return df_virtual
 
 
@@ -33,10 +33,10 @@ def load_real_patients_decoded(output_path):
 
 def load_data_decoded(output_path):
     # real = load_real_patients_decoded().dropna()
-    real = pd.read_csv(output_path + '/reconRP.csv')
-    virtual = pd.read_csv(output_path + "/decodedVP.csv")
+    real = pd.read_csv(output_path + '/real.csv')
+    virtual = pd.read_csv(output_path + "/synthetic.csv")
     # sort columns so both dataframes align
-    real = real.reindex(sorted(real.columns), axis=1).drop("SUBJID", 1,  errors='ignore')
+    real = real.reindex(sorted(real.columns), axis=1).drop("SUBJID", axis=1,  errors='ignore')
     virtual = virtual.reindex(sorted(real.columns), axis=1)
     return real, virtual
 
@@ -78,5 +78,6 @@ def decode_numerical_columns(df):
 def normalize(patient_data):
     normalized_data = (patient_data - patient_data.min()) / (patient_data.max() - patient_data.min())
     return normalized_data
+
 
 

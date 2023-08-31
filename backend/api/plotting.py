@@ -28,6 +28,7 @@ def create_violin_plots(real_patients, virtual_patients, store_destination):
             table(ax, df.describe().round(2), loc='bottom', colLoc='center', bbox=[0, -0.55, 1, 0.5],
                   colWidths=[.5, .5])
         fig = ax.get_figure()
+        matplotlib.pyplot.close()
         fig.savefig(store_destination + "/" + column_name + '.png', bbox_inches="tight")
 
 
