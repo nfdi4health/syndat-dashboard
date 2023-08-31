@@ -58,6 +58,9 @@ pip install --requirement backend/requirements.txt
 # start backend
 cd backend && uvicorn api.routes:app --reload
 
+# install node dependencies
+cd frontend; npm install --legacy-peer-deps
+
 # start frontend
 cd frontend && npm start
 ```
