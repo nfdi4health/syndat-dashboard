@@ -9,7 +9,10 @@ from api.data_loader import load_data_decoded
 
 def get_tsne_plot_data(real, virtual):
     x = pandas.concat([real, virtual])
-    tsne = TSNE(n_components=2, random_state=42)
+    perplexity = 30
+    if real.shape[1] < 30:
+        perplexity = real.shape[1] - 1
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
     tsne_result = tsne.fit_transform(x)
     border = real.shape[0]
     x_real = tsne_result[:border, 0]
@@ -35,3 +38,8 @@ def get_outlier_plot():
         fig.add_shape(type="circle", xref="x", yref="y", x0=x0, y0=y0, x1=x1, y1=y1, line_color="LightSeaGreen", )
     # display
     fig.show()
+
+
+
+
+

@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 import scipy.spatial.distance
-from sklearn import ensemble, neighbors, preprocessing
 
+from sklearn import ensemble, neighbors, preprocessing
 from sklearn.model_selection import cross_val_score
 
-from api.data_loader import load_data_decoded
 from api.domain import OutlierPredictionMode
 
 
@@ -49,14 +48,13 @@ def get_jsd(real, virtual, n_bins=100):
     return np.average(jsd_arr)
 
 
-def get_frobenius_norm(real, virtual):
-    min_max_scaler = preprocessing.MinMaxScaler()
-    real_scaled = min_max_scaler.fit_transform(real)
-    virtual_scaled = min_max_scaler.fit_transform(virtual)
-    norm_real = np.linalg.norm(real_scaled)
-    norm_virtual = np.linalg.norm(virtual_scaled)
-    return norm_real, norm_virtual
-
+def get_norm_score(real_data, synthetic_data):
+    corr_real = real_data.corr()
+    corr_synthetic = synthetic_data.corr()
+    norm_diff = np.linalg.norm(corr_real - corr_synthetic)
+    norm_real = np.linalg.norm(corr_real)
+    norm_quotient = norm_diff / norm_real
+    return norm_quotient
 
 def get_outliers(virtual_patients, mode=OutlierPredictionMode.isolationForest, anomaly_score=False):
     if mode == OutlierPredictionMode.isolationForest:

@@ -1,6 +1,5 @@
 import os
 import shutil
-import threading
 from distutils.dir_util import copy_tree
 
 import numpy as np
@@ -18,9 +17,9 @@ from api.data_loader import load_data_decoded, load_virtual_patients_decoded
 from api.filtering import get_column_types, get_similar_patients
 
 app = FastAPI(
-    title="VAMBN API",
-    description="API interface to access the basic features of the VAMBN software.",
-    version="0.2.0",
+    title="SYNDAT API",
+    description="API interface to access programmatic functionalities of SYNDAT.",
+    version="0.6.2",
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
@@ -73,12 +72,12 @@ def swagger_redirect():
     return RedirectResponse(url='/docs')
 
 
-@app.get("/version")
+@app.get("/version", tags=["info"])
 def get_current_version():
-    return "0.3.0"
+    return app.version
 
 
-@app.get("/error", status_code=200)
+@app.get("/error", status_code=200, tags=["info"])
 def get_error_log(response: Response):
     if os.path.isfile('error.txt'):
         with open('error.txt') as f:
@@ -89,12 +88,7 @@ def get_error_log(response: Response):
         return {"content": "No error occurred."}
 
 
-@app.get("/status")
-def get_status():
-    raise HTTPException(status_code=501, detail="Not Implemented.")
-
-
-@app.get("/datasets")
+@app.get("/datasets", tags=["info"])
 def get_available_data_sets():
     datasets = [f for f in os.listdir("datasets") if os.path.isdir(os.path.join("datasets", f))]
     datasets_sorted = np.sort(datasets)
@@ -102,20 +96,20 @@ def get_available_data_sets():
     return datasets_sorted_without_default.tolist()
 
 
-@app.get("/datasets/{identifier}/virtual/{index}")
-def get_virtual_patients_decoded(index: int, identifier: str):
-    return load_virtual_patients_decoded("datasets/" + identifier).loc[index]
+@app.get("/datasets/{identifier}/patients/synthetic/{index}", tags=["results"])
+def get_synthetic_patient(index: int, identifier: str):
+    return load_virtual_patients_decoded("datasets/patients/" + identifier).loc[index]
 
 
-@app.get("/datasets/{identifier}/virtual/", response_model=List[ColumnTypeResponse])
+@app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
 def get_output_column_types(identifier: str):
     # drop ID column
-    virtual = load_virtual_patients_decoded("datasets/" + identifier).drop('SUBJID', 1, errors='ignore')
+    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop('SUBJID', 1, errors='ignore')
     column_types = get_column_types(virtual)
     return column_types
 
 
-@app.get("/datasets/{identifier}/results/auc")
+@app.get("/datasets/{identifier}/results/auc", tags=["results"])
 def get_output_auc(identifier: str):
     # load from results if possible
     if os.path.isfile('datasets/{}/results/auc.npy'.format(identifier)):
@@ -125,7 +119,7 @@ def get_output_auc(identifier: str):
         raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
-@app.get("/datasets/{identifier}/results/jsd")
+@app.get("/datasets/{identifier}/results/jsd", tags=["results"])
 def get_output_jsd(identifier: str):
     if os.path.isfile('datasets/{}/results/jsd.npy'.format(identifier)):
         jsd_score = np.load('datasets/{}/results/jsd.npy'.format(identifier)).item()
@@ -134,18 +128,26 @@ def get_output_jsd(identifier: str):
         raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
-@app.get("/datasets/{identifier}/results/norm")
+@app.get("/datasets/{identifier}/results/norm", tags=["results"])
 def get_output_norm(identifier: str):
-    if os.path.isfile('datasets/{}/results/norm_real.npy'.format(identifier)) \
-            and os.path.isfile('datasets/{}/results/norm_virtual.npy'.format(identifier)):
-        norm_real = np.load('datasets/{}/results/norm_real.npy'.format(identifier)).item()
-        norm_virtual = np.load('datasets/{}/results/norm_virtual.npy'.format(identifier)).item()
-        return {"norm_real": norm_real, "norm_virtual": norm_virtual}
+    if os.path.isfile('datasets/{}/results/norm.npy'.format(identifier)):
+        norm = np.load('datasets/{}/results/norm.npy'.format(identifier)).item()
+        return {"norm": norm}
     else:
         raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
-@app.get("/datasets/{identifier}/results/outliers")
+@app.get("/datasets/{identifier}/results/privacy", tags=["results"])
+def get_privacy_score(identifier: str):
+    # load from results if possible
+    if os.path.isfile('datasets/{}/results/privacy_score.npy'.format(identifier)):
+        privacy_score = np.load('datasets/{}/results/privacy_score.npy'.format(identifier)).item()
+        return {"privacy_score": privacy_score}
+    else:
+        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+
+
+@app.get("/datasets/{identifier}/results/outliers", tags=["results"])
 def get_output_outliers(identifier: str, anomaly_score: bool):
     if os.path.isfile('datasets/{}/results/anomaly_scores.npy'.format(identifier)):
         outliers = np.load('datasets/{}/results/anomaly_scores.npy'.format(identifier))
@@ -157,7 +159,7 @@ def get_output_outliers(identifier: str, anomaly_score: bool):
         raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
-@app.get("/datasets/{identifier}/results/tsne")
+@app.get("/datasets/{identifier}/results/tsne", tags=["results"])
 def get_tsne_plotly_data(identifier: str):
     if os.path.isfile('datasets/{}/results/x_real.npy'.format(identifier)) \
             and os.path.isfile('datasets/{}/results/x_virtual.npy'.format(identifier)) \
@@ -174,7 +176,48 @@ def get_tsne_plotly_data(identifier: str):
         raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
-@app.get("/datasets/{identifier}/plots/violin")
+@app.get("/datasets/{identifier}/results/risk_singling_out", tags=["results"])
+def get_risk_singling_out(identifier: str):
+    if os.path.isfile('datasets/{}/results/risk_singling_out.npy'.format(identifier)):
+        risk_singling_out = np.load('datasets/{}/results/risk_singling_out.npy'.format(identifier)).item()
+        return {"risk": risk_singling_out}
+    else:
+        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+
+
+@app.get("/datasets/{identifier}/results/risk_linkability", tags=["results"])
+def get_risk_linkability(identifier: str):
+    if os.path.isfile('datasets/{}/results/risk_linkability.npy'.format(identifier)):
+        risk_linkability = np.load('datasets/{}/results/risk_linkability.npy'.format(identifier)).item()
+        return {"risk": risk_linkability}
+    else:
+        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+
+
+@app.get("/datasets/{identifier}/results/risk_inference", tags=["results"])
+def get_risk_inference(identifier: str):
+    if os.path.isfile('datasets/{}/results/risk_inference.npy'.format(identifier)):
+        risk_inference = np.load('datasets/{}/results/risk_inference.npy'.format(identifier)).item()
+        return {"risk": risk_inference}
+    else:
+        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+
+
+@app.get("/datasets/{identifier}/results", tags=["export"])
+def export_results_set(identifier: str):
+    output_zip = shutil.make_archive('tmp/results', 'zip', 'datasets/' + identifier + '/results')
+    return FileResponse(path='tmp/results.zip', filename='results.zip', media_type='application/zip')
+
+
+@app.get("/datasets/{identifier}/scores", tags=["results"])
+def get_results_compiled(identifier: str):
+    auc = get_output_auc(identifier)['auc_score']
+    jsd = get_output_jsd(identifier)['jsd_score']
+    norm = get_output_norm(identifier)['norm']
+    return {"auc": auc, "jsd": jsd, "norm": norm}
+
+
+@app.get("/datasets/{identifier}/plots/violin", tags=["results"])
 def get_available_violin_plots(identifier: str):
     columns = []
     print(identifier)
@@ -185,12 +228,12 @@ def get_available_violin_plots(identifier: str):
     return {"available_columns": columns}
 
 
-@app.get("/datasets/{identifier}/plots/violin/{name}")
-def get_entropy_plot(identifier: str, name: str):
+@app.get("/datasets/{identifier}/plots/violin/{name}", tags=["results"])
+def get_violin_plot(identifier: str, name: str):
     return FileResponse('datasets/{}/plots/violin/{}.png'.format(identifier, name))
 
 
-@app.get("/datasets/{identifier}/plots/correlation")
+@app.get("/datasets/{identifier}/plots/correlation", tags=["results"])
 def get_correlation_plot(identifier: str, type: str):
     if type == "real":
         return FileResponse('datasets/{}/plots/correlation/dec_rp.png'.format(identifier))
@@ -200,38 +243,86 @@ def get_correlation_plot(identifier: str, type: str):
         raise HTTPException(status_code=400, detail="Plot type argument must be either real or virtual.")
 
 
-@app.patch("/datasets/default/results", status_code=201)
-def process_output():
-    # cleanup existing files
-    if not os.path.isfile('datasets/default/decodedVP.csv') \
-            or not os.path.isfile('datasets/default/reconRP.csv'):
-        raise HTTPException(status_code=404, detail='There has not been any output datasets set or generated.')
-    # clear results
-    for f in [f for f in os.listdir("datasets/default/results")]:
-        os.remove(os.path.join("datasets/default/results", f))
-    # clear plots
-    for f in [f for f in os.listdir("datasets/default/plots/correlation")]:
-        os.remove(os.path.join("datasets/default/plots/correlation", f))
+@app.get("/datasets/{identifier}/plots", tags=["export"])
+def export_plots(identifier: str):
+    output_zip = shutil.make_archive('tmp/plots', 'zip', 'datasets/' + identifier + '/plots')
+    return FileResponse(path='tmp/plots.zip', filename='plots.zip', media_type='application/zip')
+
+
+@app.patch("/datasets/default/results/auc", status_code=201, tags=["processing"])
+async def process_auc():
+    processing.process_auc("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/jsd", status_code=201, tags=["processing"])
+async def process_jsd():
+    processing.process_jsd("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/norm", status_code=201, tags=["processing"])
+async def process_norm():
+    processing.process_norm("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/risk_linkability", status_code=201, tags=["processing"])
+async def process_linkability_risk():
+    processing.process_linkability_risk("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/risk_inference", status_code=201, tags=["processing"])
+async def process_inference_risk():
+    processing.process_inference_risk("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/risk_singling_out", status_code=201, tags=["processing"])
+async def process_singling_out_risk():
+    processing.process_singling_out_risk("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/column_types", status_code=201, tags=["processing"])
+async def process_column_types():
+    processing.get_column_types("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/tsne", status_code=201, tags=["processing"])
+async def process_tsne():
+    processing.process_tsne("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/results/outliers", status_code=201, tags=["processing"])
+async def process_outliers():
+    processing.get_outlier_scores("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.patch("/datasets/default/plots/violin", status_code=201, tags=["processing"])
+async def process_violin_plots():
     for f in [f for f in os.listdir("datasets/default/plots/violin")]:
         os.remove(os.path.join("datasets/default/plots/violin", f))
-    # storage constants
-    input_dir = "datasets/default"
-    output_dir = input_dir + "/results"
-    plot_dir = input_dir + "/plots"
-    # process async
-    thread = threading.Thread(processing.process_rp_vp_results(input_dir, output_dir, plot_dir))
-    thread.start()
-    return {"message:": "Successfully triggered input processing."}
+    processing.create_violin_plots("default")
+    return {"message:": "Successfully finished processing."}
 
-@app.post("/datasets/default")
-def upload_any(file: UploadFile = File(...)):
-    name = file.filename
-    if name == "reconRP.csv":
-        file_path = "datasets/default/reconRP.csv"
-    elif name == "decodedVP.csv":
-        file_path = "datasets/default/decodedVP.csv"
-    else:
-        raise HTTPException(status_code=403, detail="The specified filename could not be uploaded.")
+
+@app.patch("/datasets/default/plots/correlation", status_code=201, tags=["processing"])
+async def process_correlation_plots():
+    processing.create_correlation_plots("default")
+    return {"message:": "Successfully finished processing."}
+
+
+@app.post("/datasets/default/patients/real", tags=["processing"])
+def upload_real_patients(file: UploadFile = File(...)):
+    filename, file_extension = os.path.splitext(file.filename)
+    if file_extension != '.csv':
+        raise HTTPException(status_code=403, detail="Only csv files supported.")
+    file_path = "datasets/default/patients/real.csv"
     try:
         with open(file_path, 'wb+') as f:
             while contents := file.file.read():
@@ -243,7 +334,24 @@ def upload_any(file: UploadFile = File(...)):
     return {"message": f"Successfully uploaded {file.filename}"}
 
 
-@app.put("/datasets/{identifier}", status_code=201)
+@app.post("/datasets/default/patients/synthetic", tags=["processing"])
+def upload_synthetic_patients(file: UploadFile = File(...)):
+    filename, file_extension = os.path.splitext(file.filename)
+    if file_extension != '.csv':
+        raise HTTPException(status_code=403, detail="Only csv files are supported.")
+    file_path = "datasets/default/patients/synthetic.csv"
+    try:
+        with open(file_path, 'wb+') as f:
+            while contents := file.file.read():
+                f.write(contents)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error occurred during processing of the uploaded file.")
+    finally:
+        file.file.close()
+    return {"message": f"Successfully uploaded {file.filename}"}
+
+
+@app.put("/datasets/{identifier}", status_code=201, tags=["processing"])
 def create_new_dataset_based_on_current_results(identifier: str):
     existing_datasets = get_available_data_sets()
     if identifier in existing_datasets:
@@ -255,69 +363,29 @@ def create_new_dataset_based_on_current_results(identifier: str):
         return {"message": f"Successfully created dataset {identifier}"}
 
 
-@app.post("/datasets/{identifier}/virtual")
-def filter_virtual_patients(identifier: str, data: ColumnConstraintList):
-    real, virtual = load_data_decoded(output_path="datasets/" + identifier)
+@app.post("/datasets/{identifier}/patients/synthetic/search", tags=["search"])
+async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList):
+    real, virtual = load_data_decoded(output_path="datasets/" + identifier + "/patients")
     result = get_similar_patients(virtual, data.constraints)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
 
 
-@app.get("/datasets/default/results/date")
+@app.get("/datasets/default/results/date", tags=["info"])
 def get_latest_cache_change_date():
     filename = "datasets/default/results/auc.npy"
-    statbuf = os.stat(filename)
-    return statbuf.st_mtime
+    filestat = os.stat(filename)
+    return filestat.st_mtime
 
 
-@app.get("/datasets/default/date")
-def get_latest_cache_change_date():
-    filename = "datasets/default/decodedVP.csv"
-    statbuf = os.stat(filename)
-    return statbuf.st_mtime
+@app.get("/datasets/default/patients/real/date", tags=["info"])
+def get_latest_cache_real_patients():
+    filename = "datasets/default/patients/real.csv"
+    filestat = os.stat(filename)
+    return filestat.st_mtime
 
 
-@app.put("vambn/output/patients/real")
-def upload_real_patient_data(file: UploadFile = File(...)):
-    try:
-        with open("vambn/04_output/HI-VAE/reconRP.csv", 'wb+') as f:
-            while contents := file.file.read():
-                f.write(contents)
-    except Exception as e:
-        print(e)
-        return {"message": "There was an error uploading the file"}
-    finally:
-        file.file.close()
-    return {"message": f"Successfully uploaded {file.filename}"}
-
-
-@app.put("vambn/output/patients/virtual")
-def upload_virtual_patient_data(file: UploadFile = File(...)):
-    try:
-        with open("vambn/04_output/HI-VAE/decodedVP.csv", 'wb+') as f:
-            while contents := file.file.read():
-                f.write(contents)
-    except Exception as e:
-        print(e)
-        return {"message": "There was an error uploading the file"}
-    finally:
-        file.file.close()
-    return {"message": f"Successfully uploaded {file.filename}"}
-
-
-@app.get("/vambn/output")
-def get_output():
-    if get_status()["status"] != 3:
-        raise HTTPException(status_code=404, detail='There has not been any output generated (yet).')
-    if os.path.isdir('tmp'):
-        # clear tmp dir
-        shutil.rmtree('tmp')
-        os.mkdir('tmp')
-    output_zip = shutil.make_archive('tmp/output', 'zip', 'vambn/04_output')
-    return FileResponse(path='tmp/output.zip', filename='output.zip', media_type='application/zip')
-
-
-@app.get("/vambn/output/error")
-def get_error_report():
-    if get_status().get('status') != 4:
-        raise HTTPException(status_code=404, detail='There is no error report available.')
-    return FileResponse('vambn/04_output/error.txt')
+@app.get("/datasets/default/patients/synthetic/date", tags=["info"])
+def get_latest_cache_change_synthetic_patients():
+    filename = "datasets/default/patients/synthetic.csv"
+    filestat = os.stat(filename)
+    return filestat.st_mtime
