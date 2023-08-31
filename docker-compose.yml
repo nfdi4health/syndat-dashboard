@@ -3,13 +3,13 @@ version: "3.8"
 services:
 
   frontend:
-    image: ghcr.io/nfdi4health/syndat-dashboard/frontend:0.6.0
+    image: ghcr.io/nfdi4health/syndat-dashboard/frontend:latest
     hostname: frontend
     ports:
     - "3000:80"
 
   backend:
-    image: ghcr.io/nfdi4health/syndat-dashboard/backend:0.6.0
+    image: ghcr.io/nfdi4health/syndat-dashboard/backend:latest
     hostname: backend
     ports:
     - "8000:80"
