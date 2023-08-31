@@ -4,9 +4,11 @@ FROM python:3.9
 # Create a folder and copy the folder structure from local
 RUN mkdir -p /api
 RUN mkdir -p /datasets
+RUN mkdir -p /credits
 
 COPY /api /api
 COPY /datasets /datasets
+COPY /credits /credits
 
 # Install API requirements
 COPY requirements.txt /tmp/
