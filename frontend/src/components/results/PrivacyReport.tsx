@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { InfoCircle } from "react-bootstrap-icons";
 import ReactScoreIndicator from "react-score-indicator";
 import ScoreUtils from "../../utils/ScoreUtils";
 import { Alert } from "@mui/material";
@@ -64,6 +65,31 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
       });
   };
 
+  renderTooltipSinglingOut = (props: any) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Singling out risk involves identifying rare or unique attributes in
+      synthetic data that could potentially reveal specific individuals in the
+      original dataset, potentially leading to privacy breaches.
+    </Tooltip>
+  );
+
+  renderTooltipLinkability = (props: any) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Linkability risk is the concern that, using the synthetic dataset, one can
+      determine if two separate sets of attributes belong to the same individual
+      in external datasets A and B, assuming that these attributes are also
+      found in the synthetic data.
+    </Tooltip>
+  );
+
+  renderTooltipInferrence = (props: any) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Inference risk pertains to the ability of an attacker, who knows the
+      values of certain attributes for specific target records, to accurately
+      deduce secret attributes of those targets using the synthetic dataset.
+    </Tooltip>
+  );
+
   render() {
     return (
       <Container>
@@ -74,8 +100,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             {" "}
             <Alert severity="warning">
               Experimental feature, results may deviate.
-            </Alert>
-            {" "}
+            </Alert>{" "}
           </Col>
           <Col></Col>
         </Row>
@@ -89,22 +114,47 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
               maxValue={100}
             />
             <h4>Singling Out Risk Score</h4>
+            <OverlayTrigger
+              placement="right"
+              delay={{ show: 250, hide: 400 }}
+              overlay={this.renderTooltipSinglingOut}
+            >
+              <InfoCircle />
+            </OverlayTrigger>
           </Col>
           <Col>
             {" "}
             <ReactScoreIndicator
-              value={ScoreUtils.calculateJsdScore(this.state.linkability_risk)}
+              value={ScoreUtils.calculatePrivacyScore(
+                this.state.linkability_risk
+              )}
               maxValue={100}
             />
             <h4>Linkability Risk Score</h4>
+            <OverlayTrigger
+              placement="right"
+              delay={{ show: 250, hide: 400 }}
+              overlay={this.renderTooltipLinkability}
+            >
+              <InfoCircle />
+            </OverlayTrigger>
           </Col>
           <Col>
             {" "}
             <ReactScoreIndicator
-              value={ScoreUtils.calculateNormScore(this.state.inference_risk)}
+              value={ScoreUtils.calculatePrivacyScore(
+                this.state.inference_risk
+              )}
               maxValue={100}
             />
             <h4>Inferrence Risk Score</h4>
+            <OverlayTrigger
+              placement="right"
+              delay={{ show: 250, hide: 400 }}
+              overlay={this.renderTooltipInferrence}
+            >
+              <InfoCircle />
+            </OverlayTrigger>
           </Col>
         </Row>
       </Container>
