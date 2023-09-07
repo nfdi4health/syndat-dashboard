@@ -19,7 +19,7 @@ from api.filtering import get_column_types, get_similar_patients
 app = FastAPI(
     title="SYNDAT API",
     description="API interface to access programmatic functionalities of SYNDAT.",
-    version="0.6.2",
+    version="0.6.3",
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
