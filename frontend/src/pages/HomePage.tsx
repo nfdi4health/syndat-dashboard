@@ -1,6 +1,5 @@
 import { Container } from "react-bootstrap";
 import "./HomePage.css";
-import { Divider } from "@mui/material";
 
 function HomePage() {
   return (
