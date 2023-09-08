@@ -1,0 +1,27 @@
+p {
+  padding-top: 30px;
+}
+
+h4 {
+  padding-top: 30px;
+}
+
+.alter {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  display: block; 
+  margin: auto; 
+}
+
+.badge bg-success  {
+  padding-right: 10px;
+  padding-left: 10px;
+
+}

@@ -19,7 +19,7 @@ from api.filtering import get_column_types, get_similar_patients
 app = FastAPI(
     title="SYNDAT API",
     description="API interface to access programmatic functionalities of SYNDAT.",
-    version="0.6.2",
+    version="0.6.3",
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
@@ -104,7 +104,7 @@ def get_synthetic_patient(index: int, identifier: str):
 @app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
 def get_output_column_types(identifier: str):
     # drop ID column
-    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop('SUBJID', 1, errors='ignore')
+    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop(columns='SUBJID', axis=1, errors='ignore')
     column_types = get_column_types(virtual)
     return column_types
 
@@ -144,7 +144,7 @@ def get_privacy_score(identifier: str):
         privacy_score = np.load('datasets/{}/results/privacy_score.npy'.format(identifier)).item()
         return {"privacy_score": privacy_score}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/outliers", tags=["results"])
@@ -156,7 +156,7 @@ def get_output_outliers(identifier: str, anomaly_score: bool):
         else:
             return {"outlier_indices": outliers.tolist()}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/tsne", tags=["results"])
@@ -173,7 +173,7 @@ def get_tsne_plotly_data(identifier: str):
         trace_virtual = {"x": x_virtual.tolist(), "y": y_virtual.tolist()}
         return {"trace_real": trace_real, "trace_virtual": trace_virtual}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/risk_singling_out", tags=["results"])
@@ -182,7 +182,7 @@ def get_risk_singling_out(identifier: str):
         risk_singling_out = np.load('datasets/{}/results/risk_singling_out.npy'.format(identifier)).item()
         return {"risk": risk_singling_out}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/risk_linkability", tags=["results"])
@@ -191,7 +191,7 @@ def get_risk_linkability(identifier: str):
         risk_linkability = np.load('datasets/{}/results/risk_linkability.npy'.format(identifier)).item()
         return {"risk": risk_linkability}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/risk_inference", tags=["results"])
@@ -200,7 +200,7 @@ def get_risk_inference(identifier: str):
         risk_inference = np.load('datasets/{}/results/risk_inference.npy'.format(identifier)).item()
         return {"risk": risk_inference}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results", tags=["export"])
@@ -230,7 +230,10 @@ def get_available_violin_plots(identifier: str):
 
 @app.get("/datasets/{identifier}/plots/violin/{name}", tags=["results"])
 def get_violin_plot(identifier: str, name: str):
+    if name not in get_available_violin_plots(identifier)["available_columns"]:
+        raise HTTPException(status_code=404, detail="No plot found in {} for name {}.".format(identifier, name))
     return FileResponse('datasets/{}/plots/violin/{}.png'.format(identifier, name))
+        
 
 
 @app.get("/datasets/{identifier}/plots/correlation", tags=["results"])
