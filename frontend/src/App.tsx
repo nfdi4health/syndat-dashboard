@@ -6,6 +6,7 @@ import Header from "./components/structure/Header";
 import DatasetSummaryPage from "./pages/DatasetSummaryPage";
 import InputPage from "./pages/InputPage";
 import ResultsPage from "./pages/ResultsPage";
+import HomePage from "./pages/HomePage";
 
 class App extends React.Component {
 
@@ -14,7 +15,7 @@ class App extends React.Component {
         <BrowserRouter>
           <Header />
           <Routes>
-            <Route path="/" element={<InputPage />} />
+            <Route path="/" element={<HomePage/>} />
             <Route path="results" element={<ResultsPage />} />
             <Route path="results/summary" element={<DatasetSummaryPage />} />
             <Route path="input" element={<InputPage />} />
