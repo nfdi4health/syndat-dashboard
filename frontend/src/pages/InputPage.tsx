@@ -1,4 +1,3 @@
-import React from "react";
 import OutputUpload from "../components/input/DataUpload";
 import "./InputPage.css";
 
