@@ -1,25 +1,30 @@
+import io
 import os
 import shutil
 from distutils.dir_util import copy_tree
+import zipfile
+from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.security import HTTPBasicCredentials
 
 import numpy as np
 import logging
 
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse, RedirectResponse, Response
 
 from api import processing
-from api.data_loader import load_data_decoded, load_virtual_patients_decoded
+from api.data_loader import create_datasets_archive, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
 from api.filtering import get_column_types, get_similar_patients
+from api.auth import authenticate_user, init_credentials
 
 app = FastAPI(
     title="SYNDAT API",
     description="API interface to access programmatic functionalities of SYNDAT.",
-    version="0.6.3",
+    version="0.6.4",
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
@@ -40,7 +45,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class ColumnTypeResponse(BaseModel):
     name: str
@@ -66,6 +70,11 @@ class ColumnConstraintList(BaseModel):
 
 logger = logging.getLogger("uvicorn.info")
 
+
+@app.on_event("startup")
+async def startup_event():
+    init_credentials()
+    logger.info("Successfully initialized credentials.")
 
 @app.get("/", include_in_schema=False)
 def swagger_redirect():
@@ -393,3 +402,32 @@ def get_latest_cache_change_synthetic_patients():
     filename = "datasets/default/patients/synthetic.csv"
     filestat = os.stat(filename)
     return filestat.st_mtime
+
+@app.post("/datasets/import", tags=["import"])
+def upload_datasets_resources(file: UploadFile = File(...), credentials: HTTPBasicCredentials = Depends(authenticate_user)):
+    # check if the file is a zip archive
+    if not file.filename.endswith(".zip"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only .zip files are accepted.")
+    # save the uploaded file
+    archive_path = f"/tmp/{file.filename}"
+    with open(archive_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    # validate archive structure
+    errors = validate_datasets_archive_structure(archive_path)
+    if errors:
+        os.remove(archive_path)
+        return JSONResponse(content={"errors": errors}, status_code=400)
+    # extract files to /datasets folder
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        zip_ref.extractall("datasets")
+    # clear tmp
+    os.remove(archive_path)
+    return JSONResponse(content={"message": "Files extracted successfully"})
+
+
+@app.post("/datasets/export", tags=["export"])
+def download_datasets_resources(credentials: HTTPBasicCredentials = Depends(authenticate_user)):
+    archive_content = create_datasets_archive()
+    return StreamingResponse(io.BytesIO(archive_content), media_type="application/zip", headers={
+        "Content-Disposition": "attachment; filename=datasets_archive.zip"
+    })
