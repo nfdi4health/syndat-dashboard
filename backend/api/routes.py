@@ -360,6 +360,8 @@ def create_new_dataset_based_on_current_results(identifier: str):
         raise HTTPException(status_code=423, detail="A resource with the requested identifier already exists.")
     else:
         new_dir_name = "datasets/" + identifier
+        # clear real data before copying
+        os.remove("datasets/default/patients/real.csv")
         os.mkdir(new_dir_name)
         copy_tree("datasets/default", new_dir_name)
         return {"message": f"Successfully created dataset {identifier}"}
