@@ -220,7 +220,6 @@ def get_results_compiled(identifier: str):
 @app.get("/datasets/{identifier}/plots/violin", tags=["results"])
 def get_available_violin_plots(identifier: str):
     columns = []
-    print(identifier)
     for filename in os.listdir("datasets/{}/plots/violin".format(identifier)):
         if filename.endswith(".png"):
             # remove file ending and append to list
