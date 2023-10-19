@@ -5,6 +5,7 @@ import DatasetsEvaluationComparisionChart from "../components/results/summary/Da
 import AxiosUtils from "../utils/AxiosUtils";
 import ScoreUtils from "../utils/ScoreUtils";
 import "./ResultsPage.css";
+import { Container } from "react-bootstrap";
 
 type State = {
   datasets: string[];
@@ -57,9 +58,9 @@ class ResultsSummaryPage extends React.Component<{}, State> {
       return (
         <DatasetsEvaluationComparisionChart
           datasets={this.state.datasets}
-          auc={this.state.auc}
-          jsd={this.state.jsd}
-          norm={this.state.norm}
+          metric1={this.state.auc}
+          metric2={this.state.jsd}
+          metric3={this.state.norm}
         />
       );
     } else {
@@ -70,12 +71,20 @@ class ResultsSummaryPage extends React.Component<{}, State> {
   render() {
     if (this.state.dataReady === true) {
       return (
-        <DatasetsEvaluationComparisionChart
+        <Container>
+          <h2>Quality summary</h2>
+          <DatasetsEvaluationComparisionChart
           datasets={this.state.datasets}
-          auc={this.state.auc}
-          jsd={this.state.jsd}
-          norm={this.state.norm}
+          metric1={this.state.auc}
+          metric2={this.state.jsd}
+          metric3={this.state.norm}
+          metric1Label="ROC Area Under Curve"
+          metric2Label="Jensen–Shannon divergence"
+          metric3Label="Correlation Quotient"
+          plotTitle="Quality Score"
         />
+        </Container>
+
       );
     } else {
       return <CircularProgress />;
