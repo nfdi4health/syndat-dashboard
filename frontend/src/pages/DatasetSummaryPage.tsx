@@ -12,6 +12,9 @@ type State = {
   auc: number[];
   jsd: number[];
   norm: number[];
+  singlingOutRisk: number[];
+  linkabilityRisk: number[];
+  inferenceRisk: number[];
   dataReady: boolean;
 };
 
@@ -23,6 +26,9 @@ class ResultsSummaryPage extends React.Component<{}, State> {
       auc: [],
       jsd: [],
       norm: [],
+      singlingOutRisk: [],
+      linkabilityRisk: [],
+      inferenceRisk: [],
       dataReady: false,
     };
     this.getAvailableDatasets();
@@ -34,38 +40,38 @@ class ResultsSummaryPage extends React.Component<{}, State> {
       .then((response) => response.data)
       .then((data) => {
         data.forEach(async (dataset: string) => {
-          console.log(dataset)
+          console.log(dataset);
           let auc = await AxiosUtils.getAUC(dataset);
           let jsd = await AxiosUtils.getJSD(dataset);
           let norm = await AxiosUtils.getNorm(dataset);
+          let singlingOutRisk = await AxiosUtils.getSinglingOutRisk(dataset);
+          let inferenceRisk = await AxiosUtils.getInferenceRisk(dataset);
+          let linkabilityRisk = await AxiosUtils.getLinkabilityRisk(dataset);
           this.setState({
             datasets: [...this.state.datasets, dataset],
             auc: [...this.state.auc, ScoreUtils.calculateAucScore(auc)],
             jsd: [...this.state.jsd, ScoreUtils.calculateJsdScore(jsd)],
-            norm: [...this.state.norm, ScoreUtils.calculateNormScore(norm),],
+            norm: [...this.state.norm, ScoreUtils.calculateNormScore(norm)],
+            singlingOutRisk: [
+              ...this.state.singlingOutRisk,
+              ScoreUtils.calculatePrivacyScore(singlingOutRisk),
+            ],
+            inferenceRisk: [
+              ...this.state.inferenceRisk,
+              ScoreUtils.calculatePrivacyScore(inferenceRisk),
+            ],
+            linkabilityRisk: [
+              ...this.state.linkabilityRisk,
+              ScoreUtils.calculatePrivacyScore(linkabilityRisk),
+            ],
           });
         });
-        console.log(this.state)
+        console.log(this.state);
       })
       .then(() => {
         this.setState({ dataReady: true });
-        console.log("ready")
+        console.log("ready");
       });
-  }
-
-  renderChart() {
-    if (this.state.dataReady === true) {
-      return (
-        <DatasetsEvaluationComparisionChart
-          datasets={this.state.datasets}
-          metric1={this.state.auc}
-          metric2={this.state.jsd}
-          metric3={this.state.norm}
-        />
-      );
-    } else {
-      return <CircularProgress />;
-    }
   }
 
   render() {
@@ -74,22 +80,31 @@ class ResultsSummaryPage extends React.Component<{}, State> {
         <Container>
           <h2>Quality summary</h2>
           <DatasetsEvaluationComparisionChart
-          datasets={this.state.datasets}
-          metric1={this.state.auc}
-          metric2={this.state.jsd}
-          metric3={this.state.norm}
-          metric1Label="ROC Area Under Curve"
-          metric2Label="Jensen–Shannon divergence"
-          metric3Label="Correlation Quotient"
-          plotTitle="Quality Score"
-        />
+            datasets={this.state.datasets}
+            metric1={this.state.auc}
+            metric2={this.state.jsd}
+            metric3={this.state.norm}
+            metric1Label="ROC Area Under Curve"
+            metric2Label="Jensen–Shannon divergence"
+            metric3Label="Correlation Quotient"
+            plotTitle="Quality Score"
+          />
+          <h2>Privacy summary</h2>
+          <DatasetsEvaluationComparisionChart
+            datasets={this.state.datasets}
+            metric1={this.state.singlingOutRisk}
+            metric2={this.state.inferenceRisk}
+            metric3={this.state.linkabilityRisk}
+            metric1Label="Singling Out Risk"
+            metric2Label="Inference Risk"
+            metric3Label="Linkability Risk"
+            plotTitle="Risk Score"
+          />
         </Container>
-
       );
     } else {
       return <CircularProgress />;
     }
-
   }
 }
 
