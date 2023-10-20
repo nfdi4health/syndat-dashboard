@@ -3,9 +3,13 @@ import Plot from "react-plotly.js";
 
 type Props = {
     datasets: string[];
-    auc: number[];
-    jsd: number[];
-    norm: number[];
+    metric1: number[];
+    metric2: number[];
+    metric3: number[];
+    metric1Label: string;
+    metric2Label: string;
+    metric3Label: string;
+    plotTitle: string
 };
 
 class DatasetsEvaluationComparisionChart extends React.Component<Props, {}> {
@@ -15,28 +19,28 @@ class DatasetsEvaluationComparisionChart extends React.Component<Props, {}> {
         data={[
           {
             x: this.props.datasets,
-            y: this.props.auc,
-            text: this.props.auc.map(element => element.toString()),
+            y: this.props.metric1,
+            text: this.props.metric1.map(element => element.toString()),
             type: "bar",
-            name: "ROC Area Under Curve Score",
+            name: this.props.metric1Label,
           },
           {
             x: this.props.datasets,
-            y: this.props.jsd,
-            text: this.props.jsd.map(element => element.toString()),
+            y: this.props.metric2,
+            text: this.props.metric2.map(element => element.toString()),
             type: "bar",
-            name: "Jensen-Shannon Divergence Score",
+            name: this.props.metric2Label,
           },
           {
             x: this.props.datasets,
-            y: this.props.norm,
-            text: this.props.norm.map(element => element.toString()),
+            y: this.props.metric3,
+            text: this.props.metric3.map(element => element.toString()),
             type: "bar",
-            name: "Norm Quotient Score",
+            name: this.props.metric3Label,
 
           }
         ]}
-        layout={{ barmode: "group", title: "Dataset Evaluation", width:1200}}
+        layout={{ barmode: "group", title: this.props.plotTitle, width:1200}}
       ></Plot>
     );
   }

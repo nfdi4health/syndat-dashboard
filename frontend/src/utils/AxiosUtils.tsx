@@ -36,4 +36,43 @@ export default class AxiosUtils {
     });
   }
 
+  static getSinglingOutRisk = async (dataset: string) => {
+    return await axios
+    .get(
+      `${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/results/risk_singling_out`
+    )
+    .then((response) => {
+      return response.data.risk;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  static getLinkabilityRisk = async (dataset: string) => {
+    return await axios
+    .get(
+      `${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/results/risk_linkability`
+    )
+    .then((response) => {
+      return response.data.risk;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  static getInferenceRisk = async (dataset: string) => {
+    return await axios
+    .get(
+      `${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/results/risk_inference`
+    )
+    .then((response) => {
+      return response.data.risk;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
 }
