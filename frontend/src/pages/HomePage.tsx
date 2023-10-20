@@ -119,7 +119,7 @@ function HomePage() {
         the score displays can be hovered over to display a tooltip with more
         information about each respective metric. The privacy scores use
         implemented metrics by anonymeter, for implementation details please
-        refer to <a href="https://arxiv.org/abs/2211.10459">their papaer</a>.
+        refer to <a href="https://arxiv.org/abs/2211.10459">their paper</a>.
       </p>
       <img src="home/syndat_tutorial_results_3_4.png" alt=""></img>
       <p>
