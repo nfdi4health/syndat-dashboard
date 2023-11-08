@@ -8,7 +8,7 @@ SYNDAT was developed as part of TA6.4 of the [NFDI4Health Initiative](https://ww
 - Automated, on-demand assesment of synthetic data quality & privacy metrics
 - Visualization synthetic & real data relations using low-dimensional embedding plots
 - Detection of possible outliers in the synthetic data population
-- Visualization of distribution metrics such as violin or correlation plots
+- Visualization of distribution metrics in the form of violin, barchart or correlation plots
 - Filtering of synthetic data & on-demand generation of synthetic data points
 
 The Dashboard consists of a frontend module for user interaction and data visualization as well as a backend module for direct API access.
