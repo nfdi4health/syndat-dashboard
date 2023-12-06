@@ -93,7 +93,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
               value={ScoreUtils.calculateAucScore(this.state.auc)}
               maxValue={100}
             />
-            <h4>Classification Score</h4>
+            <h4>Discrimination Complexity</h4>
             <OverlayTrigger
               placement="right"
               delay={{ show: 250, hide: 400 }}
