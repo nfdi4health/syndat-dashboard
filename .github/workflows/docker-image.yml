@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["scai"]
   pull_request:
-    branches: ["main"]
+    branches: ["scai"]
 
 jobs:
 
@@ -43,14 +43,14 @@ jobs:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/frontend:latest, ghcr.io/${{ github.repository }}/frontend:${{ steps.versions.outputs.FRONTEND_VERSION }}
+        tags: ghcr.io/${{ github.repository }}/frontend:latest-scai, ghcr.io/${{ github.repository }}/frontend:${{ steps.versions.outputs.FRONTEND_VERSION }}-scai
     - name: Build & push backend
       uses: docker/build-push-action@v2
       with:
         context: ./backend
         file: ./backend/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/backend:latest, ghcr.io/${{ github.repository }}/backend:${{ steps.versions.outputs.BACKEND_VERSION }}
+        tags: ghcr.io/${{ github.repository }}/backend:latest-scai, ghcr.io/${{ github.repository }}/backend:${{ steps.versions.outputs.BACKEND_VERSION }}-scai
 
 
 
