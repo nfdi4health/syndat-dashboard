@@ -29,16 +29,15 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
   }
 
   colors = [
-    '#53b83a',
-    '#84c42b',
-    '#f1bc00',
-    '#ed8d00',
-    '#ed8d00',
-    '#d12000',
-    '#d12000',
-    '#d12000',
+    "#53b83a",
+    "#84c42b",
+    "#f1bc00",
+    "#ed8d00",
+    "#ed8d00",
+    "#d12000",
+    "#d12000",
+    "#d12000",
   ];
-
 
   // update plots if props (-> dataset) changes
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -108,11 +107,15 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
         <h2>Privacy Evaluation Results:</h2>
         <Row>
           <Col></Col>
-          <Col className="newFeatureAltert">
+          <Col className="citationBox">
             {" "}
-            <Alert severity="warning">
-              Experimental feature, results may deviate.
-            </Alert>{" "}
+            <Alert severity="info">
+              <b>Displayed Metrics are based on:</b><br/>
+              Giomi, Matteo, et al. "A Unified Framework for Quantifying Privacy
+              Risk in Synthetic Data." <i>arXiv</i> preprint{" "}
+              <a href="https://arxiv.org/abs/2211.10459">arXiv:2211.10459</a>{" "}
+              (2022).
+            </Alert>
           </Col>
           <Col></Col>
         </Row>
@@ -120,9 +123,10 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
           <Col>
             {" "}
             <ReactScoreIndicator
-              value={100 - ScoreUtils.calculatePrivacyScore(
-                this.state.singling_out_risk
-              )}
+              value={
+                100 -
+                ScoreUtils.calculatePrivacyScore(this.state.singling_out_risk)
+              }
               maxValue={100}
               stepsColors={this.colors}
             />
@@ -138,9 +142,10 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
           <Col>
             {" "}
             <ReactScoreIndicator
-              value={100 - ScoreUtils.calculatePrivacyScore(
-                this.state.linkability_risk
-              )}
+              value={
+                100 -
+                ScoreUtils.calculatePrivacyScore(this.state.linkability_risk)
+              }
               maxValue={100}
               stepsColors={this.colors}
             />
@@ -156,9 +161,10 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
           <Col>
             {" "}
             <ReactScoreIndicator
-              value={100 - ScoreUtils.calculatePrivacyScore(
-                this.state.inference_risk
-              )}
+              value={
+                100 -
+                ScoreUtils.calculatePrivacyScore(this.state.inference_risk)
+              }
               maxValue={100}
               stepsColors={this.colors}
             />
