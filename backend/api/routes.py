@@ -24,7 +24,7 @@ from api.auth import authenticate_user, init_credentials
 app = FastAPI(
     title="SYNDAT API",
     description="API interface to access programmatic functionalities of SYNDAT.",
-    version="0.6.4",
+    version="0.7.0",
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
@@ -232,7 +232,8 @@ def get_available_violin_plots(identifier: str):
     for filename in os.listdir("datasets/{}/plots/violin".format(identifier)):
         if filename.endswith(".png"):
             # remove file ending and append to list
-            columns.append(filename.split(".")[0])
+            basename, extension = os.path.splitext(filename)
+            columns.append(basename)
     return {"available_columns": columns}
 
 
