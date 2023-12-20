@@ -73,7 +73,7 @@ The following two API endpoints for batch upating data as well as batch dowloadi
 -  /datasets/import
 -  /datasets/import
 
-The default username/password are defined in the [backend environment file](https://github.com/elg34/VAMBN/tree/master/helper). You may change before the application startup by adapting the corresponding system environment variables:
+The default username/password are defined in the [backend environment file](https://github.com/elg34/VAMBN/tree/master/helper). You may change them before the application startup by adapting the corresponding system environment variables:
 
 ```bash
 export SYNDAT_ADMIN_USERNAME=my_new_username
