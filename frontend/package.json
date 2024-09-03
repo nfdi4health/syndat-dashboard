@@ -1,6 +1,6 @@
 {
   "name": "syndat-frontend",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.7.1",
