@@ -2,7 +2,6 @@ import axios from "axios";
 import { Switch } from "@mui/material";
 import * as React from "react";
 import Plot from "react-plotly.js";
-import PatientSelector from "./PatientSelector";
 
 type CoordinateList = {
   x: [];
@@ -229,11 +228,6 @@ class OutlierPlot extends React.Component<Props, State> {
     return (
       <div>
         <h2>Inspect Outliers:</h2>
-        <PatientSelector
-          index={this.state.selectedIndex}
-          clickHandler={this.removeCurrentDataPoint}
-          dataset={this.props.dataset}
-        />
         <p>
           Show patient distributions{" "}
           <Switch onClick={this.handleDisplaySwitchClick.bind(this)} /> Show
