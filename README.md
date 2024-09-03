@@ -67,4 +67,15 @@ cd frontend && npm start
 
 You may alternatively start the backend and frontend servers using the make command `make run-local`, given you have all required python dependencies installed already.
 
+## API authentification
 
+The following two API endpoints for batch upating data as well as batch dowloading data are secured by a basic authentification workflow:
+-  /datasets/import
+-  /datasets/export
+
+The default username/password are defined in the [backend environment file](https://github.com/elg34/VAMBN/tree/master/helper). You may change them before the application startup by adapting the corresponding system environment variables:
+
+```bash
+export SYNDAT_ADMIN_USERNAME=my_new_username
+export SYNDAT_ADMIN_PASSWORD=my_new_password
+```
