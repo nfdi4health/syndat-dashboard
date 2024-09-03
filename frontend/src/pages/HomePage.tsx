@@ -29,10 +29,6 @@ function HomePage() {
           Visualization of distribution metrics such as violin or correlation
           plots
         </li>
-        <li>
-          Filtering of synthetic data & on-demand generation of synthetic data
-          points
-        </li>
       </ul>
       <p>
         The Dashboard consists of a frontend module for user interaction and
@@ -126,9 +122,7 @@ function HomePage() {
         You can inspect a low dimensional 2D embedding of the original and
         synthetic data distribution on the interactive patient plot component{" "}
         <b>(5)</b>. The component allows you to inspect the general distribution
-        of the data, as well as manually inspect individual synthetic data
-        points by clicking them in the plot and hitting the <b>Inspect</b>{" "}
-        button <b>(6)</b>. The general view of the component can be switched to
+        of the data. The general view of the component can be switched to
         an "outlier" view by toggling the switch <b>(7)</b> above the plot. The
         outlier view displays a heatmap scoring of each synthetic data point,
         depicting the propability that the respective data point is likely to be
@@ -136,7 +130,7 @@ function HomePage() {
         derived by applying the Isolation Forest algorithm on the synthetic
         data.
       </p>
-      <img src="home/syndat_tutorial_results_5_6_7.png" alt=""></img>
+      <img src="home/syndat_tutorial_results_5_6_7_updated.png" alt=""></img>
       <p>
         You can also compare the original with the synhetic patient distribution
         for each individual feature using the feature plot component. Using the
@@ -154,19 +148,6 @@ function HomePage() {
         and synthetic data using the switch <b>(10)</b> on top of the component.
       </p>
       <img src="home/syndat_tutorial_results_10.png" alt=""></img>
-      <p>
-        Using the last component of the results page, it is possible to filter
-        synthetic patients for specific characteristics and return a number of
-        similar synthetic patients that should match the specified
-        characteristics. To filter the synthetic data, value ranges can be
-        specified for numerical features by adjusting the sliders <b>(11)</b> to
-        the desired range. For categorical features, the desired values can be
-        choosen by selecting the corresponding value in the dropdown compoennt{" "}
-        <b>(12)</b>. By hitting the "submit" button <b>(13)</b>, a list of
-        synthetic patients will be rendered below the form that match the
-        desired patient characteristics.
-      </p>
-      <img src="home/syndat_tutorial_results_11_12_13.png" alt=""></img>
     </Container>
   );
 }

@@ -5,7 +5,6 @@ import ChooseDatasetDropdown from "../components/results/ChooseDatasetDropdown";
 import ClassifierReport from "../components/results/ClassifierReport";
 import CorrelationPlot from "../components/results/CorrelelationPlot";
 import OutlierPlot from "../components/results/OutlierPlot";
-import PatientSearchForm from "../components/results/PatientSearchForm";
 import PlotSelector from "../components/results/PlotSelector";
 import "./ResultsPage.css";
 import PrivacyReport from "../components/results/PrivacyReport";
@@ -65,7 +64,6 @@ class ResultsPage extends React.Component<{}, State> {
         <OutlierPlot dataset={this.state.dataset} />
         <PlotSelector dataset={this.state.dataset} />
         <CorrelationPlot dataset={this.state.dataset} />
-        <PatientSearchForm dataset={this.state.dataset} />
       </div>
     );
   }

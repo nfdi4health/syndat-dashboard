@@ -9,47 +9,27 @@ SYNDAT was developed as part of TA6.4 of the [NFDI4Health Initiative](https://ww
 - Visualization synthetic & real data relations using low-dimensional embedding plots
 - Detection of possible outliers in the synthetic data population
 - Visualization of distribution metrics in the form of violin, barchart or correlation plots
-- Filtering of synthetic data & on-demand generation of synthetic data points
 
 The Dashboard consists of a frontend module for user interaction and data visualization as well as a backend module for direct API access.
 
 ## Installation
 
-### Using Github Docker Registry
+### Docker
 
-Login to your Github Docker Account:
-
-```bash
-docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_TOKEN
-```
-
-Run the `docker-compose` file in the root directory:
+You can run a local installation using `docker-compse`:
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose.local.yaml up
 ```
 
-### Building the containers from source
+After startup, you will find the frontend running on [localhost:3000](http://localhost:3000).
+
+### Running a local development version
 
 #### Requirements
 
-- [NodeJS 18.x +](https://nodejs.org/de)
-- [Docker Compose 2.x +](https://docs.docker.com/compose/)
-- [GNU Make](https://www.gnu.org/software/make/manual/make.html)
-
-Given all dependencies above are satisfied, both the frontend and backend can be started via `docker-compse` with a single make command using the designated Makefile in the root dir:
-
-```bash
-make up
-```
-
-### Running a local development version (without docker)
-
-#### Requirements
-
-- [NodeJS 16.x +](https://nodejs.org/de)
+- [NodeJS 16.x](https://nodejs.org/de)
 - [Python 3.x.x](https://www.python.org/downloads/)
-
 
 ```bash
 # install python dependencies
@@ -65,15 +45,13 @@ cd frontend; npm install --legacy-peer-deps
 cd frontend && npm start
 ```
 
-You may alternatively start the backend and frontend servers using the make command `make run-local`, given you have all required python dependencies installed already.
-
 ## API authentification
 
 The following two API endpoints for batch upating data as well as batch dowloading data are secured by a basic authentification workflow:
 -  /datasets/import
 -  /datasets/export
 
-The default username/password are defined in the [backend environment file](https://github.com/elg34/VAMBN/tree/master/helper). You may change them before the application startup by adapting the corresponding system environment variables:
+The default username/password are defined in the [backend environment file](https://github.com/nfdi4health/syndat-dashboard/blob/main/backend/.env). You may change them before the application startup by adapting the corresponding system environment variables:
 
 ```bash
 export SYNDAT_ADMIN_USERNAME=my_new_username
