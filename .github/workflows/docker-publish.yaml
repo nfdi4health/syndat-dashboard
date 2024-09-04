@@ -45,8 +45,8 @@ jobs:
     - name: Build & push api
       uses: docker/build-push-action@v2
       with:
-        context: ./api
-        file: ./api/Dockerfile
+        context: ./backend
+        file: ./backend/Dockerfile
         push: true
         tags: |
           ghcr.io/${{ github.repository }}/backend:latest
