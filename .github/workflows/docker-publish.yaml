@@ -31,7 +31,7 @@ jobs:
         cd frontend
         echo "REACT_APP_API_BASE_URL=https://api.syndat.scai.fraunhofer.de" > .env
         npm install --legacy-peer-deps
-        npm ci --loglevel verbose --userconfig npmrc --max-old-space-size=16096 -legacy-peer-deps
+        npm ci --userconfig npmrc --max-old-space-size=16096 -legacy-peer-deps
         npm run build --userconfig npmrc --max-old-space-size=16096
     - name: Build & push frontend
       uses: docker/build-push-action@v2
