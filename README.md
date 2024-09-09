@@ -14,6 +14,17 @@ The Dashboard consists of a frontend module for user interaction and data visual
 
 ## Installation
 
+### Python API
+
+If you want to use the cortesponding python package that supports both evaluation metrics and visualizations programatically, you can install it using:
+
+```bash
+pip install syndat
+```
+
+Documentation and Code are available from the following project:
+[https://github.com/SCAI-BIO/syndat](https://github.com/SCAI-BIO/syndat)
+
 ### Docker
 
 You can run a local installation using `docker-compse`:
