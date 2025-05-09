@@ -68,12 +68,12 @@ class OutputUpload extends React.Component {
               <Col>
                 <h3>Real Data</h3>
                 <UploadForm dataType={DataType.real} />
-                <LastChangedBadge resource={"patients/real/date"} />
+                <LastChangedBadge resource={"patients/real/last-update"} />
               </Col>
               <Col>
                 <h3>Synthetic Data</h3>
                 <UploadForm dataType={DataType.synthetic} />
-                <LastChangedBadge resource={"patients/synthetic/date"} />
+                <LastChangedBadge resource={"patients/synthetic/last-update"} />
               </Col>
             </Row>
           </Container>
@@ -83,7 +83,7 @@ class OutputUpload extends React.Component {
             <Row>
               <h2>Backend result re-processing</h2>
               <ProcessingPanel/>
-              <LastChangedBadge resource={"results/date"} />
+              <LastChangedBadge resource={"results/last-update"} />
             </Row>
           </Container>
         </Card>

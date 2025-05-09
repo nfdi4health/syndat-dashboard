@@ -384,21 +384,21 @@ async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
 
 
-@app.get("/datasets/default/results/date", tags=["info"])
+@app.get("/datasets/default/results/last-update", tags=["info"])
 def get_latest_cache_change_date():
     filename = "datasets/default/results/auc.npy"
     filestat = os.stat(filename)
     return filestat.st_mtime
 
 
-@app.get("/datasets/default/patients/real/date", tags=["info"])
+@app.get("/datasets/default/patients/real/last-update", tags=["info"])
 def get_latest_cache_real_patients():
     filename = "datasets/default/patients/real.csv"
     filestat = os.stat(filename)
     return filestat.st_mtime
 
 
-@app.get("/datasets/default/patients/synthetic/date", tags=["info"])
+@app.get("/datasets/default/patients/synthetic/last-update", tags=["info"])
 def get_latest_cache_change_synthetic_patients():
     filename = "datasets/default/patients/synthetic.csv"
     filestat = os.stat(filename)
