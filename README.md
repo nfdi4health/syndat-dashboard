@@ -50,6 +50,7 @@ pip install --requirement backend/requirements.txt
 cd backend && uvicorn api.routes:app --reload
 
 # install node dependencies
+export NODE_OPTIONS=--openssl-legacy-provider
 cd frontend; npm install --legacy-peer-deps
 
 # start frontend
