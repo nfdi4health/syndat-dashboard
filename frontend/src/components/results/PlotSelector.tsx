@@ -1,12 +1,14 @@
 import axios from "axios";
 import React from "react";
 import Select from "react-select";
-import { Container } from "react-bootstrap";
+import { Container, Alert, Spinner } from "react-bootstrap";
 
 type State = {
-  plotList: any;
-  selectedOption: any;
-  availablePlots: any;
+  plotList: string[];
+  selectedOption: { value: string; label: string } | null;
+  availablePlots: { value: string; label: string }[];
+  isLoading: boolean;
+  error: string | null;
 };
 
 type Props = {
@@ -14,54 +16,59 @@ type Props = {
 };
 
 class PlotSelector extends React.Component<Props, State> {
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      plotList: [""],
-      availablePlots: [{ value: "", label: "" }],
-      selectedOption: { value: "", label: "" },
+      plotList: [],
+      availablePlots: [],
+      selectedOption: null,
+      isLoading: true,
+      error: null,
     };
-    this.handleDropdownChange = this.handleDropdownChange.bind(this);
+  }
+
+  componentDidMount() {
     this.getPlotList();
   }
 
-  // update plots if props (-> dataset) changes
-  componentDidUpdate(prevProps: any, prevState: any) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.dataset !== this.props.dataset) {
       this.getPlotList();
     }
   }
 
   getPlotList() {
+    this.setState({ isLoading: true, error: null });
+
     axios
       .get(
         `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/violin`
       )
-      .then((response) => response.data)
-      .then((data) => {
-        this.setState({ plotList: data.available_columns });
-      })
-      .then(() =>
+      .then((response) => {
+        const plotList = response.data?.available_columns || [];
+        if (plotList.length === 0) {
+          throw new Error("No plots available for this dataset.");
+        }
+        const availablePlots = plotList.map((x: string) => ({
+          value: x,
+          label: x,
+        }));
         this.setState({
-          selectedOption: {
-            value: this.state.plotList,
-            label: this.state.plotList,
-          },
-        })
-      )
-      .then(() =>
-        this.setState({ availablePlots: this.mapPlotList(this.state.plotList) })
-      )
-      .then(() =>
-        this.setState({ selectedOption: this.state.availablePlots[0] })
-      );
-  }
-
-  mapPlotList(initial: any) {
-    var mapped = initial.map((x: any) => {
-      return { value: x, label: x };
-    });
-    return mapped;
+          plotList,
+          availablePlots,
+          selectedOption: availablePlots[0],
+          isLoading: false,
+        });
+      })
+      .catch((error) => {
+        this.setState({
+          error: error.message || "Failed to load plots.",
+          isLoading: false,
+          plotList: [],
+          availablePlots: [],
+          selectedOption: null,
+        });
+      });
   }
 
   handleDropdownChange = (selectedOption: any) => {
@@ -69,18 +76,33 @@ class PlotSelector extends React.Component<Props, State> {
   };
 
   render() {
+    const { availablePlots, selectedOption, isLoading, error } = this.state;
+    const { dataset } = this.props;
+
     return (
       <Container>
-        <h2>Inspect Plots: </h2>
-        <Select
-          options={this.state.availablePlots}
-          onChange={this.handleDropdownChange}
-        />
-        <img
-          className="kld-plot"
-          src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/violin/${this.state.selectedOption.value}`}
-          alt={"KLD plot"}
-        />
+        <h2>Inspect Plots:</h2>
+
+        {isLoading && <Spinner animation="border" role="status" />}
+
+        {error && <Alert variant="warning">{error}</Alert>}
+
+        {!isLoading && !error && availablePlots.length > 0 && (
+          <>
+            <Select
+              options={availablePlots}
+              onChange={this.handleDropdownChange}
+              value={selectedOption}
+            />
+            {selectedOption && (
+              <img
+                className="kld-plot mt-3"
+                src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/plots/violin/${selectedOption.value}`}
+                alt={`Plot for ${selectedOption.label}`}
+              />
+            )}
+          </>
+        )}
       </Container>
     );
   }
