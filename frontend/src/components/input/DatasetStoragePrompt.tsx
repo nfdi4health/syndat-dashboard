@@ -79,9 +79,9 @@ class DatasetStoragePrompt extends React.Component<{}, State> {
             />
           </Col>
           <Col className="button-col">
-            <Button variant="outlined" onClick={this.submitDatasetToStorage}>
+            <button onClick={this.submitDatasetToStorage}>
               Store current Results
-            </Button>
+            </button>
           </Col>
         </Row>
         <div className="uploadResponse">{this.renderUploadResponse()}</div>
