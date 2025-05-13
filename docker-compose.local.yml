@@ -19,3 +19,6 @@ services:
       dockerfile: Dockerfile
     ports:
     - "8000:80"
+    environment:
+      - SYNDAT_ADMIN_USERNAME=foo
+      - SYNDAT_ADMIN_PASSWORD=bar
