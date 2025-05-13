@@ -63,47 +63,45 @@ class OutputUpload extends React.Component {
         <Card variant="outlined">
           {" "}
           <Container>
-            <Row>
+            <Row className="uploadRow">
               <h2>Data Upload</h2>
-              <Col>
+              <Col className="uploadColumn">
                 <h3>Real Data</h3>
                 <UploadForm dataType={DataType.real} />
-                <LastChangedBadge resource={"patients/real/date"} />
+                <LastChangedBadge resource={"patients/real/last-update"} />
               </Col>
-              <Col>
+              <Col className="uploadColumn">
                 <h3>Synthetic Data</h3>
                 <UploadForm dataType={DataType.synthetic} />
-                <LastChangedBadge resource={"patients/synthetic/date"} />
+                <LastChangedBadge resource={"patients/synthetic/last-update"} />
               </Col>
             </Row>
           </Container>
         </Card>
-        <Card variant="outlined">
-          <Container>
-            <Row>
-              <h2>Backend result re-processing</h2>
-              <ProcessingPanel/>
-              <LastChangedBadge resource={"results/date"} />
-            </Row>
-          </Container>
-        </Card>
-        <Card variant="outlined">
-          <Container>
-          <h2>Store Results</h2>
+        <Container>
+          <Card variant="outlined" className="sectionCard">
+            <h2>Backend result re-processing</h2>
+            <ProcessingPanel />
+            <LastChangedBadge resource={"results/last-update"} />
+          </Card>
+        </Container>
+
+        <Container>
+          <Card variant="outlined" className="sectionCard">
+            <h2>Store Results</h2>
             <p>
-              You may store the current processed results on using a String
-              identifier. Peviously stored results can be selected using the
+              You may store the current processed results using a String
+              identifier. Previously stored results can be selected using the
               dataset dropdown on the top of the results page:
             </p>
             <Row>
               <Col>
-                {" "}
                 <DatasetStoragePrompt />
               </Col>
-              <Col></Col>
+              <Col />
             </Row>
-          </Container>
-        </Card>
+          </Card>
+        </Container>
       </div>
     );
   }

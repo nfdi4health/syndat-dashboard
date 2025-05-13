@@ -9,6 +9,9 @@ from fastapi.security import HTTPBasicCredentials
 import numpy as np
 import logging
 
+import syndat
+import pandas as pd
+
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
@@ -20,6 +23,7 @@ from api import processing
 from api.data_loader import create_datasets_archive, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
 from api.filtering import get_column_types, get_similar_patients
 from api.auth import authenticate_user, init_credentials
+
 
 app = FastAPI(
     title="SYNDAT API",
@@ -384,21 +388,21 @@ async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
 
 
-@app.get("/datasets/default/results/date", tags=["info"])
+@app.get("/datasets/default/results/last-update", tags=["info"])
 def get_latest_cache_change_date():
     filename = "datasets/default/results/auc.npy"
     filestat = os.stat(filename)
     return filestat.st_mtime
 
 
-@app.get("/datasets/default/patients/real/date", tags=["info"])
+@app.get("/datasets/default/patients/real/last-update", tags=["info"])
 def get_latest_cache_real_patients():
     filename = "datasets/default/patients/real.csv"
     filestat = os.stat(filename)
     return filestat.st_mtime
 
 
-@app.get("/datasets/default/patients/synthetic/date", tags=["info"])
+@app.get("/datasets/default/patients/synthetic/last-update", tags=["info"])
 def get_latest_cache_change_synthetic_patients():
     filename = "datasets/default/patients/synthetic.csv"
     filestat = os.stat(filename)
@@ -432,3 +436,18 @@ def download_datasets_resources(credentials: HTTPBasicCredentials = Depends(auth
     return StreamingResponse(io.BytesIO(archive_content), media_type="application/zip", headers={
         "Content-Disposition": "attachment; filename=datasets_archive.zip"
     })
+
+@app.patch("/datasets/default/patients/synthetic/postprocessing", status_code=201, tags=["processing"])
+def apply_post_processing_to_synthetic_data(normalize_scale: bool = False,
+                                            assert_minmax: bool = False,
+                                            normalize_float_precision: bool = False):
+    synthetic_data = pd.read_csv("datasets/default/patients/synthetic.csv")
+    real_data = pd.read_csv("datasets/default/patients/real.csv")
+    if normalize_scale:
+        synthetic_data = syndat.postprocessing.normalize_scale(real_data, synthetic_data)
+    if assert_minmax:
+        synthetic_data = syndat.postprocessing.assert_minmax(real_data, synthetic_data)
+    if normalize_float_precision:
+        synthetic_data = syndat.postprocessing.normalize_float_precision(real_data, synthetic_data)
+    synthetic_data.to_csv("datasets/default/patients/synthetic.csv", index=False)
+    return {"message": "Post-processing applied to synthetic data."}

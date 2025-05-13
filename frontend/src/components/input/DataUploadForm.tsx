@@ -3,12 +3,16 @@ import axios from "axios";
 import { Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { DataType } from "../../enums/DataType";
+import PostProcessingOptions, {
+  PostProcessingOptions as Options,
+} from "./PostProcessingOptions";
 
 type State = {
   selectedFile: any;
   uploadSuccess: Boolean;
   uploadFailure: Boolean;
   uploadResponseMessage: String;
+  postProcessingOptions: Options;
 };
 
 type Props = {
@@ -23,54 +27,76 @@ class UploadForm extends React.Component<Props, State> {
       uploadSuccess: false,
       uploadFailure: false,
       uploadResponseMessage: "",
+      postProcessingOptions: {
+        normalize_scale: false,
+        assert_minmax: false,
+        normalize_float_precision: false,
+      },
     };
-    this.renderUploadResponse = this.renderUploadResponse.bind(this);
   }
 
   onFileChange = (event: any) => {
     this.setState({ selectedFile: event.target.files[0] });
   };
 
-  onFileUpload = () => {
-    // reset response message state
+  onFileUpload = async () => {
     this.setState({
       uploadSuccess: false,
       uploadFailure: false,
       uploadResponseMessage: "",
     });
-    let responseMessage;
+
     const formData = new FormData();
-    formData.append(
-      "file",
-      this.state.selectedFile,
-      this.state.selectedFile.name
-    );
-    axios
-      .post(
+    formData.append("file", this.state.selectedFile, this.state.selectedFile.name);
+
+    try {
+      const uploadRes = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/datasets/default/patients/${this.props.dataType}`,
         formData
-      )
-      .then((response) => {
-        responseMessage = `Status ${response.status}: ${response.data.message}`;
-        this.setState({
-          uploadSuccess: true,
-          uploadResponseMessage: responseMessage,
-        });
-      })
-      .catch((error) => {
-        responseMessage = `Status ${error.response.status}: ${error.response.data.detail}`;
-        this.setState({
-          uploadFailure: true,
-          uploadResponseMessage: responseMessage,
-        });
+      );
+
+      let message = `Upload successful: ${uploadRes.status} ${uploadRes.data.message}`;
+
+      // Apply postprocessing if synthetic data and options selected
+      if (this.props.dataType === DataType.synthetic) {
+        const { normalize_scale, assert_minmax, normalize_float_precision } = this.state.postProcessingOptions;
+        if (normalize_scale || assert_minmax || normalize_float_precision) {
+          const postprocessRes = await axios.patch(
+            `${process.env.REACT_APP_API_BASE_URL}/datasets/default/patients/synthetic/postprocessing`,
+            {},
+            {
+              params: {
+                normalize_scale,
+                assert_minmax,
+                normalize_float_precision,
+              },
+            }
+          );
+          message += ` | Post-processing: ${postprocessRes.status} ${postprocessRes.data.message}`;
+        }
+      }
+
+      this.setState({
+        uploadSuccess: true,
+        uploadResponseMessage: message,
       });
+    } catch (error: any) {
+      const status = error?.response?.status ?? "Unknown";
+      const detail = error?.response?.data?.detail ?? error?.message ?? "Unknown error";
+      this.setState({
+        uploadFailure: true,
+        uploadResponseMessage: `Status ${status}: ${detail}`,
+      });
+    }
+  };
+
+  handlePostProcessingChange = (updated: Options) => {
+    this.setState({ postProcessingOptions: updated });
   };
 
   renderUploadResponse = () => {
     if (this.state.uploadSuccess) {
-      return (
-        <Alert severity="success">{this.state.uploadResponseMessage}</Alert>
-      );
+      return <Alert severity="success">{this.state.uploadResponseMessage}</Alert>;
     } else if (this.state.uploadFailure) {
       return <Alert severity="error">{this.state.uploadResponseMessage}</Alert>;
     } else {
@@ -83,10 +109,17 @@ class UploadForm extends React.Component<Props, State> {
       <Container>
         <div className="uploadForm">
           <input type="file" onChange={this.onFileChange} />
-          <button
-            onClick={this.onFileUpload}
-            disabled={this.state.selectedFile == null}
-          >
+          <br />
+          {this.props.dataType === DataType.synthetic && (
+            <div style={{ marginTop: "1rem" }}>
+              <h5>Postprocessing Options</h5>
+              <PostProcessingOptions
+                options={this.state.postProcessingOptions}
+                onChange={this.handlePostProcessingChange}
+              />
+            </div>
+          )}
+          <button onClick={this.onFileUpload} disabled={!this.state.selectedFile}>
             Upload
           </button>
         </div>

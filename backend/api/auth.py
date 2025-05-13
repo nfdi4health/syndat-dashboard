@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import HTTPException, Depends, Security
+from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import os
 
