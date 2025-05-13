@@ -1,17 +1,18 @@
 import React from "react";
 import { FormControlLabel, Checkbox, Tooltip } from "@mui/material";
 
-type Props = {
-  options: PostProcessingOptions;
-  onChange: (updated: PostProcessingOptions) => void;
-};
-
 export type PostProcessingOptions = {
-  normalize_scale: boolean;
-  assert_minmax: boolean;
-  normalize_float_precision: boolean;
-};
-
+    normalize_scale: boolean;
+    assert_minmax: boolean;
+    normalize_float_precision: boolean;
+  };
+  
+  type Props = {
+    options: PostProcessingOptions;
+    onChange: (updated: PostProcessingOptions) => void;
+  };
+  
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const PostProcessingOptions = ({ options, onChange }: Props) => {
   const handleChange = (key: keyof PostProcessingOptions) => {
     onChange({ ...options, [key]: !options[key] });
