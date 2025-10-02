@@ -31,11 +31,9 @@ function HomePage() {
         </li>
       </ul>
       <p>
-        The Dashboard consists of a frontend module for user interaction and
-        data visualization as well as a backend module for direct API access.
-        You can access the API page with the corresponding API documentation by
-        clikcing the API Version link in the upper right corner of the page
-        header.
+        We are currently working on extending SYNDAT for synthetic Randomized
+        Clinical Trial (RCT) data as part of the <a href="https://www.ihi-synthia.eu/">
+          SYNTHIA Collaboration</a>. 
       </p>
       <h3>Contact</h3>
       <p>
