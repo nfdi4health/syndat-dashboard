@@ -72,6 +72,7 @@
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-react": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
+    "@types/minimatch": "^6.0.0",
     "@types/plotly.js": "^1.54.17",
     "@types/react-plotly.js": "^2.5.0"
   }
