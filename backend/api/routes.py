@@ -252,11 +252,16 @@ def get_violin_plot(identifier: str, name: str):
 @app.get("/datasets/{identifier}/plots/correlation", tags=["results"])
 def get_correlation_plot(identifier: str, type: str):
     if type == "real":
-        return FileResponse('datasets/{}/plots/correlation/dec_rp.png'.format(identifier))
+        resp = FileResponse(f'datasets/{identifier}/plots/correlation/dec_rp.png')
     elif type == "virtual":
-        return FileResponse('datasets/{}/plots/correlation/dec_vp.png'.format(identifier))
+        resp = FileResponse(f'datasets/{identifier}/plots/correlation/dec_vp.png')
     else:
         raise HTTPException(status_code=400, detail="Plot type argument must be either real or virtual.")
+    # disable caching
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 
 @app.get("/datasets/{identifier}/plots", tags=["export"])

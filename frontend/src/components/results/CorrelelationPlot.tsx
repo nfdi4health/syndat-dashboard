@@ -36,7 +36,7 @@ class CorrelationPlot extends React.Component<Props, State> {
         <div>
           <img
             className="small"
-            src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}`}
+            src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}&t=${Date.now()}`}
             alt="correlation plot"
           />
         </div>
