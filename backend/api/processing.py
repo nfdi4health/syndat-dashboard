@@ -68,7 +68,7 @@ def get_outlier_scores(dataset_name):
     real, virtual = data_loader.load_data_decoded(data_root_dir)
     real_no_nan, virtual_no_nan = handle_nan_values(real, virtual)
     outlier_scores = classification.get_outliers(virtual_no_nan, anomaly_score=True)
-    np.save("datasets/" + dataset_name + "/plots/anomaly_scores.npy", outlier_scores)
+    np.save("datasets/" + dataset_name + "/results/anomaly_scores.npy", outlier_scores)
 
 
 def create_violin_plots(dataset_name):
