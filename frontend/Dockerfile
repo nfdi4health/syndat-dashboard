@@ -1,6 +1,7 @@
 FROM docker.io/library/nginx:alpine
 EXPOSE 80
-COPY ./build /var/www
+# Vite outputs to ./dist; copy it into nginx root
+COPY ./dist /var/www
 COPY nginx.conf.template /etc/nginx/nginx.conf
 RUN apk add --no-cache tzdata jq
 RUN cp /usr/share/zoneinfo/Europe/Brussels /etc/localtime
