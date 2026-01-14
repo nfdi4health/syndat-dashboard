@@ -1,1 +1,1 @@
-declare module 'react-score-indicator'
+// no longer needed: replaced by local ScoreIndicator component

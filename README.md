@@ -16,7 +16,7 @@ The Dashboard consists of a frontend module for user interaction and data visual
 
 ### Python API
 
-If you want to use the cortesponding python package that supports both evaluation metrics and visualizations programatically, you can install it using:
+If you want to use the corresponding Python package that supports both evaluation metrics and visualizations programmatically, you can install it using:
 
 ```bash
 pip install syndat
@@ -27,10 +27,10 @@ Documentation and Code are available from the following project:
 
 ### Docker
 
-You can run a local installation using `docker-compse`:
+You can run a local installation using `docker-compose`:
 
 ```bash
-docker-compose -f docker-compose.local.yaml up
+docker-compose -f docker-compose.local.yml up
 ```
 
 After startup, you will find the frontend running on [localhost:3000](http://localhost:3000).
@@ -39,7 +39,7 @@ After startup, you will find the frontend running on [localhost:3000](http://loc
 
 #### Requirements
 
-- [NodeJS 16.x](https://nodejs.org/de)
+- [Node.js 18+ LTS](https://nodejs.org/de)
 - [Python 3.x.x](https://www.python.org/downloads/)
 
 ```bash
@@ -50,16 +50,18 @@ pip install --requirement backend/requirements.txt
 cd backend && uvicorn api.routes:app --reload
 
 # install node dependencies
-export NODE_OPTIONS=--openssl-legacy-provider
-cd frontend; npm install --legacy-peer-deps
+cd frontend; npm install
 
-# start frontend
-cd frontend && npm start
+# start frontend (Vite)
+cd frontend && npm run dev
+
+# optional: production build and preview
+# cd frontend && npm run build && npm run preview
 ```
 
-## API authentification
+## API authentication
 
-The following two API endpoints for batch upating data as well as batch dowloading data are secured by a basic authentification workflow:
+The following two API endpoints for batch updating data as well as batch downloading data are secured by a basic authentication workflow:
 -  /datasets/import
 -  /datasets/export
 

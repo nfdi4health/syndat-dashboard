@@ -13,39 +13,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Get Version Tags
       id: versions
       run: |
         echo "FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version")" >> "$GITHUB_OUTPUT"
         echo "BACKEND_VERSION=$(echo "$(<backend/api/routes.py)" | grep -oP "(?<=version=\")[^\"]+")" >> "$GITHUB_OUTPUT"
     - name: Docker Login
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Setup Node 16.x
-      uses: actions/setup-node@v3
+    - name: Setup Node 20.x
+      uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 20.x
         cache: npm
-    - name: npm build
+    - name: Build frontend (Vite)
       run: |
-        export NODE_OPTIONS="--max_old_space_size=4096"
         cd frontend
-        npm install --legacy-peer-deps
-        npm ci --loglevel verbose --userconfig npmrc --max-old-space-size=16096 -legacy-peer-deps
-        npm run build --userconfig npmrc --max-old-space-size=16096
+        npm ci
+        npm run build
     - name: Build & push frontend
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
         tags: ghcr.io/${{ github.repository }}/frontend:latest-scai, ghcr.io/${{ github.repository }}/frontend:${{ steps.versions.outputs.FRONTEND_VERSION }}-scai
     - name: Build & push backend
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v5
       with:
         context: ./backend
         file: ./backend/Dockerfile

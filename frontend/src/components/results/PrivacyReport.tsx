@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
-import ReactScoreIndicator from "react-score-indicator";
+import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
 import { Alert } from "@mui/material";
 import "./PrivacyReport.css";
@@ -122,7 +122,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
         <Row>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={
                 100 -
                 ScoreUtils.calculatePrivacyScore(this.state.singling_out_risk)
@@ -141,7 +141,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
           </Col>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={
                 100 -
                 ScoreUtils.calculatePrivacyScore(this.state.linkability_risk)
@@ -160,7 +160,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
           </Col>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={
                 100 -
                 ScoreUtils.calculatePrivacyScore(this.state.inference_risk)

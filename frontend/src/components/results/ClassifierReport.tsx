@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
-import ReactScoreIndicator from "react-score-indicator";
+import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
 import "./ClassifierReport.css";
 
@@ -89,7 +89,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
         <Row>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={ScoreUtils.calculateAucScore(this.state.auc)}
               maxValue={100}
             />
@@ -104,7 +104,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
           </Col>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={ScoreUtils.calculateJsdScore(this.state.jsd)}
               maxValue={100}
             />
@@ -119,7 +119,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
           </Col>
           <Col>
             {" "}
-            <ReactScoreIndicator
+            <ScoreIndicator
               value={ScoreUtils.calculateNormScore(this.state.norm)}
               maxValue={100}
             />
