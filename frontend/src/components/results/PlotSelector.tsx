@@ -75,9 +75,30 @@ class PlotSelector extends React.Component<Props, State> {
     this.setState({ selectedOption });
   };
 
+  getSelectedIndex(): number {
+    const { plotList, selectedOption } = this.state;
+    if (!selectedOption) return -1;
+    return plotList.indexOf(selectedOption.value);
+  }
+
+  goToPlotByOffset(offset: number) {
+    const { plotList, availablePlots } = this.state;
+    const currentIndex = this.getSelectedIndex();
+    if (plotList.length === 0 || currentIndex < 0) return;
+
+    const nextIndex = currentIndex + offset;
+    if (nextIndex < 0 || nextIndex >= plotList.length) return;
+
+    this.setState({ selectedOption: availablePlots[nextIndex] ?? null });
+  }
+
   render() {
     const { availablePlots, selectedOption, isLoading, error } = this.state;
     const { dataset } = this.props;
+
+    const selectedIndex = this.getSelectedIndex();
+    const hasPrev = selectedIndex > 0;
+    const hasNext = selectedIndex >= 0 && selectedIndex < this.state.plotList.length - 1;
 
     return (
       <section className="card ResultsSection">
@@ -95,11 +116,33 @@ class PlotSelector extends React.Component<Props, State> {
               value={selectedOption}
             />
             {selectedOption && (
-              <img
-                className="ResultsPlotImage"
-                src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/plots/violin/${selectedOption.value}`}
-                alt={`Plot for ${selectedOption.label}`}
-              />
+              <div className="InspectPlotsGallery">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => this.goToPlotByOffset(-1)}
+                    disabled={!hasPrev}
+                    aria-label="Previous plot"
+                  >
+                    ←
+                  </button>
+
+                  <img
+                    className="ResultsPlotImage"
+                    src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/plots/violin/${selectedOption.value}`}
+                    alt={`Plot for ${selectedOption.label}`}
+                  />
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => this.goToPlotByOffset(1)}
+                    disabled={!hasNext}
+                    aria-label="Next plot"
+                  >
+                    →
+                  </button>
+              </div>
             )}
           </>
         )}

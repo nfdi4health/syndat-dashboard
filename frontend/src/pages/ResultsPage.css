@@ -91,6 +91,15 @@
     box-shadow: var(--shadow-sm);
 }
 
+.InspectPlotsGallery {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
 .OutlierPlot__header {
     display: flex;
     align-items: center;
