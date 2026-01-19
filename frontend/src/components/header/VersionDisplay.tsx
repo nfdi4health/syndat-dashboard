@@ -29,7 +29,7 @@ class VersionDisplay extends React.Component<{}, State> {
   render() {
     return (
       <a href={process.env.REACT_APP_API_BASE_URL}>
-        <Badge bg="secondary">API Version: {this.state.version}</Badge>
+        <Badge bg="secondary">App Version: {this.state.version}</Badge>
       </a>
     );
   }
