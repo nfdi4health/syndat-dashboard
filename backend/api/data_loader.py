@@ -39,9 +39,20 @@ def load_data_decoded(output_path):
     # real = load_real_patients_decoded().dropna()
     real = pd.read_csv(output_path + '/real.csv')
     virtual = pd.read_csv(output_path + "/synthetic.csv")
-    # sort columns so both dataframes align
-    real = real.reindex(sorted(real.columns), axis=1).drop("SUBJID", axis=1,  errors='ignore')
-    virtual = virtual.reindex(sorted(real.columns), axis=1)
+
+    # Drop identifiers that should not be evaluated
+    real = real.drop("SUBJID", axis=1, errors='ignore')
+    virtual = virtual.drop("SUBJID", axis=1, errors='ignore')
+
+    # Align by shared columns only.
+    # Using reindex(real.columns) can create all-NaN columns if synthetic is missing cols,
+    # which later leads to dropna() producing empty frames and downstream 500s.
+    common_cols = sorted(set(real.columns).intersection(set(virtual.columns)))
+    if len(common_cols) == 0:
+        raise HTTPException(status_code=422, detail="Real and synthetic datasets share no common columns.")
+
+    real = real[common_cols]
+    virtual = virtual[common_cols]
     return real, virtual
 
 
