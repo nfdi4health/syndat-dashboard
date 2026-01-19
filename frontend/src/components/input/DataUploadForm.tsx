@@ -1,6 +1,5 @@
 import React from "react";
 import axios from "axios";
-import { Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { DataType } from "../../enums/DataType";
 import PostProcessingOptions, {
@@ -106,10 +105,10 @@ class UploadForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <Container>
-        <div className="uploadForm">
+      <div className="UploadFormRoot">
+        <div className="UploadFormRoot__body uploadForm">
           <input type="file" onChange={this.onFileChange} />
-          <br />
+
           {this.props.dataType === DataType.synthetic && (
             <div style={{ marginTop: "1rem" }}>
               <h5>Postprocessing Options</h5>
@@ -119,12 +118,16 @@ class UploadForm extends React.Component<Props, State> {
               />
             </div>
           )}
+
           <button onClick={this.onFileUpload} disabled={!this.state.selectedFile}>
             Upload
           </button>
         </div>
-        <div className="uploadResponse">{this.renderUploadResponse()}</div>
-      </Container>
+
+        <div className="UploadFormRoot__status uploadResponse">
+          {this.renderUploadResponse()}
+        </div>
+      </div>
     );
   }
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Container } from "react-bootstrap";
+import { Col } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import ProcessingStatusIndicator from "./ProcessingStatusIndicator copy";
 
@@ -43,17 +43,14 @@ class ProcessingPanel extends React.Component<{}, State> {
 
   render() {
     return (
-      <Container>
+      <div>
         <Col>
           <div className="processingTriggerButton">
-            <button onClick={this.toggleTriggerStatus}>
-              Trigger Result Processing
-            </button>
+            <button onClick={this.toggleTriggerStatus}>Trigger Result Processing</button>
           </div>
           <div className="triggerResponse">{this.renderStatusIndicators()}</div>
         </Col>
-        <Col></Col>
-      </Container>
+      </div>
     );
   }
 }

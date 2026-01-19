@@ -29,26 +29,26 @@ class ResultsPage extends React.Component<{}, State> {
 
   renderDefaultDatasetAlert() {
     return (
-      <Container>
-        <Alert severity="info">Currently displaying the processed data results of the latest uploaded dataset.</Alert>
-      </Container>
+      <Alert severity="info">
+        Currently displaying the processed data results of the latest uploaded dataset.
+      </Alert>
     );
   }
 
   render() {
     return (
       <div className="ResultsPage">
-        <Container>
-          <Row>
-            <Col>
+        <div className="ResultsPage__toolbar card">
+          <Row className="g-3 align-items-center">
+            <Col md={4}>
               <ChooseDatasetDropdown handler={this.switchDataset} />
             </Col>
-            <Col>
+            <Col md={5}>
               {this.state.dataset === "default"
                 ? this.renderDefaultDatasetAlert()
                 : ""}
             </Col>
-            <Col id="button-col">
+            <Col md={3} id="button-col">
               <Button
                 className="button"
                 variant="outlined"
@@ -58,7 +58,7 @@ class ResultsPage extends React.Component<{}, State> {
               </Button>
             </Col>
           </Row>
-        </Container>
+        </div>
         <ClassifierReport dataset={this.state.dataset} />
         <PrivacyReport dataset={this.state.dataset} />
         <OutlierPlot dataset={this.state.dataset} />

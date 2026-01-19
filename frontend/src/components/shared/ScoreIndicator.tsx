@@ -47,7 +47,7 @@ const ScoreIndicator: React.FC<Props> = ({
           cx={center}
           cy={center}
           r={radius}
-          stroke="#eee"
+          stroke="#e9edf3"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -68,11 +68,21 @@ const ScoreIndicator: React.FC<Props> = ({
           y="50%"
           dominantBaseline="middle"
           textAnchor="middle"
-          fontSize={size * 0.2}
+          fontSize={size * 0.22}
           fontFamily="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
-          fill="#333"
+          fill="#1a1f36"
+          fontWeight={700}
         >
           {Math.round(percent)}
+          <tspan
+            dx={4}
+            dy={-size * 0.02}
+            fontSize={size * 0.12}
+            fill="#5b6475"
+            fontWeight={600}
+          >
+            %
+          </tspan>
         </text>
       </svg>
     </div>

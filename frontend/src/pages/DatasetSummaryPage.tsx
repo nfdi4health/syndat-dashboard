@@ -5,7 +5,6 @@ import DatasetsEvaluationComparisionChart from "../components/results/summary/Da
 import AxiosUtils from "../utils/AxiosUtils";
 import ScoreUtils from "../utils/ScoreUtils";
 import "./ResultsPage.css";
-import { Container } from "react-bootstrap";
 
 type State = {
   datasets: string[];
@@ -77,33 +76,51 @@ class ResultsSummaryPage extends React.Component<{}, State> {
   render() {
     if (this.state.dataReady === true) {
       return (
-        <Container>
-          <h2>Quality summary</h2>
-          <DatasetsEvaluationComparisionChart
-            datasets={this.state.datasets}
-            metric1={this.state.auc}
-            metric2={this.state.jsd}
-            metric3={this.state.norm}
-            metric1Label="ROC Area Under Curve"
-            metric2Label="Jensen–Shannon divergence"
-            metric3Label="Correlation Quotient"
-            plotTitle="Quality Score"
-          />
-          <h2>Privacy summary</h2>
-          <DatasetsEvaluationComparisionChart
-            datasets={this.state.datasets}
-            metric1={this.state.singlingOutRisk}
-            metric2={this.state.inferenceRisk}
-            metric3={this.state.linkabilityRisk}
-            metric1Label="Singling Out Risk"
-            metric2Label="Inference Risk"
-            metric3Label="Linkability Risk"
-            plotTitle="Risk Score"
-          />
-        </Container>
+        <div className="ResultsPage">
+          <section className="card ResultsSection">
+            <h2 className="ResultsSection__title">Dataset Summary</h2>
+            <p className="muted" style={{ margin: 0 }}>
+              Comparison of quality and privacy scores across all stored datasets.
+            </p>
+          </section>
+
+          <section className="card ResultsSection">
+            <h2 className="ResultsSection__title">Quality Summary</h2>
+            <DatasetsEvaluationComparisionChart
+              datasets={this.state.datasets}
+              metric1={this.state.auc}
+              metric2={this.state.jsd}
+              metric3={this.state.norm}
+              metric1Label="ROC Area Under Curve"
+              metric2Label="Jensen–Shannon divergence"
+              metric3Label="Correlation Quotient"
+              plotTitle="Quality Score"
+            />
+          </section>
+
+          <section className="card ResultsSection">
+            <h2 className="ResultsSection__title">Privacy Summary</h2>
+            <DatasetsEvaluationComparisionChart
+              datasets={this.state.datasets}
+              metric1={this.state.singlingOutRisk}
+              metric2={this.state.inferenceRisk}
+              metric3={this.state.linkabilityRisk}
+              metric1Label="Singling Out Risk"
+              metric2Label="Inference Risk"
+              metric3Label="Linkability Risk"
+              plotTitle="Risk Score"
+            />
+          </section>
+        </div>
       );
     } else {
-      return <CircularProgress />;
+      return (
+        <div className="ResultsPage">
+          <section className="card ResultsSection" style={{ display: "flex", justifyContent: "center" }}>
+            <CircularProgress />
+          </section>
+        </div>
+      );
     }
   }
 }

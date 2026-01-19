@@ -12,8 +12,8 @@ class OutputUpload extends React.Component {
   render() {
     return (
       <div className="InputPage">
-        <Container>
-          <h1> Data Upload & Processing</h1>
+        <div className="card">
+          <h1>Data Upload & Processing</h1>
           <p>
             You can directly upload patient data that has been generated and
             processed by VAMBN or any similar generative approach and trigger a
@@ -59,49 +59,62 @@ class OutputUpload extends React.Component {
             overwrite the current result set with the name "default", which is
             by default rendered when visiting the result page.
           </p>
-        </Container>
-        <Card variant="outlined">
-          {" "}
-          <Container>
-            <Row className="uploadRow">
-              <h2>Data Upload</h2>
-              <Col className="uploadColumn">
-                <h3>Real Data</h3>
-                <UploadForm dataType={DataType.real} />
-                <LastChangedBadge resource={"patients/real/last-update"} />
+        </div>
+
+        <div className="sectionCard">
+          <h2>Data Upload</h2>
+          <p className="muted" style={{ marginBottom: 0 }}>
+            Upload real and synthetic datasets (CSV) for evaluation.
+          </p>
+
+          <Container fluid className="p-0" style={{ marginTop: "var(--space-5)" }}>
+            <Row className="g-4 mx-0">
+              <Col md={6} className="uploadColumn">
+                <div className="uploadSubCard">
+                  <h3>Real Data</h3>
+                  <div className="uploadSubCard__main">
+                    <UploadForm dataType={DataType.real} />
+                  </div>
+                  <div className="uploadSubCard__footer">
+                    <LastChangedBadge resource={"patients/real/last-update"} />
+                  </div>
+                </div>
               </Col>
-              <Col className="uploadColumn">
-                <h3>Synthetic Data</h3>
-                <UploadForm dataType={DataType.synthetic} />
-                <LastChangedBadge resource={"patients/synthetic/last-update"} />
+              <Col md={6} className="uploadColumn">
+                <div className="uploadSubCard">
+                  <h3>Synthetic Data</h3>
+                  <div className="uploadSubCard__main">
+                    <UploadForm dataType={DataType.synthetic} />
+                  </div>
+                  <div className="uploadSubCard__footer">
+                    <LastChangedBadge resource={"patients/synthetic/last-update"} />
+                  </div>
+                </div>
               </Col>
             </Row>
           </Container>
-        </Card>
-        <Container>
-          <Card variant="outlined" className="sectionCard">
-            <h2>Backend result re-processing</h2>
-            <ProcessingPanel />
-            <LastChangedBadge resource={"results/last-update"} />
-          </Card>
-        </Container>
+        </div>
 
-        <Container>
-          <Card variant="outlined" className="sectionCard">
-            <h2>Store Results</h2>
-            <p>
-              You may store the current processed results using a String
-              identifier. Previously stored results can be selected using the
-              dataset dropdown on the top of the results page:
-            </p>
-            <Row>
-              <Col>
-                <DatasetStoragePrompt />
-              </Col>
-              <Col />
-            </Row>
-          </Card>
-        </Container>
+        <Card variant="outlined" className="sectionCard">
+          <h2>Backend result re-processing</h2>
+          <ProcessingPanel />
+          <LastChangedBadge resource={"results/last-update"} />
+        </Card>
+
+        <Card variant="outlined" className="sectionCard">
+          <h2>Store Results</h2>
+          <p>
+            You may store the current processed results using a String
+            identifier. Previously stored results can be selected using the
+            dataset dropdown on the top of the results page:
+          </p>
+          <Row>
+            <Col>
+              <DatasetStoragePrompt />
+            </Col>
+            <Col />
+          </Row>
+        </Card>
       </div>
     );
   }

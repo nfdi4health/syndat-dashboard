@@ -1,10 +1,12 @@
 import { Switch } from "@mui/material";
 import React from "react";
-import { Container } from "react-bootstrap";
+import { Alert, Spinner } from "react-bootstrap";
 import "./CorrelationPlot.css"
 
 type State = {
   checked: boolean;
+  isLoading: boolean;
+  error: string | null;
 }
 
 type Props = {
@@ -16,31 +18,49 @@ class CorrelationPlot extends React.Component<Props, State> {
 
   constructor(props: any) {
     super(props);
-    this.state = { checked: false };
+    this.state = { checked: false, isLoading: true, error: null };
     this.handleDisplaySwitchClick = this.handleDisplaySwitchClick.bind(this);
   }
 
   handleDisplaySwitchClick() {
-    this.setState({ checked: !this.state.checked });
+    this.setState({ checked: !this.state.checked, isLoading: true, error: null });
   }
 
 
   render() {
     var switchState = this.state.checked ? "virtual" : "real"
     return (
-      <Container>
-        <h2>Correlation Plot:</h2>
-        real{" "}
-        <Switch onClick={this.handleDisplaySwitchClick.bind(this)}/>
-        virtual
-        <div>
-          <img
-            className="small"
-            src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}&t=${Date.now()}`}
-            alt="correlation plot"
-          />
+      <section className="card ResultsSection CorrelationPlot">
+        <div className="CorrelationPlot__header">
+          <h2 className="ResultsSection__title">Correlation Plot</h2>
+          <div className="CorrelationPlot__switch">
+            <span className="muted">real</span>
+            <Switch onClick={this.handleDisplaySwitchClick.bind(this)} />
+            <span className="muted">synthetic</span>
+          </div>
         </div>
-      </Container>
+
+        {this.state.isLoading && <Spinner animation="border" role="status" />}
+        {this.state.error && <Alert variant="warning">{this.state.error}</Alert>}
+
+        <div>
+          {!this.state.error && (
+            <img
+              className="ResultsPlotImage"
+              src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}&t=${Date.now()}`}
+              alt="correlation plot"
+              onLoad={() => this.setState({ isLoading: false })}
+              onError={() =>
+                this.setState({
+                  isLoading: false,
+                  error:
+                    "Failed to load correlation plot. API may be unavailable or the plot is missing.",
+                })
+              }
+            />
+          )}
+        </div>
+      </section>
     );
   }
 }
