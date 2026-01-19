@@ -1,14 +1,125 @@
+/* Design tokens */
+:root {
+  /* Colors */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --text: #1a1f36;
+  --muted: #5b6475;
+  --border: #e2e6ee;
+  --brand-50: #eef6ff;
+  --brand-100: #d9ebff;
+  --brand-200: #b7d7ff;
+  --brand-400: #4f97e6;
+  --brand-500: #2f80ed;
+  --brand-600: #1f6ed1;
+  --brand-700: #1a5bb0;
+  --success: #2e7d32;
+  --warning: #b26a00;
+  --danger: #c62828;
+
+  /* Typography */
+  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --fs-900: clamp(2rem, 1.6rem + 1.5vw, 3rem);
+  --fs-800: 2rem;
+  --fs-700: 1.5rem;
+  --fs-600: 1.25rem;
+  --fs-500: 1.125rem;
+  --fs-400: 1rem;
+  --fs-300: 0.9375rem;
+  --fs-200: 0.875rem;
+
+  /* Spacing (8px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+
+  /* Radius & shadow */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 2px 8px rgba(16, 24, 40, 0.08);
+}
+
+/* Modern CSS reset (lightweight) */
+* { box-sizing: border-box; }
+*::before, *::after { box-sizing: inherit; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; }
+
+/* Base styles */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+code { font-family: var(--font-mono); }
+
+/* Headings */
+h1, h2, h3 { color: var(--text); margin: 0 0 var(--space-4); line-height: 1.25; }
+h1 { font-size: var(--fs-800); font-weight: 700; }
+h2 { font-size: var(--fs-700); font-weight: 600; color: var(--muted); }
+h3 { font-size: var(--fs-600); font-weight: 600; }
+
+p { margin: 0 0 var(--space-4); color: var(--text); }
+ul { margin: 0 0 var(--space-5); padding-left: var(--space-6); }
+
+/* Utilities */
+.page { padding: var(--space-8) 0; }
+.container-narrow { max-width: 1100px; margin-inline: auto; }
+.stack > * + * { margin-top: var(--space-5); }
+.muted { color: var(--muted); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+}
+
+.toolbar { padding: var(--space-4) 0; }
+.toolbar .button { white-space: nowrap; }
+
+/* Buttons (for plain buttons we render) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 14px;
+  background: var(--brand-600);
+  color: #fff;
+  border: 1px solid var(--brand-600);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+.btn-primary:hover { background: var(--brand-700); border-color: var(--brand-700); }
+
+/* Header & Footer polish (bootstrap override friendly) */
+.app-navbar {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border);
+}
+.app-navbar .navbar-brand { font-weight: 700; color: var(--text) !important; }
+.app-navbar .nav-link { color: var(--muted) !important; }
+.app-navbar .nav-link.active, .app-navbar .nav-link:hover { color: var(--text) !important; }
+
+nav#footer {
+  background: var(--surface) !important;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
 }
 

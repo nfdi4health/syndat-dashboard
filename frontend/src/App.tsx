@@ -14,12 +14,16 @@ class App extends React.Component {
     return (
         <BrowserRouter>
           <Header />
-          <Routes>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="results" element={<ResultsPage />} />
-            <Route path="results/summary" element={<DatasetSummaryPage />} />
-            <Route path="input" element={<InputPage />} />
-          </Routes>
+          <main className="app-main">
+            <div className="app-content">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="results" element={<ResultsPage />} />
+                <Route path="results/summary" element={<DatasetSummaryPage />} />
+                <Route path="input" element={<InputPage />} />
+              </Routes>
+            </div>
+          </main>
           <Footer />
         </BrowserRouter>
     );

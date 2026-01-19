@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Switch } from "@mui/material";
 import * as React from "react";
+import { Alert, Spinner } from "react-bootstrap";
 import Plot from "react-plotly.js";
 
 type CoordinateList = {
@@ -21,6 +22,8 @@ type State = {
   removedIndices: Array<number>;
   selectedIndex: number;
   showAnomalyScore: Boolean;
+  isLoading: boolean;
+  error: string | null;
 };
 
 type Props = {
@@ -74,49 +77,65 @@ class OutlierPlot extends React.Component<Props, State> {
       selectedIndex: -1,
       // HACK: somehow setting this to true fixes the switch, FIXME if you can
       showAnomalyScore: true,
+      isLoading: true,
+      error: null,
     };
-    this.getVirtualOutlierScores();
-    this.getPatientsTsneCoordinates();
     this.handleDataPointClick = this.handleDataPointClick.bind(this);
     this.removeCurrentDataPoint = this.removeCurrentDataPoint.bind(this);
   }
 
   componentDidMount() {
-    this.getVirtualOutlierScores();
-    this.getPatientsTsneCoordinates();
+    this.loadData();
   }
 
   // update plots if props (-> dataset) changes
   componentDidUpdate(prevProps: any, prevState: any) {
     if (prevProps.dataset !== this.props.dataset) {
-      this.getVirtualOutlierScores();
-      this.getPatientsTsneCoordinates();
+      this.loadData();
     }
   }
 
-  getVirtualOutlierScores() {
-    axios
-      .get(
+  loadData = () => {
+    this.setState({ isLoading: true, error: null });
+
+    Promise.all([
+      axios.get(
         `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/outliers`,
         { params: { anomaly_score: true } }
-      )
-      .then((response) => response.data)
-      .then((data) => {
-        this.setState({ outlierScores: data.Outlier_Scores });
-      })
-      .then(() => this.initializeTraces())
-      .then(() => this.upscaleOutlierScores());
-  }
+      ),
+      axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/tsne`
+      ),
+    ])
+      .then(([outliersRes, tsneRes]) => {
+        const outlierScores = outliersRes.data?.Outlier_Scores ?? [];
+        const patient_coordinates = tsneRes.data;
 
-  getPatientsTsneCoordinates() {
-    axios
-      .get(`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/tsne`)
-      .then((response) => response.data)
-      .then((data) => {
-        this.setState({ patient_coordinates: data });
+        this.setState(
+          {
+            outlierScores,
+            patient_coordinates,
+            removedIndices: [],
+            selectedIndex: -1,
+            isLoading: false,
+            error: null,
+          },
+          () => {
+            this.initializeTraces();
+            this.upscaleOutlierScores();
+          }
+        );
       })
-      .then(() => this.initializeTraces());
-  }
+      .catch((error) => {
+        this.setState({
+          isLoading: false,
+          error:
+            error?.message === "Network Error"
+              ? "Failed to load outlier plot data. API may be unavailable."
+              : error?.message || "Failed to load outlier plot data.",
+        });
+      });
+  };
 
   upscaleOutlierScores() {
     const scores = this.state.outlierScores;
@@ -226,23 +245,36 @@ class OutlierPlot extends React.Component<Props, State> {
 
   render() {
     return (
-      <div>
-        <h2>Inspect Outliers:</h2>
-        <p>
-          Show patient distributions{" "}
-          <Switch onClick={this.handleDisplaySwitchClick.bind(this)} /> Show
-          Outlier Scores
-        </p>
-        <Plot
-          data={this.state.plotData}
-          layout={{
-            width: 800,
-            height: 800,
-            title: "Real vs virtual patient data distribution",
-          }}
-          onClick={this.handleDataPointClick}
-        />
-      </div>
+      <section className="card ResultsSection">
+        <div className="OutlierPlot__header">
+          <h2 className="ResultsSection__title">Inspect Outliers</h2>
+          <div className="OutlierPlot__switch">
+            <span className="muted">patient distributions</span>
+            <Switch onClick={this.handleDisplaySwitchClick.bind(this)} />
+            <span className="muted">outlier scores</span>
+          </div>
+        </div>
+
+        {this.state.isLoading && <Spinner animation="border" role="status" />}
+        {this.state.error && <Alert variant="warning">{this.state.error}</Alert>}
+
+        {!this.state.isLoading && !this.state.error && (
+          <div className="ResultsPlotFrame">
+            <Plot
+              data={this.state.plotData}
+              layout={{
+                autosize: true,
+                title: "Real vs virtual patient data distribution",
+                margin: { l: 40, r: 20, t: 50, b: 40 },
+              } as any}
+              config={{ responsive: true, displayModeBar: false } as any}
+              style={{ width: "100%", height: "100%" }}
+              useResizeHandler
+              onClick={this.handleDataPointClick}
+            />
+          </div>
+        )}
+      </section>
     );
   }
 }

@@ -1,27 +1,27 @@
-p {
-  padding-top: 30px;
+.HomePage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
 }
 
-h4 {
-  padding-top: 30px;
+.HomePage__hero {
+  padding: var(--space-7);
 }
 
-.alter {
-  padding-top: 30px;
-  padding-bottom: 30px;
+.HomePage__subtitle {
+  font-size: var(--fs-500);
+  margin: 0;
 }
 
-img {
+.HomePage h4 {
+  margin-top: var(--space-6);
+}
+
+.HomePage img {
   max-width: 100%;
   height: auto;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  display: block; 
-  margin: auto; 
-}
-
-.badge bg-success  {
-  padding-right: 10px;
-  padding-left: 10px;
-
+  margin: var(--space-6) auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import Select from "react-select";
-import { Container, Alert, Spinner } from "react-bootstrap";
+import { Alert, Spinner } from "react-bootstrap";
 
 type State = {
   plotList: string[];
@@ -80,8 +80,8 @@ class PlotSelector extends React.Component<Props, State> {
     const { dataset } = this.props;
 
     return (
-      <Container>
-        <h2>Inspect Plots:</h2>
+      <section className="card ResultsSection">
+        <h2 className="ResultsSection__title">Inspect Plots</h2>
 
         {isLoading && <Spinner animation="border" role="status" />}
 
@@ -96,14 +96,14 @@ class PlotSelector extends React.Component<Props, State> {
             />
             {selectedOption && (
               <img
-                className="kld-plot mt-3"
+                className="ResultsPlotImage"
                 src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${dataset}/plots/violin/${selectedOption.value}`}
                 alt={`Plot for ${selectedOption.label}`}
               />
             )}
           </>
         )}
-      </Container>
+      </section>
     );
   }
 }

@@ -84,56 +84,77 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
 
   render() {
     return (
-      <Container>
-        <h2>Quality Evaluation Results:</h2>
-        <Row>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={ScoreUtils.calculateAucScore(this.state.auc)}
-              maxValue={100}
-            />
-            <h4>Discrimination Complexity</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipAUC}
-            >
-              <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={ScoreUtils.calculateJsdScore(this.state.jsd)}
-              maxValue={100}
-            />
-            <h4>Distribution Similarity</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipJSD}
-            >
-              <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={ScoreUtils.calculateNormScore(this.state.norm)}
-              maxValue={100}
-            />
-            <h4>Correlation Score</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipFrobeniusNorm}
-            >
-              <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-        </Row>
-      </Container>
+      <section className="card ResultsSection ClassifierReport">
+        <div className="ResultsSection__header">
+          <h2 className="ResultsSection__title">Quality Evaluation</h2>
+        </div>
+        <Container fluid className="p-0">
+          <Row className="g-4">
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={ScoreUtils.calculateAucScore(this.state.auc)}
+                  maxValue={100}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Discrimination Complexity</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipAUC}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={ScoreUtils.calculateJsdScore(this.state.jsd)}
+                  maxValue={100}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Distribution Similarity</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipJSD}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={ScoreUtils.calculateNormScore(this.state.norm)}
+                  maxValue={100}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Correlation Score</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipFrobeniusNorm}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
     );
   }
 }

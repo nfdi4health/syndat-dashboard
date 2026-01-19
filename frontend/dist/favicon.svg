@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="SYNDAT">
+  <title>SYNDAT</title>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="#1f6ed1"/>
+
+  <!-- Modern monogram: single-stroke "S" (no vertical bar, tuned for 16px) -->
+  <path
+    d="M46 20
+       C44 16 39 14 32 14
+       C24 14 18 16 18 23
+       C18 29 23 31 30 33
+       L34 34
+       C41 36 46 38 46 44
+       C46 51 40 52 32 52
+       C25 52 20 50 18 46"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

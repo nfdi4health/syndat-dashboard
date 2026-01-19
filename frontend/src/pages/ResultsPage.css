@@ -1,5 +1,115 @@
 .ResultsPage {
     display: flex;
     flex-direction: column;
+    gap: var(--space-7);
+}
+
+.ResultsSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.ResultsSection__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-2);
+}
+
+.ResultsSection__title {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text);
+    color: var(--muted);
+    cursor: help;
+    user-select: none;
+}
+
+.ResultsSection__info svg {
+    display: block;
+}
+
+.ResultsSection__info:hover {
+    color: var(--text);
+}
+.ResultsSection__info {
+    color: var(--muted);
+    line-height: 0;
+    cursor: help;
+}
+
+.ResultsMetric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
     text-align: center;
+}
+
+.ResultsMetric h4 {
+    margin: 0;
+    font-size: var(--fs-300);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.ResultsMetric__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.ResultsMetric__icon {
+    color: var(--muted);
+    line-height: 0;
+}
+
+.ResultsCallout {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.ResultsPlotFrame {
+    width: 100%;
+    height: min(70vh, 720px);
+    min-height: 420px;
+}
+
+.ResultsPlotFrame--summary {
+    height: min(55vh, 520px);
+    min-height: 360px;
+}
+
+.ResultsPlotImage {
+    width: auto;
+    max-width: min(100%, 920px);
+    height: auto;
+    margin: var(--space-4) auto 0;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.OutlierPlot__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.OutlierPlot__switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--fs-200);
+}
+
+.ResultsPage__toolbar .row {
+    align-items: center;
+}
+
+.ResultsPage .MuiAlert-root {
+    margin: 0;
 }

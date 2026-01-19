@@ -1,13 +1,14 @@
-p {
-  padding-top: 30px;
+/* Scoped only to the Input page to avoid leaking styles app-wide */
+.InputPage p {
+  margin-top: var(--space-4);
 }
 
-.alter {
-  padding-top: 30px;
-  padding-bottom: 30px;
+/* Add consistent spacing between the introductory card and subsequent sections */
+.InputPage > .card {
+  margin-bottom: var(--space-7);
 }
 
-.badge bg-success  {
-  padding-right: 10px;
-  padding-left: 10px;
+.InputPage .alter {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
 }

@@ -1,6 +1,6 @@
-h2 {
-  padding-bottom: 50px;
-  padding-top: 20px;
+.PrivacyReport h2 {
+  margin: 0;
+  padding: 0;
 }
 
 .newFeatureAltert {
@@ -8,5 +8,5 @@ h2 {
 }
 
 .citationBox {
-  padding-bottom: 50px;
+  margin-bottom: var(--space-5);
 }

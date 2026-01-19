@@ -4,7 +4,7 @@ import "./Footer.css"
 
 function Footer() {
   return (
-    <Navbar bg="dark" variant="dark" id="footer">
+    <Navbar id="footer">
       <Container>
         <Nav className="me-auto">
           <Row>

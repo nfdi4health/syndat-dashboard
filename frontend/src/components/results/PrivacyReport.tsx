@@ -4,7 +4,6 @@ import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
 import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
-import { Alert } from "@mui/material";
 import "./PrivacyReport.css";
 
 type Props = {
@@ -101,84 +100,108 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
     </Tooltip>
   );
 
+  renderTooltipCitation = (props: any) => (
+    <Tooltip id="privacy-citation-tooltip" {...props}>
+      Displayed metrics are based on: Giomi, Matteo, et al. "A Unified Framework
+      for Quantifying Privacy Risk in Synthetic Data." <i>arXiv</i> preprint{" "}
+      <a href="https://arxiv.org/abs/2211.10459">arXiv:2211.10459</a> (2022).
+    </Tooltip>
+  );
+
   render() {
     return (
-      <Container>
-        <h2>Privacy Evaluation Results:</h2>
-        <Row>
-          <Col></Col>
-          <Col className="citationBox">
-            {" "}
-            <Alert severity="info">
-              <b>Displayed Metrics are based on:</b><br/>
-              Giomi, Matteo, et al. "A Unified Framework for Quantifying Privacy
-              Risk in Synthetic Data." <i>arXiv</i> preprint{" "}
-              <a href="https://arxiv.org/abs/2211.10459">arXiv:2211.10459</a>{" "}
-              (2022).
-            </Alert>
-          </Col>
-          <Col></Col>
-        </Row>
-        <Row>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={
-                100 -
-                ScoreUtils.calculatePrivacyScore(this.state.singling_out_risk)
-              }
-              maxValue={100}
-              stepsColors={this.colors}
-            />
-            <h4>Singling Out Risk</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipSinglingOut}
-            >
+      <section className="card ResultsSection PrivacyReport">
+        <div className="ResultsSection__header">
+          <h2 className="ResultsSection__title">Privacy Evaluation</h2>
+          <OverlayTrigger
+            placement="right"
+            delay={{ show: 250, hide: 250 }}
+            overlay={this.renderTooltipCitation}
+          >
+            <span className="ResultsSection__info" aria-label="Citation">
               <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={
-                100 -
-                ScoreUtils.calculatePrivacyScore(this.state.linkability_risk)
-              }
-              maxValue={100}
-              stepsColors={this.colors}
-            />
-            <h4>Linkability Risk</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipLinkability}
-            >
-              <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-          <Col>
-            {" "}
-            <ScoreIndicator
-              value={
-                100 -
-                ScoreUtils.calculatePrivacyScore(this.state.inference_risk)
-              }
-              maxValue={100}
-              stepsColors={this.colors}
-            />
-            <h4>Inferrence Risk</h4>
-            <OverlayTrigger
-              placement="right"
-              delay={{ show: 250, hide: 400 }}
-              overlay={this.renderTooltipInferrence}
-            >
-              <InfoCircle />
-            </OverlayTrigger>
-          </Col>
-        </Row>
-      </Container>
+            </span>
+          </OverlayTrigger>
+        </div>
+        <Container fluid className="p-0">
+          <Row className="g-4">
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={
+                    100 -
+                    ScoreUtils.calculatePrivacyScore(this.state.singling_out_risk)
+                  }
+                  maxValue={100}
+                  stepsColors={this.colors}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Singling Out Risk</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipSinglingOut}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={
+                    100 -
+                    ScoreUtils.calculatePrivacyScore(this.state.linkability_risk)
+                  }
+                  maxValue={100}
+                  stepsColors={this.colors}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Linkability Risk</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipLinkability}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+
+            <Col md={4}>
+              <div className="ResultsMetric">
+                <ScoreIndicator
+                  value={
+                    100 -
+                    ScoreUtils.calculatePrivacyScore(this.state.inference_risk)
+                  }
+                  maxValue={100}
+                  stepsColors={this.colors}
+                />
+                <div className="ResultsMetric__label">
+                  <h4>Inferrence Risk</h4>
+                  <OverlayTrigger
+                    placement="right"
+                    delay={{ show: 250, hide: 400 }}
+                    overlay={this.renderTooltipInferrence}
+                  >
+                    <span className="ResultsMetric__icon" aria-label="More info">
+                      <InfoCircle />
+                    </span>
+                  </OverlayTrigger>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
     );
   }
 }

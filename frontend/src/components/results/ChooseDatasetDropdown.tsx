@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { Autocomplete, TextField } from "@mui/material";
 
 type Props = {
@@ -47,22 +47,18 @@ class ChooseDatasetDropdown extends React.Component<Props, State> {
 
   render() {
     return (
-      <Container>
-        <Row>
-          <Col>
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={this.state.availableDatasets}
-              sx={{ width: 300 }}
-              renderInput={(params) => (
-                <TextField {...params} label="Dataset" />
-              )}
-              onChange={(event, value) => this.props.handler(value)}
-            />
-          </Col>
-        </Row>
-      </Container>
+      <Row className="g-2">
+        <Col>
+          <Autocomplete
+            disablePortal
+            id="dataset-selector"
+            options={this.state.availableDatasets}
+            sx={{ width: "100%", maxWidth: 360 }}
+            renderInput={(params) => <TextField {...params} label="Dataset" />}
+            onChange={(event, value) => this.props.handler(value)}
+          />
+        </Col>
+      </Row>
     );
   }
 }
