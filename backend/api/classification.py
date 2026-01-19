@@ -9,14 +9,20 @@ from api.domain import OutlierPredictionMode
 
 
 def get_auc(real, virtual):
+    if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
+        return np.nan
     return syndat.scores.auc(real, virtual, score=False)
 
 
 def get_jsd(real, virtual):
+    if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
+        return np.nan
     return syndat.scores.jsd(real, virtual, score=False)
 
 
 def get_norm_score(real_data, synthetic_data):
+    if real_data is None or synthetic_data is None or real_data.shape[0] == 0 or synthetic_data.shape[0] == 0:
+        return np.nan
     return syndat.scores.correlation(real_data, synthetic_data, score=False)
 
 def get_outliers(virtual_patients, mode=OutlierPredictionMode.isolationForest, anomaly_score=False):
@@ -29,6 +35,8 @@ def get_outliers(virtual_patients, mode=OutlierPredictionMode.isolationForest, a
 
 
 def outlier_predictions(model, anomaly_score, x):
+    if x is None or getattr(x, "shape", (0,))[0] == 0:
+        return np.array([], dtype=float if anomaly_score else int)
     if anomaly_score:
         model.fit(x)
         return model.score_samples(X=x) * -1

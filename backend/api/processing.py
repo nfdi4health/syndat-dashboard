@@ -1,5 +1,7 @@
 import random as rnd
 import numpy as np
+from fastapi import HTTPException
+from pandas.core.dtypes.common import is_numeric_dtype
 
 from api import classification, visualization, data_loader, filtering, plotting, privacy
 from api.data_loader import encode_numerical_columns
@@ -64,10 +66,8 @@ def process_tsne(dataset_name):
 
 
 def get_outlier_scores(dataset_name):
-    data_root_dir = "datasets/" + dataset_name + "/patients"
-    real, virtual = data_loader.load_data_decoded(data_root_dir)
-    real_no_nan, virtual_no_nan = handle_nan_values(real, virtual)
-    outlier_scores = classification.get_outliers(virtual_no_nan, anomaly_score=True)
+    _, virtual_enc = load_and_decode(dataset_name)
+    outlier_scores = classification.get_outliers(virtual_enc, anomaly_score=True)
     np.save("datasets/" + dataset_name + "/results/anomaly_scores.npy", outlier_scores)
 
 
@@ -87,9 +87,29 @@ def load_and_decode(dataset_name):
     data_root_dir = "datasets/" + dataset_name + "/patients"
     real, virtual = data_loader.load_data_decoded(data_root_dir)
     real_no_nan, virtual_no_nan = handle_nan_values(real, virtual)
+    if real_no_nan.shape[0] == 0 or virtual_no_nan.shape[0] == 0:
+        # Fall back to non-dropping strategy so we don't end up with 0 rows.
+        real_no_nan, virtual_no_nan = handle_nan_values(real, virtual, strategy=NaNHandlingStrategy.encode_nan)
     real_enc = encode_numerical_columns(real_no_nan)
     virtual_enc = encode_numerical_columns(virtual_no_nan)
     return real_enc, virtual_enc
+
+
+def _encode_nan_values(real, virtual):
+    # Fill missing values without dropping rows.
+    real_filled = real.copy()
+    virtual_filled = virtual.copy()
+    for col in real_filled.columns:
+        if is_numeric_dtype(real_filled[col]):
+            # Use real median as a stable default; fall back to 0 if the column is entirely NaN.
+            median = real_filled[col].median()
+            fill_value = 0 if np.isnan(median) else median
+            real_filled[col] = real_filled[col].fillna(fill_value)
+            virtual_filled[col] = virtual_filled[col].fillna(fill_value)
+        else:
+            real_filled[col] = real_filled[col].fillna("__MISSING__")
+            virtual_filled[col] = virtual_filled[col].fillna("__MISSING__")
+    return real_filled, virtual_filled
 
 
 def handle_nan_values(real, virtual, strategy=NaNHandlingStrategy.sample_random):
@@ -98,9 +118,16 @@ def handle_nan_values(real, virtual, strategy=NaNHandlingStrategy.sample_random)
     if strategy == NaNHandlingStrategy.accept_inbalance:
         return real.dropna(), virtual.dropna()
     if strategy == NaNHandlingStrategy.sample_random:
+        real_raw = real
+        virtual_raw = virtual
         # remove all rows containing NaN values
         real = real.dropna()
         virtual = virtual.dropna()
+
+        # If we dropped everything, fall back to encoding NaNs instead of crashing downstream.
+        if real.shape[0] == 0 or virtual.shape[0] == 0:
+            return _encode_nan_values(real=real_raw, virtual=virtual_raw)
+
         # subsample in such a way that each dataframe has the same amount of rows
         if real.shape[0] < virtual.shape[0]:
             virtual = virtual.loc[np.random.choice(virtual.index, real.shape[0], replace=False)]
@@ -126,28 +153,7 @@ def handle_nan_values(real, virtual, strategy=NaNHandlingStrategy.sample_random)
                 sample_idx.append(np.argmin(distance))
             real = real.iloc[sample_idx]
     elif strategy == NaNHandlingStrategy.encode_nan:
-        for col in real:
-            sum_real_na = real[col].isna().sum()
-            sum_virtual_na = virtual[col].isna().sum()
-            sum_diff = abs(sum_virtual_na - sum_real_na)
-            if sum_real_na > sum_virtual_na:
-                # sample indices to replace with NaN
-                replace_idx = rnd.sample(range(1, virtual.shape[0]), sum_diff)
-                virtual.loc[replace_idx, col] = None
-            elif sum_real_na < sum_virtual_na:
-                # sample indices to replace with NaN
-                replace_idx = rnd.sample(range(1, real.shape[0]), sum_diff)
-                real.loc[replace_idx, col] = None
-            # encode NaN
-            cat_col_bool = [column_is_categorical(col) for col in real.dropna().to_numpy().T]
-            cat_cols = np.array(real.columns)[cat_col_bool]
-            num_cols = np.array(real.columns)[np.invert(cat_col_bool)]
-            for col in cat_cols:
-                real[col] = real[col].fillna(real[col].max() + 1)
-                virtual[col] = virtual[col].fillna(virtual[col].max() + 1)
-            for col in num_cols:
-                real[col] = real[col].fillna(0)
-                virtual[col] = virtual[col].fillna(0)
+        return _encode_nan_values(real=real, virtual=virtual)
     return real, virtual
 
 

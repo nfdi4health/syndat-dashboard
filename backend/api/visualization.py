@@ -9,9 +9,19 @@ from api.data_loader import load_data_decoded
 
 def get_tsne_plot_data(real, virtual):
     x = pandas.concat([real, virtual])
-    perplexity = 30
-    if real.shape[1] < 30:
-        perplexity = real.shape[1] - 1
+    n_samples = x.shape[0]
+    if n_samples < 2:
+        return (
+            pandas.Series(dtype=float).to_numpy(),
+            pandas.Series(dtype=float).to_numpy(),
+            pandas.Series(dtype=float).to_numpy(),
+            pandas.Series(dtype=float).to_numpy(),
+        )
+
+    # Per scikit-learn: perplexity must be < n_samples.
+    # Choose a conservative value for small datasets.
+    perplexity = min(30, max(1, (n_samples - 1) // 3))
+    perplexity = min(perplexity, n_samples - 1)
     tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
     tsne_result = tsne.fit_transform(x)
     border = real.shape[0]

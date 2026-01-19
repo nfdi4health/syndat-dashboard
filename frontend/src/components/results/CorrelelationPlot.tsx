@@ -7,6 +7,7 @@ type State = {
   checked: boolean;
   isLoading: boolean;
   error: string | null;
+  cacheBuster: number;
 }
 
 type Props = {
@@ -18,12 +19,23 @@ class CorrelationPlot extends React.Component<Props, State> {
 
   constructor(props: any) {
     super(props);
-    this.state = { checked: false, isLoading: true, error: null };
+    this.state = { checked: false, isLoading: true, error: null, cacheBuster: Date.now() };
     this.handleDisplaySwitchClick = this.handleDisplaySwitchClick.bind(this);
   }
 
   handleDisplaySwitchClick() {
-    this.setState({ checked: !this.state.checked, isLoading: true, error: null });
+    this.setState({
+      checked: !this.state.checked,
+      isLoading: true,
+      error: null,
+      cacheBuster: Date.now(),
+    });
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.dataset !== this.props.dataset) {
+      this.setState({ isLoading: true, error: null, cacheBuster: Date.now() });
+    }
   }
 
 
@@ -47,7 +59,7 @@ class CorrelationPlot extends React.Component<Props, State> {
           {!this.state.error && (
             <img
               className="ResultsPlotImage"
-              src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}&t=${Date.now()}`}
+              src={`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/plots/correlation?type=${switchState}&t=${this.state.cacheBuster}`}
               alt="correlation plot"
               onLoad={() => this.setState({ isLoading: false })}
               onError={() =>
