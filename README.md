@@ -1,4 +1,4 @@
-<p align="center">
+<p align="left">
 	<picture>
 		<source media="(prefers-color-scheme: dark)" srcset="frontend/public/brand/syndat_dashboard_white.svg">
 		<img alt="SYNDAT Dashboard" src="frontend/public/brand/syndat_dashboard.svg">
