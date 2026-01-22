@@ -9,13 +9,18 @@
   --brand-50: #eef6ff;
   --brand-100: #d9ebff;
   --brand-200: #b7d7ff;
-  --brand-400: #4f97e6;
-  --brand-500: #2f80ed;
-  --brand-600: #1f6ed1;
-  --brand-700: #1a5bb0;
+  --brand-400: #2f7de8;
+  --brand-500: #1668d8;
+  --brand-600: #005BBB; /* logo blue */
+  --brand-700: #004a99;
   --success: #2e7d32;
   --warning: #b26a00;
   --danger: #c62828;
+
+  /* Bootstrap theme overrides */
+  --bs-primary: var(--brand-600);
+  --bs-link-color: var(--brand-600);
+  --bs-link-hover-color: var(--brand-700);
 
   /* Typography */
   --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
@@ -66,6 +71,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a { color: var(--brand-600); }
+a:hover { color: var(--brand-700); }
+
 code { font-family: var(--font-mono); }
 
 /* Headings */
@@ -112,8 +120,30 @@ ul { margin: 0 0 var(--space-5); padding-left: var(--space-6); }
 .app-navbar {
   background: var(--surface) !important;
   border-bottom: 1px solid var(--border);
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
-.app-navbar .navbar-brand { font-weight: 700; color: var(--text) !important; }
+.app-navbar .navbar-brand {
+  font-weight: 700;
+  color: var(--text) !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-right: var(--space-5);
+  line-height: 1;
+}
+.app-navbar__brand img {
+  height: 64px;
+  max-height: 64px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 576px) {
+  .app-navbar__brand img {
+    height: 46px;
+    max-height: 46px;
+  }
+}
 .app-navbar .nav-link { color: var(--muted) !important; }
 .app-navbar .nav-link.active, .app-navbar .nav-link:hover { color: var(--text) !important; }
 

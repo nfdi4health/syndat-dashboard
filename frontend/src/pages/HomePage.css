@@ -4,15 +4,6 @@
   gap: var(--space-7);
 }
 
-.HomePage__hero {
-  padding: var(--space-7);
-}
-
-.HomePage__subtitle {
-  font-size: var(--fs-500);
-  margin: 0;
-}
-
 .HomePage h4 {
   margin-top: var(--space-6);
 }

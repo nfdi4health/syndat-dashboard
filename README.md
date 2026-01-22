@@ -1,4 +1,10 @@
-# Syndat
+<p align="left">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="frontend/public/brand/syndat_dashboard_white.svg">
+		<img alt="SYNDAT Dashboard" src="frontend/public/brand/syndat_dashboard.svg">
+	</picture>
+</p>
+
 A Dashboard for evaluation &amp; visualization of synthetic patient level data.
 
 ## About

@@ -3,13 +3,6 @@ import "./HomePage.css";
 function HomePage() {
   return (
     <div className="HomePage">
-      <header className="card HomePage__hero">
-        <h1>SYNDAT</h1>
-        <p className="muted HomePage__subtitle">
-          A dashboard for evaluation and visualization of synthetic patient-level data.
-        </p>
-      </header>
-
       <section className="card">
         <h3>About</h3>
         <p>
