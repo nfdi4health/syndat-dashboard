@@ -20,6 +20,10 @@ SYNDAT was developed as part of TA6.4 of the [NFDI4Health Initiative](https://ww
 
 The Dashboard consists of a frontend module for user interaction and data visualization as well as a backend module for direct API access.
 
+## Support
+
+For questions or support, please contact the NFDI4Health helpdesk at [helpdesk@nfdi4health.de](mailto:helpdesk@nfdi4health.de).
+
 ## Installation
 
 ### Python API
