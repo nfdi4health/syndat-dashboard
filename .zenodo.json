@@ -46,6 +46,12 @@
       "relation": "references",
       "scheme": "doi",
       "resource_type": "publication-conferencepaper"
+    },
+    {
+      "identifier": "https://syndat.scai.fraunhofer.de/",
+      "relation": "isRelatedTo",
+      "scheme": "url",
+      "resource_type": "other"
     }
   ],
   "keywords": [
