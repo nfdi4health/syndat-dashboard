@@ -3,13 +3,22 @@ version: "3.8"
 services:
 
   frontend:
-    image: ghcr.io/nfdi4health/syndat-dashboard/frontend:latest
+    image: frontend
     hostname: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
     - "3000:80"
 
   backend:
-    image: ghcr.io/nfdi4health/syndat-dashboard/backend:latest
+    image: backend
     hostname: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
     - "8000:80"
+    environment:
+      - SYNDAT_ADMIN_USERNAME=foo
+      - SYNDAT_ADMIN_PASSWORD=bar

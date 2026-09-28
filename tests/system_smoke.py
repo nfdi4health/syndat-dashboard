@@ -9,7 +9,7 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 
-COMPOSE_FILE = "docker-compose.local.yml"
+COMPOSE_FILE = "docker-compose.yml"
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 TIMEOUT_SECONDS = int(os.getenv("SYSTEM_TEST_TIMEOUT", "180"))

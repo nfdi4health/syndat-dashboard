@@ -1,0 +1,32 @@
+name: Backend tests
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/**"
+
+jobs:
+  backend-tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: python -m pip install --requirement backend/requirements.txt
+      - name: Run backend tests
+        working-directory: backend
+        run: python -m pytest
