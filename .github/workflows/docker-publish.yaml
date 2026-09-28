@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
     - name: Get Version Tag
       id: version
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> "$GITHUB_OUTPUT"
     - name: Docker Login
-      uses: docker/login-action@v2
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Setup Node 20.x
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: 20.x
     - name: Build frontend (Vite)
@@ -36,7 +36,7 @@ jobs:
         fi
         npm run build
     - name: Build & push frontend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: ./frontend
         file: ./frontend/Dockerfile
@@ -45,7 +45,7 @@ jobs:
           ghcr.io/${{ github.repository }}/frontend:latest
           ghcr.io/${{ github.repository }}/frontend:${{ steps.version.outputs.VERSION }}
     - name: Build & push api
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: ./backend
         file: ./backend/Dockerfile
