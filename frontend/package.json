@@ -21,7 +21,7 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
     "react-bootstrap-icons": "^1.11.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^19.3.0",
     "react-globally": "^1.1.0",
     "react-plotly.js": "^2.6.0",
     "react-router-dom": "^6.20.1",
