@@ -45,7 +45,7 @@ jobs:
         npm run build
 
     - name: Build & push frontend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: ./frontend
         file: ./frontend/Dockerfile
@@ -53,7 +53,7 @@ jobs:
         tags: ghcr.io/${{ github.repository }}/frontend:latest-scai, ghcr.io/${{ github.repository }}/frontend:${{ steps.versions.outputs.FRONTEND_VERSION }}-scai
 
     - name: Build & push backend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: ./backend
         file: ./backend/Dockerfile
