@@ -5,7 +5,7 @@
 	</picture>
 </p>
 
-<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/tests.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/tests.yml/badge.svg" alt="Tests"></a></p>
+<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/tests.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
 
 A Dashboard for evaluation &amp; visualization of synthetic patient level data.
 
