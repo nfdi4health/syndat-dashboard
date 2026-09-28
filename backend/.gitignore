@@ -1,2 +1,3 @@
 datasets/*
 api/__pycache__/*
+test/__pycache__/*
