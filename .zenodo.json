@@ -1,0 +1,67 @@
+{
+  "title": "SYNDAT Dashboard",
+  "description": "A Dashboard for evaluation & visualization of synthetic patient level data.",
+  "publication_date": "2024-12-08",
+  "creators": [
+    {
+      "name": "Adams, Tim",
+      "orcid": "https://orcid.org/0000-0002-2823-0102",
+      "affiliation": "Fraunhofer Institute for Algorithms and Scientific Computing"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Fröhlich, Holger",
+      "orcid": "https://orcid.org/0000-0002-5328-1243",
+      "affiliation": "Fraunhofer Institute for Algorithms and Scientific Computing",
+      "type": "Supervisor"
+    }
+  ],
+  "grants": [
+    {
+      "id": "10.13039/501100001659::442326535"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/nfdi4health/syndat-dashboard",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "10.5281/zenodo.21675503",
+      "relation": "requires",
+      "scheme": "doi",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "10.1016/j.isci.2025.112382",
+      "relation": "references",
+      "scheme": "doi",
+      "resource_type": "publication-article"
+    },
+    {
+      "identifier": "10.3233/SHTI240834",
+      "relation": "references",
+      "scheme": "doi",
+      "resource_type": "publication-conferencepaper"
+    }
+  ],
+  "keywords": [
+    "synthetic data",
+    "data quality",
+    "privacy",
+    "visualization",
+    "dashboard"
+  ],
+  "communities": [
+    {
+      "identifier": "0b37260a-f619-4216-b12c-2a21548b9c89"
+    }
+  ],
+  "license": "cc-by-nc-nd-4.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "language": "eng"
+}
