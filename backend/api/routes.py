@@ -111,7 +111,7 @@ def get_available_data_sets():
 
 @app.get("/datasets/{identifier}/patients/synthetic/{index}", tags=["results"])
 def get_synthetic_patient(index: int, identifier: str):
-    return load_virtual_patients_decoded("datasets/patients/" + identifier).loc[index]
+    return load_virtual_patients_decoded("datasets/" + identifier + "/patients").loc[index].to_dict()
 
 
 @app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
@@ -388,7 +388,7 @@ def create_new_dataset_based_on_current_results(identifier: str):
 
 @app.post("/datasets/{identifier}/patients/synthetic/search", tags=["search"])
 async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList):
-    real, virtual = load_data_decoded(output_path="datasets/" + identifier + "/patients")
+    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients")
     result = get_similar_patients(virtual, data.constraints)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
 

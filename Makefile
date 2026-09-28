@@ -10,7 +10,7 @@ build-frontend:
 # Target for running the application using Docker Compose
 up: 
 	build-frontend
-	docker-compose -f docker-compose.local.yml up
+	docker-compose up
 
 # Target installing frontend and backend dependencies for local development
 install-local:
