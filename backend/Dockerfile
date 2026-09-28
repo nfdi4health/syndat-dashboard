@@ -1,5 +1,5 @@
 # Define the base image
-FROM python:3.12
+FROM python:3.11
 
 # Create a folder and copy the folder structure from local
 RUN mkdir -p /api
