@@ -10,7 +10,7 @@ from typing import List
 
 
 def load_virtual_patients_decoded(output_path):
-    df_virtual = pd.read_csv(output_path + "/synthetic.csv")
+    df_virtual = pd.read_csv(output_path + "/synthetic.csv", dtype={"SUBJID": str})
     return df_virtual
 
 
