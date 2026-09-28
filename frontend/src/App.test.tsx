@@ -1,12 +1,15 @@
-import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
+import axios from "axios";
 import App from "./App";
 
-const mockedAxiosGet = jest.fn();
 jest.mock("axios", () => ({
   __esModule: true,
-  default: { get: mockedAxiosGet },
+  default: {
+    get: jest.fn(),
+  },
 }));
+
+const mockedAxiosGet = axios.get as jest.MockedFunction<typeof axios.get>;
 
 // Keep route tests focused on App and the page shell rather than charting
 // libraries and the individual result visualizations.
@@ -91,7 +94,7 @@ test("renders the results page and its default dataset state", async () => {
   renderRoute("/results");
 
   expect(await screen.findByText(/latest uploaded dataset/i)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /datasets summary/i })).toHaveAttribute(
+  expect(screen.getByRole("link", { name: /datasets summary/i })).toHaveAttribute(
     "href",
     "/results/summary",
   );
