@@ -42,7 +42,7 @@ Documentation and Code are available from the following project:
 You can run a local installation using `docker-compose`:
 
 ```bash
-docker-compose -f docker-compose.local.yml up
+docker-compose up
 ```
 
 After startup, you will find the frontend running on [localhost:3000](http://localhost:3000).
