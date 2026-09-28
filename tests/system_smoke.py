@@ -39,8 +39,21 @@ def assert_backend_contract() -> None:
 
     status, body = fetch(f"{BACKEND_URL}/datasets")
     assert status == 200
-    datasets = json.loads(body)
-    assert "test" in datasets
+    assert isinstance(json.loads(body), list)
+
+    # The `default` dataset ships inside the container, so exercise its
+    # patient and result endpoints to check the deployed API actually works.
+    default_endpoints = (
+        "/datasets/default/patients/synthetic",
+        "/datasets/default/patients/synthetic/0",
+        "/datasets/default/results/auc",
+        "/datasets/default/results/jsd",
+        "/datasets/default/results/norm",
+        "/datasets/default/scores",
+    )
+    for path in default_endpoints:
+        status, body = fetch(f"{BACKEND_URL}{path}")
+        assert status == 200, f"{path} returned status {status}: {body[:200]}"
 
 
 def assert_frontend_contract() -> None:
