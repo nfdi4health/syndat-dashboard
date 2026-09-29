@@ -17,11 +17,6 @@
       "type": "Supervisor"
     }
   ],
-  "grants": [
-    {
-      "id": "10.13039/501100001659::442326535"
-    }
-  ],
   "related_identifiers": [
     {
       "identifier": "https://github.com/nfdi4health/syndat-dashboard",
