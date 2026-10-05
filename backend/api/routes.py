@@ -1,7 +1,6 @@
 import io
 import os
 import shutil
-from distutils.dir_util import copy_tree
 import zipfile
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasicCredentials
@@ -382,7 +381,7 @@ def create_new_dataset_based_on_current_results(identifier: str):
         # clear real data before copying
         os.remove("datasets/default/patients/real.csv")
         os.mkdir(new_dir_name)
-        copy_tree("datasets/default", new_dir_name)
+        shutil.copytree("datasets/default", new_dir_name, dirs_exist_ok=True)
         return {"message": f"Successfully created dataset {identifier}"}
 
 

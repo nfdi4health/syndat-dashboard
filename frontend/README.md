@@ -7,7 +7,7 @@ This frontend uses Vite for development/build.
 - `npm run dev`: Start the dev server on http://localhost:3000
 - `npm run build`: Build production assets into `dist/`
 - `npm run preview`: Preview the production build locally
-- `npm test`: Run tests (currently via CRA's test runner)
+- `npm test`: Run tests via Vitest
 
 ## Environment
 
