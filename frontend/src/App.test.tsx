@@ -1,39 +1,41 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
 import App from "./App";
+import { vi, test, expect, beforeEach, afterEach } from "vitest";
+import type { MockedFunction } from "vitest";
 
-jest.mock("axios", () => ({
+vi.mock("axios", () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
+    get: vi.fn(),
   },
 }));
 
-const mockedAxiosGet = axios.get as jest.MockedFunction<typeof axios.get>;
+const mockedAxiosGet = axios.get as MockedFunction<typeof axios.get>;
 
 // Keep route tests focused on App and the page shell rather than charting
 // libraries and the individual result visualizations.
-jest.mock("./components/results/ClassifierReport", () => ({
+vi.mock("./components/results/ClassifierReport", () => ({
   __esModule: true,
   default: () => <div>Classifier report</div>,
 }));
-jest.mock("./components/results/PrivacyReport", () => ({
+vi.mock("./components/results/PrivacyReport", () => ({
   __esModule: true,
   default: () => <div>Privacy report</div>,
 }));
-jest.mock("./components/results/OutlierPlot", () => ({
+vi.mock("./components/results/OutlierPlot", () => ({
   __esModule: true,
   default: () => <div>Outlier plot</div>,
 }));
-jest.mock("./components/results/PlotSelector", () => ({
+vi.mock("./components/results/PlotSelector", () => ({
   __esModule: true,
   default: () => <div>Plot selector</div>,
 }));
-jest.mock("./components/results/CorrelelationPlot", () => ({
+vi.mock("./components/results/CorrelelationPlot", () => ({
   __esModule: true,
   default: () => <div>Correlation plot</div>,
 }));
-jest.mock("./components/results/summary/DatasetsEvaluationComparisionChart", () => ({
+vi.mock("./components/results/summary/DatasetsEvaluationComparisionChart", () => ({
   __esModule: true,
   default: () => <div>Dataset comparison chart</div>,
 }));
