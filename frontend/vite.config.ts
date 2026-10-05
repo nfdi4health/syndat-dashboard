@@ -14,4 +14,10 @@ export default defineConfig({
       REACT_APP_API_BASE_URL: process.env.REACT_APP_API_BASE_URL,
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    css: false,
+  },
 });

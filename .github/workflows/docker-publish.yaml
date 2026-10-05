@@ -20,10 +20,10 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Setup Node 20.x
+    - name: Setup Node 24.x
       uses: actions/setup-node@v7
       with:
-        node-version: 20.x
+        node-version: 24.x
     - name: Build frontend (Vite)
       working-directory: frontend
       run: |

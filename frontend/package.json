@@ -25,7 +25,6 @@
     "react-globally": "^1.1.0",
     "react-plotly.js": "^4.1.0",
     "react-router-dom": "^7.18.4",
-    "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
     "typescript": "^7.0.2",
     "web-vitals": "^6.2.2"
@@ -35,16 +34,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "react-scripts test",
+    "test": "vitest",
     "docker:build": "docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
     "docker:push": "docker image push $npm_package_config_imageRepo:$npm_package_version",
     "deploy:k8s": "kubectl rollout restart deployment vambn-frontend-deployment"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -61,25 +54,28 @@
   "overrides": {
     "ajv": "8.12.0",
     "ajv-formats": "2.1.1",
-    "ajv-keywords": "4.0.0",
-    "fork-ts-checker-webpack-plugin": "8.0.0"
+    "ajv-keywords": "4.0.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.1",
+    "dotenv": "^16.4.5",
     "vite": "^8.3.2",
     "@babel/core": "^8.0.6",
     "@babel/preset-env": "^7.23.8",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.6",
     "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@types/jest": "^30.0.0",
     "@types/minimatch": "^6.0.0",
     "@types/plotly.js": "^3.0.14",
-    "@types/react-plotly.js": "^2.6.0"
+    "@types/react-plotly.js": "^2.6.0",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
   }
 }
