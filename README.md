@@ -5,96 +5,122 @@
 	</picture>
 </p>
 
-<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
+<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
 
-A Dashboard for evaluation &amp; visualization of synthetic patient level data.
+SYNDAT compares synthetic patient-level data with the original tabular data.
+The dashboard brings together quality metrics, privacy risk estimates, and plots
+for examining where the datasets agree and where they differ.
 
-## About
+Developed as part of TA6.4 of the [NFDI4Health Initiative](https://www.nfdi4health.de/).
 
-SYNDAT was developed as part of TA6.4 of the [NFDI4Health Initiative](https://www.nfdi4health.de/). Main functionalities include:
+## The dashboard
 
-- Automated, on-demand assesment of synthetic data quality & privacy metrics
-- Visualization synthetic & real data relations using low-dimensional embedding plots
-- Detection of possible outliers in the synthetic data population
-- Visualization of distribution metrics in the form of violin, barchart or correlation plots
+The Results page shows distribution and correlation similarity alongside
+discrimination complexity and estimates of singling out, linkability, and
+inference risk.
 
-The Dashboard consists of a frontend module for user interaction and data visualization as well as a backend module for direct API access.
+![Results page with dataset selection, three quality scores, and three privacy risk estimates](docs/images/syndat-dashboard-scores.png)
 
-## Support
+A two-dimensional embedding places original and synthetic records in the same
+plot. The controls switch between patient distributions and outlier scores.
+Feature-level violin and bar plots, together with correlation plots, provide
+more detailed comparisons.
 
-For questions or support, please contact the NFDI4Health helpdesk at [helpdesk@nfdi4health.de](mailto:helpdesk@nfdi4health.de).
+![Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend](docs/images/syndat-dashboard-scatter.png)
 
-## Installation
+## Using SYNDAT
 
-### Python API
+1. Upload the original and synthetic datasets as CSV files with matching column names on the **Input** page.
+2. Start evaluation to compute the metrics and plots.
+3. Open **Results** to inspect the scores, distributions, outliers, and correlations.
+4. Save results under a dataset name to revisit them or compare scores in **Datasets Summary**.
 
-If you want to use the corresponding Python package that supports both evaluation metrics and visualizations programmatically, you can install it using:
+Processing a new upload replaces the current results. Save any results you want
+to keep before starting another evaluation. The backend also exposes an API for
+programmatic access.
+
+## Running locally
+
+### Docker
+
+From the repository root, build the frontend assets before starting the
+containers. The frontend Docker image serves the existing build; it does not
+build the application itself.
+
+```bash
+cd frontend
+npm ci --legacy-peer-deps
+REACT_APP_API_BASE_URL=http://localhost:8000 npm run build
+cd ..
+docker compose up --build
+```
+
+This requires Node.js and Docker with Compose. Node.js 24 is used in CI.
+Open the dashboard at [localhost:3000](http://localhost:3000) and the API
+documentation at [localhost:8000/docs](http://localhost:8000/docs).
+
+### Local development
+
+CI uses [Node.js 24](https://nodejs.org/) and
+[Python 3.12](https://www.python.org/downloads/).
+
+From the repository root, create a Python environment and start the backend:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --requirement backend/requirements.txt
+cd backend
+uvicorn api.routes:app --reload
+```
+
+In a second terminal, also from the repository root:
+
+```bash
+cd frontend
+npm ci --legacy-peer-deps
+REACT_APP_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+Open [localhost:3000](http://localhost:3000). The API URL can also be set in
+[`frontend/.env`](frontend/.env); it is read when Vite starts or builds the frontend.
+
+### Python package
+
+For evaluation and visualization directly in Python, use the separate
+[`syndat` package](https://github.com/SCAI-BIO/syndat):
 
 ```bash
 pip install syndat
 ```
 
-Documentation and Code are available from the following project:
-[https://github.com/SCAI-BIO/syndat](https://github.com/SCAI-BIO/syndat)
-
-### Docker
-
-You can run a local installation using `docker-compose`:
-
-```bash
-docker-compose up
-```
-
-After startup, you will find the frontend running on [localhost:3000](http://localhost:3000).
-
-### Running a local development version
-
-#### Requirements
-
-- [Node.js 18+ LTS](https://nodejs.org/de)
-- [Python 3.x.x](https://www.python.org/downloads/)
-
-```bash
-# install python dependencies
-pip install --requirement backend/requirements.txt
-
-# start backend
-cd backend && uvicorn api.routes:app --reload
-
-# install node dependencies
-cd frontend; npm install
-
-# start frontend (Vite)
-cd frontend && npm run dev
-
-# optional: production build and preview
-# cd frontend && npm run build && npm run preview
-```
-
 ## API authentication
 
-The following two API endpoints for batch updating data as well as batch downloading data are secured by a basic authentication workflow:
--  /datasets/import
--  /datasets/export
+The `/datasets/import` and `/datasets/export` endpoints use HTTP Basic
+Authentication. Change the development credentials before exposing the API
+outside your local machine.
 
-The default username/password are defined in the [backend environment file](https://github.com/nfdi4health/syndat-dashboard/blob/main/backend/.env). You may change them before the application startup by adapting the corresponding system environment variables:
+For local development, set these variables before starting the backend;
+otherwise it reads the defaults from [`backend/.env`](backend/.env):
 
 ```bash
-export SYNDAT_ADMIN_USERNAME=my_new_username
-export SYNDAT_ADMIN_PASSWORD=my_new_password
+export SYNDAT_ADMIN_USERNAME=your_username
+export SYNDAT_ADMIN_PASSWORD=your_password
 ```
 
+For Docker, change the backend service's environment settings in
+[`docker-compose.yml`](docker-compose.yml). The Compose file sets the container
+credentials explicitly; exporting variables in your shell does not override them.
 
-# Citation
+## Citation
 
-If you use **Syndat** in your research, please cite as:
+If you use **Syndat** in your research, please cite:
 
 ```bibtex
 @article{Adams_On_the_fidelity_2025,
   author  = {Adams, Tim and Birkenbihl, Colin and Otte, Karen and
              Ng, Hwei Geok and Rieling, Jonas Adrian and
-             Näher, Anatol-Fiete and Sax, Ulrich and
-             Prasser, Fabian and Fröhlich, Holger},
+             Näher, Anatol-Fiete and Sax, Ulrich and Prasser, Fabian and Fröhlich, Holger},
   title   = {On the fidelity versus privacy and utility trade-off of synthetic patient data},
   journal = {iScience},
   volume  = {28},
@@ -102,3 +128,13 @@ If you use **Syndat** in your research, please cite as:
   doi     = {10.1016/j.isci.2025.112382}
 }
 ```
+
+## Support and license
+
+For questions or support, contact the NFDI4Health helpdesk at
+[helpdesk@nfdi4health.de](mailto:helpdesk@nfdi4health.de).
+For bugs and feature requests, use the
+[issue tracker](https://github.com/nfdi4health/syndat-dashboard/issues).
+
+The repository is licensed under
+[CC BY-NC-ND 4.0](LICENSE.md).
