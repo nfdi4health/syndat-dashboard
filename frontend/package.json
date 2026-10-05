@@ -76,6 +76,6 @@
     "@types/plotly.js": "^2.12.33",
     "@types/react-plotly.js": "^2.6.0",
     "jsdom": "^26.1.0",
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.3"
   }
 }
