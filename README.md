@@ -15,43 +15,76 @@ Developed as part of TA6.4 of the [NFDI4Health Initiative](https://www.nfdi4heal
 
 ## The dashboard
 
-The Syndat Dashboard offers a wide range of visualizations and easy understandable metrics to evaluate the quality of your synthetic data. It is build for easy accessibility and usability by breaking down different aspects of synthetic data fidelity and privacy into three different scores each.
+The dashboard presents three quality scores and three privacy risk estimates.
+Distribution plots, correlation heatmaps, and an interactive embedding help
+identify outliers and features that differ between original and synthetic data.
 
-Additionally, different visualizations for data distributions and correlations can be utilized to identify synthetic data outliers or individual low-fidelity features. 
-
-
-![Results page with dataset selection, three quality scores, and three privacy risk estimates](docs/images/syndat-dashboard-scores.png)
-
-![Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend](docs/images/syndat-dashboard-scatter.png)
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-scores.png">
+        <img src="docs/images/syndat-dashboard-scores.png" alt="Results page with dataset selection, three quality scores, and three privacy risk estimates" width="100%">
+      </a>
+      <br>Quality and privacy scores
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-input.png">
+        <img src="docs/images/syndat-dashboard-input.png" alt="CSV upload forms, result processing controls, and named result storage" width="100%">
+      </a>
+      <br>Data upload and processing
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-features.png">
+        <img src="docs/images/syndat-dashboard-features.png" alt="Feature selection and violin plots comparing reference and synthetic age distributions, with descriptive statistics" width="100%">
+      </a>
+      <br>Feature distributions
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-correlations.png">
+        <img src="docs/images/syndat-dashboard-correlations.png" alt="Correlation heatmap with controls for switching between reference and synthetic data" width="100%">
+      </a>
+      <br>Correlations
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-scatter.png">
+        <img src="docs/images/syndat-dashboard-scatter.png" alt="Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend" width="100%">
+      </a>
+      <br>Patient distributions
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/images/syndat-dashboard-summary.png">
+        <img src="docs/images/syndat-dashboard-summary.png" alt="Grouped bar chart comparing three quality scores across two simulated datasets" width="100%">
+      </a>
+      <br>Quality comparison
+    </td>
+  </tr>
+</table>
 
 ## Using SYNDAT
 
 1. Upload the original and synthetic datasets as CSV files with matching column names on the **Input** page.
 2. Start evaluation to compute the metrics and plots.
 3. Open **Results** to inspect the scores, distributions, outliers, and correlations.
-4. Save results under a dataset name to revisit them or compare scores of subsequent SDG runs in the **Datasets Summary** page.
+4. Save results under a dataset name to revisit them or compare scores from different synthetic data generation runs on the **Datasets Summary** page.
 
-Syndat Dashboard does not store real data and will only use it for score calculation during runtime.
+SYNDAT Dashboard does not store real data and will only use it for score calculation during runtime.
 
 ## Running locally
 
-The Dashboard can be deployed independently on data holding sides using local deployment.
+The dashboard can be deployed locally at data-holding institutions.
 
 ### Docker
 
-From the repository root, build the frontend assets before starting the
-containers. The frontend Docker image serves the existing build; it does not
-build the application itself.
+From the repository root:
 
 ```bash
-cd frontend
-npm ci --legacy-peer-deps
-REACT_APP_API_BASE_URL=http://localhost:8000 npm run build
-cd ..
 docker compose up --build
 ```
 
-This requires Node.js and Docker with Compose. Node.js 24 is used in CI.
 Open the dashboard at [localhost:3000](http://localhost:3000) and the API
 documentation at [localhost:8000/docs](http://localhost:8000/docs).
 
@@ -110,7 +143,7 @@ credentials explicitly; exporting variables in your shell does not override them
 
 ## Citation
 
-If you use **Syndat** in your research, please cite:
+If you use **SYNDAT** in your research, please cite:
 
 ```bibtex
 @article{Adams_On_the_fidelity_2025,
