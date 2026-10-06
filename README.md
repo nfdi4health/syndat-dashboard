@@ -28,10 +28,10 @@ identify outliers and features that differ between original and synthetic data.
       <br>Quality and privacy scores
     </td>
     <td width="50%" valign="top">
-      <a href="docs/images/syndat-dashboard-input.png">
-        <img src="docs/images/syndat-dashboard-input.png" alt="CSV upload forms, result processing controls, and named result storage" width="100%">
+      <a href="docs/images/syndat-dashboard-scatter.png">
+        <img src="docs/images/syndat-dashboard-scatter.png" alt="Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend" width="100%">
       </a>
-      <br>Data upload and processing
+      <br>Patient distributions
     </td>
   </tr>
   <tr>
@@ -46,20 +46,6 @@ identify outliers and features that differ between original and synthetic data.
         <img src="docs/images/syndat-dashboard-correlations.png" alt="Correlation heatmap with controls for switching between reference and synthetic data" width="100%">
       </a>
       <br>Correlations
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="docs/images/syndat-dashboard-scatter.png">
-        <img src="docs/images/syndat-dashboard-scatter.png" alt="Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend" width="100%">
-      </a>
-      <br>Patient distributions
-    </td>
-    <td width="50%" valign="top">
-      <a href="docs/images/syndat-dashboard-summary.png">
-        <img src="docs/images/syndat-dashboard-summary.png" alt="Grouped bar chart comparing three quality scores across two simulated datasets" width="100%">
-      </a>
-      <br>Quality comparison
     </td>
   </tr>
 </table>
