@@ -15,16 +15,12 @@ Developed as part of TA6.4 of the [NFDI4Health Initiative](https://www.nfdi4heal
 
 ## The dashboard
 
-The Results page shows distribution and correlation similarity alongside
-discrimination complexity and estimates of singling out, linkability, and
-inference risk.
+The Syndat Dashboard offers a wide range of visualizations and easy understandable metrics to evaluate the quality of your synthetic data. It is build for easy accessibility and usability by breaking down different aspects of synthetic data fidelity and privacy into three different scores each.
+
+Additionally, different visualizations for data distributions and correlations can be utilized to identify synthetic data outliers or individual low-fidelity features. 
+
 
 ![Results page with dataset selection, three quality scores, and three privacy risk estimates](docs/images/syndat-dashboard-scores.png)
-
-A two-dimensional embedding places original and synthetic records in the same
-plot. The controls switch between patient distributions and outlier scores.
-Feature-level violin and bar plots, together with correlation plots, provide
-more detailed comparisons.
 
 ![Patient distribution view with original records in blue and synthetic records in orange, including the view controls and legend](docs/images/syndat-dashboard-scatter.png)
 
@@ -33,13 +29,13 @@ more detailed comparisons.
 1. Upload the original and synthetic datasets as CSV files with matching column names on the **Input** page.
 2. Start evaluation to compute the metrics and plots.
 3. Open **Results** to inspect the scores, distributions, outliers, and correlations.
-4. Save results under a dataset name to revisit them or compare scores in **Datasets Summary**.
+4. Save results under a dataset name to revisit them or compare scores of subsequent SDG runs in the **Datasets Summary** page.
 
-Processing a new upload replaces the current results. Save any results you want
-to keep before starting another evaluation. The backend also exposes an API for
-programmatic access.
+Syndat Dashboard does not store real data and will only use it for score calculation during runtime.
 
 ## Running locally
+
+The Dashboard can be deployed independently on data holding sides using local deployment.
 
 ### Docker
 
