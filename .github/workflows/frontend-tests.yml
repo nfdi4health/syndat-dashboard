@@ -12,6 +12,9 @@ on:
       - "frontend/**"
       - ".github/**"
 
+permissions:
+  contents: read
+
 jobs:
   frontend-tests:
     name: Frontend tests

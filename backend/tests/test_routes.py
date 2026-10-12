@@ -1,4 +1,6 @@
+import io
 import json
+import zipfile
 
 
 def test_info_endpoints_are_deterministic(api_client):
@@ -46,6 +48,36 @@ def test_search_filters_synthetic_patients(api_client):
     )
     assert response.status_code == 200
     assert json.loads(response.text) == [{"SUBJID": "1", "age": 30, "sex": "F"}]
+
+
+def test_dataset_identifier_traversal_is_rejected(api_client):
+    for path in (
+        "/datasets/../default/scores",
+        "/datasets/..%2f..%2fetc/results/auc",
+        "/datasets/..%2fdefault/scores",
+        "/datasets/a%00b/scores",
+        "/datasets/default/plots/violin/..%2f..%2f..%2fetc%2fpasswd",
+    ):
+        response = api_client.get(path)
+        assert response.status_code in (400, 404), f"{path} -> {response.status_code}"
+
+
+def test_valid_dataset_identifiers_still_work(api_client):
+    assert api_client.get("/datasets/default/scores").status_code == 200
+    assert api_client.get("/datasets/other/results/auc").status_code == 404
+
+
+def test_import_rejects_zip_slip_archive(api_client):
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("../evil.txt", b"pwned")
+    buffer.seek(0)
+    response = api_client.post(
+        "/datasets/import",
+        auth=("test-admin", "test-password"),
+        files={"file": ("datasets.zip", buffer.read(), "application/zip")},
+    )
+    assert response.status_code == 400
 
 
 def test_protected_import_requires_basic_auth(api_client):

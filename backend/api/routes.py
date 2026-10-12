@@ -1,7 +1,6 @@
 import io
 import os
 import shutil
-import zipfile
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasicCredentials
 
@@ -19,9 +18,10 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse, RedirectResponse, Response
 
 from api import processing
-from api.data_loader import create_datasets_archive, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
+from api.data_loader import create_datasets_archive, extract_zip_safely, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
 from api.filtering import get_column_types, get_similar_patients
 from api.auth import authenticate_user, init_credentials
+from api.paths import dataset_dir, safe_component
 
 
 app = FastAPI(
@@ -110,13 +110,15 @@ def get_available_data_sets():
 
 @app.get("/datasets/{identifier}/patients/synthetic/{index}", tags=["results"])
 def get_synthetic_patient(index: int, identifier: str):
-    return load_virtual_patients_decoded("datasets/" + identifier + "/patients").loc[index].to_dict()
+    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    return load_virtual_patients_decoded(patients_dir).loc[index].to_dict()
 
 
 @app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
 def get_output_column_types(identifier: str):
     # drop ID column
-    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop(columns='SUBJID', axis=1, errors='ignore')
+    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    virtual = load_virtual_patients_decoded(patients_dir).drop(columns='SUBJID', errors='ignore')
     column_types = get_column_types(virtual)
     return column_types
 
@@ -124,36 +126,40 @@ def get_output_column_types(identifier: str):
 @app.get("/datasets/{identifier}/results/auc", tags=["results"])
 def get_output_auc(identifier: str):
     # load from results if possible
-    if os.path.isfile('datasets/{}/results/auc.npy'.format(identifier)):
-        auc_score = np.load('datasets/{}/results/auc.npy'.format(identifier)).item()
+    auc_path = os.path.join(dataset_dir(identifier), "results", "auc.npy")
+    if os.path.isfile(auc_path):
+        auc_score = np.load(auc_path).item()
         return {"auc_score": auc_score}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/jsd", tags=["results"])
 def get_output_jsd(identifier: str):
-    if os.path.isfile('datasets/{}/results/jsd.npy'.format(identifier)):
-        jsd_score = np.load('datasets/{}/results/jsd.npy'.format(identifier)).item()
+    jsd_path = os.path.join(dataset_dir(identifier), "results", "jsd.npy")
+    if os.path.isfile(jsd_path):
+        jsd_score = np.load(jsd_path).item()
         return {"jsd_score": jsd_score}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/norm", tags=["results"])
 def get_output_norm(identifier: str):
-    if os.path.isfile('datasets/{}/results/norm.npy'.format(identifier)):
-        norm = np.load('datasets/{}/results/norm.npy'.format(identifier)).item()
+    norm_path = os.path.join(dataset_dir(identifier), "results", "norm.npy")
+    if os.path.isfile(norm_path):
+        norm = np.load(norm_path).item()
         return {"norm": norm}
     else:
-        raise HTTPException(code=404, detail="No saved results found for dataset ID {}".format(identifier))
+        raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
 
 
 @app.get("/datasets/{identifier}/results/privacy", tags=["results"])
 def get_privacy_score(identifier: str):
     # load from results if possible
-    if os.path.isfile('datasets/{}/results/privacy_score.npy'.format(identifier)):
-        privacy_score = np.load('datasets/{}/results/privacy_score.npy'.format(identifier)).item()
+    privacy_path = os.path.join(dataset_dir(identifier), "results", "privacy_score.npy")
+    if os.path.isfile(privacy_path):
+        privacy_score = np.load(privacy_path).item()
         return {"privacy_score": privacy_score}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -161,8 +167,9 @@ def get_privacy_score(identifier: str):
 
 @app.get("/datasets/{identifier}/results/outliers", tags=["results"])
 def get_output_outliers(identifier: str, anomaly_score: bool):
-    if os.path.isfile('datasets/{}/results/anomaly_scores.npy'.format(identifier)):
-        outliers = np.load('datasets/{}/results/anomaly_scores.npy'.format(identifier))
+    anomaly_path = os.path.join(dataset_dir(identifier), "results", "anomaly_scores.npy")
+    if os.path.isfile(anomaly_path):
+        outliers = np.load(anomaly_path)
         if anomaly_score:
             return {"Outlier_Scores": outliers.tolist()}
         else:
@@ -173,14 +180,19 @@ def get_output_outliers(identifier: str, anomaly_score: bool):
 
 @app.get("/datasets/{identifier}/results/tsne", tags=["results"])
 def get_tsne_plotly_data(identifier: str):
-    if os.path.isfile('datasets/{}/results/x_real.npy'.format(identifier)) \
-            and os.path.isfile('datasets/{}/results/x_virtual.npy'.format(identifier)) \
-            and os.path.isfile('datasets/{}/results/y_real.npy'.format(identifier)) \
-            and os.path.isfile('datasets/{}/results/y_virtual.npy'.format(identifier)):
-        x_real = np.load('datasets/{}/results/x_real.npy'.format(identifier))
-        x_virtual = np.load('datasets/{}/results/x_virtual.npy'.format(identifier))
-        y_real = np.load('datasets/{}/results/y_real.npy'.format(identifier))
-        y_virtual = np.load('datasets/{}/results/y_virtual.npy'.format(identifier))
+    results_dir = os.path.join(dataset_dir(identifier), "results")
+    x_real_path = os.path.join(results_dir, "x_real.npy")
+    x_virtual_path = os.path.join(results_dir, "x_virtual.npy")
+    y_real_path = os.path.join(results_dir, "y_real.npy")
+    y_virtual_path = os.path.join(results_dir, "y_virtual.npy")
+    if os.path.isfile(x_real_path) \
+            and os.path.isfile(x_virtual_path) \
+            and os.path.isfile(y_real_path) \
+            and os.path.isfile(y_virtual_path):
+        x_real = np.load(x_real_path)
+        x_virtual = np.load(x_virtual_path)
+        y_real = np.load(y_real_path)
+        y_virtual = np.load(y_virtual_path)
         trace_real = {"x": x_real.tolist(), "y": y_real.tolist()}
         trace_virtual = {"x": x_virtual.tolist(), "y": y_virtual.tolist()}
         return {"trace_real": trace_real, "trace_virtual": trace_virtual}
@@ -190,8 +202,9 @@ def get_tsne_plotly_data(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_singling_out", tags=["results"])
 def get_risk_singling_out(identifier: str):
-    if os.path.isfile('datasets/{}/results/risk_singling_out.npy'.format(identifier)):
-        risk_singling_out = np.load('datasets/{}/results/risk_singling_out.npy'.format(identifier)).item()
+    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_singling_out.npy")
+    if os.path.isfile(risk_path):
+        risk_singling_out = np.load(risk_path).item()
         return {"risk": risk_singling_out}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -199,8 +212,9 @@ def get_risk_singling_out(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_linkability", tags=["results"])
 def get_risk_linkability(identifier: str):
-    if os.path.isfile('datasets/{}/results/risk_linkability.npy'.format(identifier)):
-        risk_linkability = np.load('datasets/{}/results/risk_linkability.npy'.format(identifier)).item()
+    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_linkability.npy")
+    if os.path.isfile(risk_path):
+        risk_linkability = np.load(risk_path).item()
         return {"risk": risk_linkability}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -208,8 +222,9 @@ def get_risk_linkability(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_inference", tags=["results"])
 def get_risk_inference(identifier: str):
-    if os.path.isfile('datasets/{}/results/risk_inference.npy'.format(identifier)):
-        risk_inference = np.load('datasets/{}/results/risk_inference.npy'.format(identifier)).item()
+    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_inference.npy")
+    if os.path.isfile(risk_path):
+        risk_inference = np.load(risk_path).item()
         return {"risk": risk_inference}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -217,7 +232,8 @@ def get_risk_inference(identifier: str):
 
 @app.get("/datasets/{identifier}/results", tags=["export"])
 def export_results_set(identifier: str):
-    output_zip = shutil.make_archive('tmp/results', 'zip', 'datasets/' + identifier + '/results')
+    results_dir = os.path.join(dataset_dir(identifier), "results")
+    output_zip = shutil.make_archive('tmp/results', 'zip', results_dir)
     return FileResponse(path='tmp/results.zip', filename='results.zip', media_type='application/zip')
 
 
@@ -232,7 +248,8 @@ def get_results_compiled(identifier: str):
 @app.get("/datasets/{identifier}/plots/violin", tags=["results"])
 def get_available_violin_plots(identifier: str):
     columns = []
-    for filename in os.listdir("datasets/{}/plots/violin".format(identifier)):
+    violin_dir = os.path.join(dataset_dir(identifier), "plots", "violin")
+    for filename in os.listdir(violin_dir):
         if filename.endswith(".png"):
             # remove file ending and append to list
             basename, extension = os.path.splitext(filename)
@@ -244,16 +261,18 @@ def get_available_violin_plots(identifier: str):
 def get_violin_plot(identifier: str, name: str):
     if name not in get_available_violin_plots(identifier)["available_columns"]:
         raise HTTPException(status_code=404, detail="No plot found in {} for name {}.".format(identifier, name))
-    return FileResponse('datasets/{}/plots/violin/{}.png'.format(identifier, name))
+    plot_path = os.path.join(dataset_dir(identifier), "plots", "violin", safe_component(name) + ".png")
+    return FileResponse(plot_path)
         
 
 
 @app.get("/datasets/{identifier}/plots/correlation", tags=["results"])
 def get_correlation_plot(identifier: str, type: str):
+    correlation_dir = os.path.join(dataset_dir(identifier), "plots", "correlation")
     if type == "real":
-        resp = FileResponse(f'datasets/{identifier}/plots/correlation/dec_rp.png')
+        resp = FileResponse(os.path.join(correlation_dir, 'dec_rp.png'))
     elif type == "virtual":
-        resp = FileResponse(f'datasets/{identifier}/plots/correlation/dec_vp.png')
+        resp = FileResponse(os.path.join(correlation_dir, 'dec_vp.png'))
     else:
         raise HTTPException(status_code=400, detail="Plot type argument must be either real or virtual.")
     # disable caching
@@ -265,7 +284,8 @@ def get_correlation_plot(identifier: str, type: str):
 
 @app.get("/datasets/{identifier}/plots", tags=["export"])
 def export_plots(identifier: str):
-    output_zip = shutil.make_archive('tmp/plots', 'zip', 'datasets/' + identifier + '/plots')
+    plots_dir = os.path.join(dataset_dir(identifier), "plots")
+    output_zip = shutil.make_archive('tmp/plots', 'zip', plots_dir)
     return FileResponse(path='tmp/plots.zip', filename='plots.zip', media_type='application/zip')
 
 
@@ -377,7 +397,7 @@ def create_new_dataset_based_on_current_results(identifier: str):
     if identifier in existing_datasets:
         raise HTTPException(status_code=423, detail="A resource with the requested identifier already exists.")
     else:
-        new_dir_name = "datasets/" + identifier
+        new_dir_name = dataset_dir(identifier)
         # clear real data before copying
         os.remove("datasets/default/patients/real.csv")
         os.mkdir(new_dir_name)
@@ -387,7 +407,8 @@ def create_new_dataset_based_on_current_results(identifier: str):
 
 @app.post("/datasets/{identifier}/patients/synthetic/search", tags=["search"])
 async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList):
-    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients")
+    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    virtual = load_virtual_patients_decoded(patients_dir)
     result = get_similar_patients(virtual, data.constraints)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
 
@@ -418,7 +439,7 @@ def upload_datasets_resources(file: UploadFile = File(...), credentials: HTTPBas
     if not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Invalid file type. Only .zip files are accepted.")
     # save the uploaded file
-    archive_path = f"/tmp/{file.filename}"
+    archive_path = os.path.join("/tmp", os.path.basename(file.filename))
     with open(archive_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     # validate archive structure
@@ -427,8 +448,7 @@ def upload_datasets_resources(file: UploadFile = File(...), credentials: HTTPBas
         os.remove(archive_path)
         return JSONResponse(content={"errors": errors}, status_code=400)
     # extract files to /datasets folder
-    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-        zip_ref.extractall("datasets")
+    extract_zip_safely(archive_path, "datasets")
     # clear tmp
     os.remove(archive_path)
     return JSONResponse(content={"message": "Files extracted successfully"})

@@ -12,6 +12,9 @@ on:
       - "backend/**"
       - ".github/**"
 
+permissions:
+  contents: read
+
 jobs:
   backend-tests:
     name: Backend tests

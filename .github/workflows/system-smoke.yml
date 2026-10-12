@@ -20,6 +20,9 @@ on:
       - "Makefile"
       - ".github/**"
 
+permissions:
+  contents: read
+
 jobs:
   system-smoke:
     name: Docker Compose system smoke test
