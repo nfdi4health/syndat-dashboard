@@ -1,4 +1,5 @@
 from pandas import DataFrame
+from pandas.api.types import is_string_dtype
 
 from api.domain import ColumnType
 
@@ -10,9 +11,9 @@ def get_column_types(df: DataFrame):
     column_types = []
     for key, value in types_dict.items():
         # categorical
-        if value == object:
+        if is_string_dtype(value):
             options = df[key].unique().tolist()
-            column_types.append(ColumnType(name=key, datatype=value.name, options=options, minval=None, maxval=None))
+            column_types.append(ColumnType(name=key, datatype="object", options=options, minval=None, maxval=None))
         # numerical
         else:
             min_val = df[key].min()

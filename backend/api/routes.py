@@ -116,7 +116,7 @@ def get_synthetic_patient(index: int, identifier: str):
 @app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
 def get_output_column_types(identifier: str):
     # drop ID column
-    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop(columns='SUBJID', axis=1, errors='ignore')
+    virtual = load_virtual_patients_decoded("datasets/" + identifier + "/patients").drop(columns='SUBJID', errors='ignore')
     column_types = get_column_types(virtual)
     return column_types
 
