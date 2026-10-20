@@ -17,6 +17,12 @@ updates:
       backend-dependencies:
         patterns:
           - "*"
+    ignore:
+      # scipy >= 1.18 requires numpy >= 2, but numpy is held at 1.26.4 by
+      # anonymeter 1.1.0 (numpy<1.27).
+      - dependency-name: scipy
+        versions:
+          - ">=1.18"
 
   - package-ecosystem: docker
     directory: /frontend
@@ -35,6 +41,12 @@ updates:
       backend-docker:
         patterns:
           - "*"
+    ignore:
+      # Backend deps pin numpy 1.26.4 (no cp313/cp314 wheels) and anonymeter
+      # 1.1.0 requires python<3.14, so the base image must stay on 3.12.
+      - dependency-name: python
+        versions:
+          - ">=3.13"
 
   - package-ecosystem: github-actions
     directory: /
