@@ -10,7 +10,7 @@ matplotlib==3.11.2
 seaborn==0.13.2
 pandas~=3.0.6
 plotly==7.1.0
-scipy==1.18.1
+scipy==1.17.1
 syndat==0.13.9
 python-dotenv
 pytest==9.1.1
