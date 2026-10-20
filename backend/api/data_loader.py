@@ -95,6 +95,26 @@ def normalize(patient_data):
     return normalized_data
 
 
+def _is_within_directory(directory: str, target: str) -> bool:
+    directory = os.path.realpath(directory)
+    target = os.path.realpath(target)
+    return target == directory or target.startswith(directory + os.sep)
+
+
+def extract_zip_safely(archive_path: str, destination: str) -> None:
+    """Extract a zip archive, rejecting members that escape the destination.
+
+    Guards against "zip slip": absolute member paths or names containing ".."
+    that would write outside the target directory.
+    """
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        for member in zip_ref.namelist():
+            member_path = os.path.join(destination, member)
+            if not _is_within_directory(destination, member_path):
+                raise HTTPException(status_code=400, detail=f"Unsafe path in archive: {member}")
+        zip_ref.extractall(destination)
+
+
 def validate_datasets_archive_structure(archive_path: str) -> List[str]:
     errors = []
     expected_folders = ['patients', 'plots', 'results']
@@ -108,22 +128,21 @@ def validate_datasets_archive_structure(archive_path: str) -> List[str]:
         ]
     }
     with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-            for item in os.listdir(temp_dir):
-                folder_path = os.path.join(temp_dir, item)
-                if os.path.isdir(folder_path):
-                    for root, dirs, files in os.walk(folder_path):
-                        root = root[len(folder_path) + 1:]
-                        for expected_folder in expected_folders:
-                            if expected_folder not in dirs:
-                                errors.append(f"missing folder: {os.path.join(item, root, expected_folder)}")
-                            else:
-                                dirs.remove(expected_folder)
-                        for folder, files in expected_files.items():
-                            for file in files:
-                                if file not in os.listdir(os.path.join(folder_path, root, folder)):
-                                    errors.append(f"missing file: {os.path.join(item, root, folder, file)}")
+        extract_zip_safely(archive_path, temp_dir)
+        for item in os.listdir(temp_dir):
+            folder_path = os.path.join(temp_dir, item)
+            if os.path.isdir(folder_path):
+                for root, dirs, files in os.walk(folder_path):
+                    root = root[len(folder_path) + 1:]
+                    for expected_folder in expected_folders:
+                        if expected_folder not in dirs:
+                            errors.append(f"missing folder: {os.path.join(item, root, expected_folder)}")
+                        else:
+                            dirs.remove(expected_folder)
+                    for folder, files in expected_files.items():
+                        for file in files:
+                            if file not in os.listdir(os.path.join(folder_path, root, folder)):
+                                errors.append(f"missing file: {os.path.join(item, root, folder, file)}")
     return errors
 
 
