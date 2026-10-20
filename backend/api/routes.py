@@ -21,7 +21,7 @@ from api import processing
 from api.data_loader import create_datasets_archive, extract_zip_safely, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
 from api.filtering import get_column_types, get_similar_patients
 from api.auth import authenticate_user, init_credentials
-from api.paths import dataset_dir, safe_component
+from api.paths import resolve_dataset_path, safe_component
 
 
 app = FastAPI(
@@ -110,14 +110,18 @@ def get_available_data_sets():
 
 @app.get("/datasets/{identifier}/patients/synthetic/{index}", tags=["results"])
 def get_synthetic_patient(index: int, identifier: str):
-    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    root, patients_dir = resolve_dataset_path(identifier, "patients")
+    if not patients_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     return load_virtual_patients_decoded(patients_dir).loc[index].to_dict()
 
 
 @app.get("/datasets/{identifier}/patients/synthetic", response_model=List[ColumnTypeResponse], tags=["results"])
 def get_output_column_types(identifier: str):
     # drop ID column
-    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    root, patients_dir = resolve_dataset_path(identifier, "patients")
+    if not patients_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     virtual = load_virtual_patients_decoded(patients_dir).drop(columns='SUBJID', errors='ignore')
     column_types = get_column_types(virtual)
     return column_types
@@ -126,7 +130,9 @@ def get_output_column_types(identifier: str):
 @app.get("/datasets/{identifier}/results/auc", tags=["results"])
 def get_output_auc(identifier: str):
     # load from results if possible
-    auc_path = os.path.join(dataset_dir(identifier), "results", "auc.npy")
+    root, auc_path = resolve_dataset_path(identifier, "results", "auc.npy")
+    if not auc_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(auc_path):
         auc_score = np.load(auc_path).item()
         return {"auc_score": auc_score}
@@ -136,7 +142,9 @@ def get_output_auc(identifier: str):
 
 @app.get("/datasets/{identifier}/results/jsd", tags=["results"])
 def get_output_jsd(identifier: str):
-    jsd_path = os.path.join(dataset_dir(identifier), "results", "jsd.npy")
+    root, jsd_path = resolve_dataset_path(identifier, "results", "jsd.npy")
+    if not jsd_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(jsd_path):
         jsd_score = np.load(jsd_path).item()
         return {"jsd_score": jsd_score}
@@ -146,7 +154,9 @@ def get_output_jsd(identifier: str):
 
 @app.get("/datasets/{identifier}/results/norm", tags=["results"])
 def get_output_norm(identifier: str):
-    norm_path = os.path.join(dataset_dir(identifier), "results", "norm.npy")
+    root, norm_path = resolve_dataset_path(identifier, "results", "norm.npy")
+    if not norm_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(norm_path):
         norm = np.load(norm_path).item()
         return {"norm": norm}
@@ -157,7 +167,9 @@ def get_output_norm(identifier: str):
 @app.get("/datasets/{identifier}/results/privacy", tags=["results"])
 def get_privacy_score(identifier: str):
     # load from results if possible
-    privacy_path = os.path.join(dataset_dir(identifier), "results", "privacy_score.npy")
+    root, privacy_path = resolve_dataset_path(identifier, "results", "privacy_score.npy")
+    if not privacy_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(privacy_path):
         privacy_score = np.load(privacy_path).item()
         return {"privacy_score": privacy_score}
@@ -167,7 +179,9 @@ def get_privacy_score(identifier: str):
 
 @app.get("/datasets/{identifier}/results/outliers", tags=["results"])
 def get_output_outliers(identifier: str, anomaly_score: bool):
-    anomaly_path = os.path.join(dataset_dir(identifier), "results", "anomaly_scores.npy")
+    root, anomaly_path = resolve_dataset_path(identifier, "results", "anomaly_scores.npy")
+    if not anomaly_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(anomaly_path):
         outliers = np.load(anomaly_path)
         if anomaly_score:
@@ -180,7 +194,9 @@ def get_output_outliers(identifier: str, anomaly_score: bool):
 
 @app.get("/datasets/{identifier}/results/tsne", tags=["results"])
 def get_tsne_plotly_data(identifier: str):
-    results_dir = os.path.join(dataset_dir(identifier), "results")
+    root, results_dir = resolve_dataset_path(identifier, "results")
+    if not results_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     x_real_path = os.path.join(results_dir, "x_real.npy")
     x_virtual_path = os.path.join(results_dir, "x_virtual.npy")
     y_real_path = os.path.join(results_dir, "y_real.npy")
@@ -202,7 +218,9 @@ def get_tsne_plotly_data(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_singling_out", tags=["results"])
 def get_risk_singling_out(identifier: str):
-    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_singling_out.npy")
+    root, risk_path = resolve_dataset_path(identifier, "results", "risk_singling_out.npy")
+    if not risk_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
         risk_singling_out = np.load(risk_path).item()
         return {"risk": risk_singling_out}
@@ -212,7 +230,9 @@ def get_risk_singling_out(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_linkability", tags=["results"])
 def get_risk_linkability(identifier: str):
-    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_linkability.npy")
+    root, risk_path = resolve_dataset_path(identifier, "results", "risk_linkability.npy")
+    if not risk_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
         risk_linkability = np.load(risk_path).item()
         return {"risk": risk_linkability}
@@ -222,7 +242,9 @@ def get_risk_linkability(identifier: str):
 
 @app.get("/datasets/{identifier}/results/risk_inference", tags=["results"])
 def get_risk_inference(identifier: str):
-    risk_path = os.path.join(dataset_dir(identifier), "results", "risk_inference.npy")
+    root, risk_path = resolve_dataset_path(identifier, "results", "risk_inference.npy")
+    if not risk_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
         risk_inference = np.load(risk_path).item()
         return {"risk": risk_inference}
@@ -232,7 +254,9 @@ def get_risk_inference(identifier: str):
 
 @app.get("/datasets/{identifier}/results", tags=["export"])
 def export_results_set(identifier: str):
-    results_dir = os.path.join(dataset_dir(identifier), "results")
+    root, results_dir = resolve_dataset_path(identifier, "results")
+    if not results_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     output_zip = shutil.make_archive('tmp/results', 'zip', results_dir)
     return FileResponse(path='tmp/results.zip', filename='results.zip', media_type='application/zip')
 
@@ -248,7 +272,9 @@ def get_results_compiled(identifier: str):
 @app.get("/datasets/{identifier}/plots/violin", tags=["results"])
 def get_available_violin_plots(identifier: str):
     columns = []
-    violin_dir = os.path.join(dataset_dir(identifier), "plots", "violin")
+    root, violin_dir = resolve_dataset_path(identifier, "plots", "violin")
+    if not violin_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     for filename in os.listdir(violin_dir):
         if filename.endswith(".png"):
             # remove file ending and append to list
@@ -261,18 +287,28 @@ def get_available_violin_plots(identifier: str):
 def get_violin_plot(identifier: str, name: str):
     if name not in get_available_violin_plots(identifier)["available_columns"]:
         raise HTTPException(status_code=404, detail="No plot found in {} for name {}.".format(identifier, name))
-    plot_path = os.path.join(dataset_dir(identifier), "plots", "violin", safe_component(name) + ".png")
+    root, plot_path = resolve_dataset_path(identifier, "plots", "violin", safe_component(name) + ".png")
+    if not plot_path.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     return FileResponse(plot_path)
         
 
 
 @app.get("/datasets/{identifier}/plots/correlation", tags=["results"])
 def get_correlation_plot(identifier: str, type: str):
-    correlation_dir = os.path.join(dataset_dir(identifier), "plots", "correlation")
+    root, correlation_dir = resolve_dataset_path(identifier, "plots", "correlation")
+    if not correlation_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if type == "real":
-        resp = FileResponse(os.path.join(correlation_dir, 'dec_rp.png'))
+        plot_path = os.path.join(correlation_dir, 'dec_rp.png')
+        if not plot_path.startswith(root + os.sep):
+            raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
+        resp = FileResponse(plot_path)
     elif type == "virtual":
-        resp = FileResponse(os.path.join(correlation_dir, 'dec_vp.png'))
+        plot_path = os.path.join(correlation_dir, 'dec_vp.png')
+        if not plot_path.startswith(root + os.sep):
+            raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
+        resp = FileResponse(plot_path)
     else:
         raise HTTPException(status_code=400, detail="Plot type argument must be either real or virtual.")
     # disable caching
@@ -284,7 +320,9 @@ def get_correlation_plot(identifier: str, type: str):
 
 @app.get("/datasets/{identifier}/plots", tags=["export"])
 def export_plots(identifier: str):
-    plots_dir = os.path.join(dataset_dir(identifier), "plots")
+    root, plots_dir = resolve_dataset_path(identifier, "plots")
+    if not plots_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     output_zip = shutil.make_archive('tmp/plots', 'zip', plots_dir)
     return FileResponse(path='tmp/plots.zip', filename='plots.zip', media_type='application/zip')
 
@@ -397,7 +435,9 @@ def create_new_dataset_based_on_current_results(identifier: str):
     if identifier in existing_datasets:
         raise HTTPException(status_code=423, detail="A resource with the requested identifier already exists.")
     else:
-        new_dir_name = dataset_dir(identifier)
+        root, new_dir_name = resolve_dataset_path(identifier)
+        if new_dir_name == root or not new_dir_name.startswith(root + os.sep):
+            raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
         # clear real data before copying
         os.remove("datasets/default/patients/real.csv")
         os.mkdir(new_dir_name)
@@ -407,7 +447,9 @@ def create_new_dataset_based_on_current_results(identifier: str):
 
 @app.post("/datasets/{identifier}/patients/synthetic/search", tags=["search"])
 async def filter_synthetic_patients(identifier: str, data: ColumnConstraintList):
-    patients_dir = os.path.join(dataset_dir(identifier), "patients")
+    root, patients_dir = resolve_dataset_path(identifier, "patients")
+    if not patients_dir.startswith(root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     virtual = load_virtual_patients_decoded(patients_dir)
     result = get_similar_patients(virtual, data.constraints)
     return Response(result.head(10).to_json(orient="records"), media_type="application/json")
