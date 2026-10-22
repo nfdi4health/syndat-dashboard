@@ -22,6 +22,13 @@ def test_synthetic_patient_and_column_types(api_client):
     ]
 
 
+def test_last_update_endpoints(api_client):
+    for resource in ("patients/real", "patients/synthetic", "results"):
+        response = api_client.get(f"/datasets/default/{resource}/last-update")
+        assert response.status_code == 200, resource
+        assert isinstance(response.json(), (int, float)), resource
+
+
 def test_scores_and_risk_results(api_client):
     assert api_client.get("/datasets/default/scores").json() == {
         "auc": 0.25,
