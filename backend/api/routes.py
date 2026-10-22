@@ -108,7 +108,7 @@ def get_available_data_sets():
     return datasets_sorted_without_default.tolist()
 
 
-@app.get("/datasets/{identifier}/patients/synthetic/{index}", tags=["results"])
+@app.get("/datasets/{identifier}/patients/synthetic/{index:int}", tags=["results"])
 def get_synthetic_patient(index: int, identifier: str):
     root, patients_dir = resolve_dataset_path(identifier, "patients")
     if not patients_dir.startswith(root + os.sep):
