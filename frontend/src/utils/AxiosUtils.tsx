@@ -11,6 +11,9 @@ export default class AxiosUtils {
     .then((response) => response.data)
     .then((data) => {
       return data.auc_score
+    })
+    .catch((error) => {
+      console.log(error);
     });
   }
 
@@ -22,6 +25,9 @@ export default class AxiosUtils {
     .then((response) => response.data)
     .then((data) => {
       return data.jsd_score
+    })
+    .catch((error) => {
+      console.log(error);
     });
   }
 
@@ -33,6 +39,9 @@ export default class AxiosUtils {
     .then((response) => response.data)
     .then((data) => {
       return data.norm
+    })
+    .catch((error) => {
+      console.log(error);
     });
   }
 

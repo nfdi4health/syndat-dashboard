@@ -41,6 +41,20 @@ def test_scores_and_risk_results(api_client):
     }
 
 
+def test_non_finite_scores_serialize_as_null(api_client):
+    import numpy as np
+
+    np.save("datasets/default/results/norm.npy", np.nan)
+    response = api_client.get("/datasets/default/results/norm")
+    assert response.status_code == 200
+    assert response.json() == {"norm": None}
+
+    np.save("datasets/default/results/auc.npy", np.inf)
+    response = api_client.get("/datasets/default/results/auc")
+    assert response.status_code == 200
+    assert response.json() == {"auc_score": None}
+
+
 def test_tsne_result(api_client):
     assert api_client.get("/datasets/default/results/tsne").json() == {
         "trace_real": {"x": [[1.0, 2.0]], "y": [3.0]},

@@ -74,6 +74,12 @@ class ColumnConstraintList(BaseModel):
 logger = logging.getLogger("uvicorn.info")
 
 
+def _json_safe_metric(value):
+    """Convert a numpy scalar to JSON, mapping non-finite values to null."""
+    value = float(value)
+    return value if np.isfinite(value) else None
+
+
 @app.on_event("startup")
 async def startup_event():
     init_credentials()
@@ -134,7 +140,7 @@ def get_output_auc(identifier: str):
     if not auc_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(auc_path):
-        auc_score = np.load(auc_path).item()
+        auc_score = _json_safe_metric(np.load(auc_path).item())
         return {"auc_score": auc_score}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -146,7 +152,7 @@ def get_output_jsd(identifier: str):
     if not jsd_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(jsd_path):
-        jsd_score = np.load(jsd_path).item()
+        jsd_score = _json_safe_metric(np.load(jsd_path).item())
         return {"jsd_score": jsd_score}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -158,7 +164,7 @@ def get_output_norm(identifier: str):
     if not norm_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(norm_path):
-        norm = np.load(norm_path).item()
+        norm = _json_safe_metric(np.load(norm_path).item())
         return {"norm": norm}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -171,7 +177,7 @@ def get_privacy_score(identifier: str):
     if not privacy_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(privacy_path):
-        privacy_score = np.load(privacy_path).item()
+        privacy_score = _json_safe_metric(np.load(privacy_path).item())
         return {"privacy_score": privacy_score}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -222,7 +228,7 @@ def get_risk_singling_out(identifier: str):
     if not risk_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
-        risk_singling_out = np.load(risk_path).item()
+        risk_singling_out = _json_safe_metric(np.load(risk_path).item())
         return {"risk": risk_singling_out}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -234,7 +240,7 @@ def get_risk_linkability(identifier: str):
     if not risk_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
-        risk_linkability = np.load(risk_path).item()
+        risk_linkability = _json_safe_metric(np.load(risk_path).item())
         return {"risk": risk_linkability}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
@@ -246,7 +252,7 @@ def get_risk_inference(identifier: str):
     if not risk_path.startswith(root + os.sep):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(risk_path):
-        risk_inference = np.load(risk_path).item()
+        risk_inference = _json_safe_metric(np.load(risk_path).item())
         return {"risk": risk_inference}
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))

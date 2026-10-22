@@ -11,9 +11,9 @@ type Props = {
 };
 
 type PrivacyRisks = {
-  singling_out_risk: number;
-  inference_risk: number;
-  linkability_risk: number;
+  singling_out_risk: number | null;
+  inference_risk: number | null;
+  linkability_risk: number | null;
 };
 
 class PrivacyReport extends React.Component<Props, PrivacyRisks> {
@@ -128,10 +128,9 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 <ScoreIndicator
-                  value={
-                    100 -
-                    ScoreUtils.calculatePrivacyScore(this.state.singling_out_risk)
-                  }
+                  value={ScoreUtils.displayPrivacyScore(
+                    this.state.singling_out_risk
+                  )}
                   maxValue={100}
                   stepsColors={this.colors}
                 />
@@ -153,10 +152,9 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 <ScoreIndicator
-                  value={
-                    100 -
-                    ScoreUtils.calculatePrivacyScore(this.state.linkability_risk)
-                  }
+                  value={ScoreUtils.displayPrivacyScore(
+                    this.state.linkability_risk
+                  )}
                   maxValue={100}
                   stepsColors={this.colors}
                 />
@@ -178,10 +176,9 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 <ScoreIndicator
-                  value={
-                    100 -
-                    ScoreUtils.calculatePrivacyScore(this.state.inference_risk)
-                  }
+                  value={ScoreUtils.displayPrivacyScore(
+                    this.state.inference_risk
+                  )}
                   maxValue={100}
                   stepsColors={this.colors}
                 />
