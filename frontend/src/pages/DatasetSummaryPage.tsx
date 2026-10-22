@@ -6,14 +6,16 @@ import AxiosUtils from "../utils/AxiosUtils";
 import ScoreUtils from "../utils/ScoreUtils";
 import "./ResultsPage.css";
 
+type Metric = number | null;
+
 type State = {
   datasets: string[];
-  auc: number[];
-  jsd: number[];
-  norm: number[];
-  singlingOutRisk: number[];
-  linkabilityRisk: number[];
-  inferenceRisk: number[];
+  auc: Metric[];
+  jsd: Metric[];
+  norm: Metric[];
+  singlingOutRisk: Metric[];
+  linkabilityRisk: Metric[];
+  inferenceRisk: Metric[];
   dataReady: boolean;
 };
 
@@ -33,44 +35,46 @@ class ResultsSummaryPage extends React.Component<{}, State> {
     this.getAvailableDatasets();
   }
 
-  getAvailableDatasets() {
-    axios
-      .get(`${process.env.REACT_APP_API_BASE_URL}/datasets`)
-      .then((response) => response.data)
-      .then((data) => {
-        data.forEach(async (dataset: string) => {
-          console.log(dataset);
-          let auc = await AxiosUtils.getAUC(dataset);
-          let jsd = await AxiosUtils.getJSD(dataset);
-          let norm = await AxiosUtils.getNorm(dataset);
-          let singlingOutRisk = await AxiosUtils.getSinglingOutRisk(dataset);
-          let inferenceRisk = await AxiosUtils.getInferenceRisk(dataset);
-          let linkabilityRisk = await AxiosUtils.getLinkabilityRisk(dataset);
-          this.setState({
-            datasets: [...this.state.datasets, dataset],
-            auc: [...this.state.auc, ScoreUtils.calculateAucScore(auc)],
-            jsd: [...this.state.jsd, ScoreUtils.calculateJsdScore(jsd)],
-            norm: [...this.state.norm, ScoreUtils.calculateNormScore(norm)],
-            singlingOutRisk: [
-              ...this.state.singlingOutRisk,
-              ScoreUtils.calculatePrivacyScore(singlingOutRisk),
-            ],
-            inferenceRisk: [
-              ...this.state.inferenceRisk,
-              ScoreUtils.calculatePrivacyScore(inferenceRisk),
-            ],
-            linkabilityRisk: [
-              ...this.state.linkabilityRisk,
-              ScoreUtils.calculatePrivacyScore(linkabilityRisk),
-            ],
-          });
-        });
-        console.log(this.state);
+  async getAvailableDatasets() {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/datasets`
+    );
+    const datasets: string[] = response.data;
+    const results = await Promise.all(
+      datasets.map(async (dataset) => {
+        const auc = await AxiosUtils.getAUC(dataset);
+        const jsd = await AxiosUtils.getJSD(dataset);
+        const norm = await AxiosUtils.getNorm(dataset);
+        const singlingOutRisk = await AxiosUtils.getSinglingOutRisk(dataset);
+        const inferenceRisk = await AxiosUtils.getInferenceRisk(dataset);
+        const linkabilityRisk = await AxiosUtils.getLinkabilityRisk(dataset);
+        return {
+          dataset,
+          auc,
+          jsd,
+          norm,
+          singlingOutRisk,
+          inferenceRisk,
+          linkabilityRisk,
+        };
       })
-      .then(() => {
-        this.setState({ dataReady: true });
-        console.log("ready");
-      });
+    );
+    this.setState({
+      datasets: results.map((result) => result.dataset),
+      auc: results.map((result) => ScoreUtils.calculateAucScore(result.auc)),
+      jsd: results.map((result) => ScoreUtils.calculateJsdScore(result.jsd)),
+      norm: results.map((result) => ScoreUtils.calculateNormScore(result.norm)),
+      singlingOutRisk: results.map((result) =>
+        ScoreUtils.displayPrivacyScore(result.singlingOutRisk)
+      ),
+      inferenceRisk: results.map((result) =>
+        ScoreUtils.displayPrivacyScore(result.inferenceRisk)
+      ),
+      linkabilityRisk: results.map((result) =>
+        ScoreUtils.displayPrivacyScore(result.linkabilityRisk)
+      ),
+      dataReady: true,
+    });
   }
 
   render() {

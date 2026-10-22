@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = {
-  value: number;
+  value: number | null;
   maxValue?: number;
   stepsColors?: string[];
   size?: number;
@@ -19,13 +19,16 @@ const ScoreIndicator: React.FC<Props> = ({
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const normalized = clamp(value, 0, maxValue);
+  const hasValue = typeof value === "number" && Number.isFinite(value);
+  const normalized = hasValue ? clamp(value as number, 0, maxValue) : 0;
   const percent = (normalized / maxValue) * 100;
   const dashOffset = circumference * (1 - percent / 100);
 
   // choose color based on stepsColors thresholds if provided
   let color = "#53b83a"; // default green
-  if (stepsColors && stepsColors.length > 0) {
+  if (!hasValue) {
+    color = "#c9d1de";
+  } else if (stepsColors && stepsColors.length > 0) {
     const bins = stepsColors.length;
     const idx = Math.min(bins - 1, Math.floor((percent / 100) * bins));
     color = stepsColors[idx];
@@ -73,16 +76,18 @@ const ScoreIndicator: React.FC<Props> = ({
           fill="#1a1f36"
           fontWeight={700}
         >
-          {Math.round(percent)}
-          <tspan
-            dx={4}
-            dy={-size * 0.02}
-            fontSize={size * 0.12}
-            fill="#5b6475"
-            fontWeight={600}
-          >
-            %
-          </tspan>
+          {hasValue ? Math.round(percent) : "N/A"}
+          {hasValue && (
+            <tspan
+              dx={4}
+              dy={-size * 0.02}
+              fontSize={size * 0.12}
+              fill="#5b6475"
+              fontWeight={600}
+            >
+              %
+            </tspan>
+          )}
         </text>
       </svg>
     </div>

@@ -1,11 +1,13 @@
 import React from "react";
 import Plot from "react-plotly.js";
 
+type Metric = number | null;
+
 type Props = {
     datasets: string[];
-    metric1: number[];
-    metric2: number[];
-    metric3: number[];
+    metric1: Metric[];
+    metric2: Metric[];
+    metric3: Metric[];
     metric1Label: string;
     metric2Label: string;
     metric3Label: string;
@@ -21,21 +23,21 @@ class DatasetsEvaluationComparisionChart extends React.Component<Props, {}> {
             {
               x: this.props.datasets,
               y: this.props.metric1,
-              text: this.props.metric1.map((element) => element.toString()),
+              text: this.props.metric1.map((element) => (element === null ? "" : element.toString())),
               type: "bar",
               name: this.props.metric1Label,
             },
             {
               x: this.props.datasets,
               y: this.props.metric2,
-              text: this.props.metric2.map((element) => element.toString()),
+              text: this.props.metric2.map((element) => (element === null ? "" : element.toString())),
               type: "bar",
               name: this.props.metric2Label,
             },
             {
               x: this.props.datasets,
               y: this.props.metric3,
-              text: this.props.metric3.map((element) => element.toString()),
+              text: this.props.metric3.map((element) => (element === null ? "" : element.toString())),
               type: "bar",
               name: this.props.metric3Label,
             },
