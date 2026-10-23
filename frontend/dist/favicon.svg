@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="SYNDAT">
-  <title>SYNDAT</title>
-
-  <!-- Derived from the SYNDAT Dashboard logo: two nodes + connecting line -->
-  <line x1="22" y1="32" x2="42" y2="32" stroke="#005BBB" stroke-width="6" stroke-linecap="round" />
-  <circle cx="18" cy="32" r="8" fill="#005BBB" />
-  <circle cx="46" cy="32" r="8" fill="#005BBB" />
-</svg>
