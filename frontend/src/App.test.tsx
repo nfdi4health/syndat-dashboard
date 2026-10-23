@@ -80,6 +80,10 @@ test("renders the home page at the root route", async () => {
   expect(await screen.findByRole("heading", { name: "About" })).toBeInTheDocument();
   expect(screen.getByText("How to Use")).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Input" })).toHaveAttribute("href", "/input");
+  expect(screen.getAllByRole("link", { name: "Helpdesk" })[0]).toHaveAttribute(
+    "href",
+    "https://www.nfdi4health.de/en/helpdesk.html",
+  );
   expect(
     screen.getByRole("img", {
       name: "Quality Evaluation (3) and Privacy Evaluation (4) cards with three circular percentage indicators each",

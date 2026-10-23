@@ -30,6 +30,10 @@ function HomePage() {
           <a href="mailto:holger.fröhlich@scai.fraunhofer.de">Holger Fröhlich</a>.
           <br />
           <br />
+          If you experience any issues while using the dashboard, please reach out to the{" "}
+          <a href="https://www.nfdi4health.de/en/helpdesk.html">NFDI4Health Helpdesk</a>.
+          <br />
+          <br />
           If you find any bugs or have further feature suggestions, feel free to{" "}
           <a href="https://github.com/nfdi4health/syndat-dashboard/issues/new">create an issue</a>{" "}
           on the{" "}

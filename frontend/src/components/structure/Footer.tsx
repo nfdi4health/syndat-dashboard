@@ -9,6 +9,9 @@ function Footer() {
         <Nav className="me-auto">
           <Row>
             <Col>
+              <Nav.Link href="https://www.nfdi4health.de/en/helpdesk.html">Helpdesk</Nav.Link>
+            </Col>
+            <Col>
               <Nav.Link href="https://www.scai.fraunhofer.de/en/business-research-areas/bioinformatics/fields-of-research/AI-DAS.html">Contact</Nav.Link>
             </Col>
             <Col>
