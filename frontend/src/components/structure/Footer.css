@@ -5,3 +5,58 @@ nav#footer {
     padding: var(--space-4) 0;
     font-size: var(--fs-200);
 }
+
+nav#footer .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+}
+
+nav#footer .footer__links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+}
+
+nav#footer .footer__links .nav-link {
+    padding: 0;
+    white-space: nowrap;
+}
+
+nav#footer .footer__links .nav-link:hover {
+    color: var(--text);
+}
+
+nav#footer .footer__github {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--fs-600);
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+nav#footer .footer__github:hover,
+nav#footer .footer__github:focus-visible {
+    color: var(--text);
+}
+
+nav#footer .footer__github:focus-visible {
+    outline: 2px solid var(--brand-600);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+@media (max-width: 768px) {
+    nav#footer .footer__github {
+        padding-left: 0;
+        border-left: none;
+    }
+}
