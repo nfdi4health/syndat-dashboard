@@ -84,6 +84,10 @@ test("renders the home page at the root route", async () => {
     "href",
     "https://www.nfdi4health.de/en/helpdesk.html",
   );
+  expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+    "href",
+    "https://github.com/nfdi4health/syndat-dashboard",
+  );
   expect(
     screen.getByRole("img", {
       name: "Quality Evaluation (3) and Privacy Evaluation (4) cards with three circular percentage indicators each",
