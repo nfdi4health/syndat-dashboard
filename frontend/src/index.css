@@ -147,6 +147,13 @@ ul { margin: 0 0 var(--space-5); padding-left: var(--space-6); }
 .app-navbar .nav-link { color: var(--muted) !important; }
 .app-navbar .nav-link.active, .app-navbar .nav-link:hover { color: var(--text) !important; }
 
+.app-navbar__helpdesk {
+  margin-right: var(--space-4);
+}
+.app-navbar__helpdesk .nav-link {
+  white-space: nowrap;
+}
+
 nav#footer {
   background: var(--surface) !important;
   border-top: 1px solid var(--border);
