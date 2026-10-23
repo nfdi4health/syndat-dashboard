@@ -78,11 +78,14 @@ function HomePage() {
         <img src="home/syndat_tutorial_results_1_2.png" alt="" />
 
         <p>
-          The dashboard displays computed quality and privacy scores. Hover the info icons to see
-          metric descriptions. Privacy scores use metrics from anonymeter; see{" "}
+          The dashboard displays computed quality scores <b>(3)</b> and privacy risks <b>(4)</b>.
+          Hover the info icons to see metric descriptions. Privacy risks use metrics from anonymeter; see{" "}
           <a href="https://arxiv.org/abs/2211.10459">the paper</a> for details.
         </p>
-        <img src="home/syndat_tutorial_results_3_4.png" alt="" />
+        <img
+          src="home/syndat_tutorial_results_3_4.png"
+          alt="Quality Evaluation (3) and Privacy Evaluation (4) cards with three circular percentage indicators each"
+        />
 
         <p>
           Inspect a low dimensional 2D embedding of original and synthetic distributions in the

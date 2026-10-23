@@ -80,6 +80,11 @@ test("renders the home page at the root route", async () => {
   expect(await screen.findByRole("heading", { name: "About" })).toBeInTheDocument();
   expect(screen.getByText("How to Use")).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Input" })).toHaveAttribute("href", "/input");
+  expect(
+    screen.getByRole("img", {
+      name: "Quality Evaluation (3) and Privacy Evaluation (4) cards with three circular percentage indicators each",
+    }),
+  ).toHaveAttribute("src", "home/syndat_tutorial_results_3_4.png");
 });
 
 test("renders the input page at the input route", async () => {
