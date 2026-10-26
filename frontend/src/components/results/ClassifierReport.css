@@ -2,3 +2,12 @@
     margin: 0;
     padding: 0;
 }
+
+.ClassifierReport__disclaimer {
+    margin: 0;
+}
+
+.ResultsMetric__icon--warning {
+    color: var(--warning);
+    cursor: pointer;
+}

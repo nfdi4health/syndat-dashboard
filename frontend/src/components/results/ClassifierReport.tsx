@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
-import { Alert, Col, Container, OverlayTrigger, Row, Spinner, Tooltip } from "react-bootstrap";
-import { InfoCircle } from "react-bootstrap-icons";
+import { Alert, Col, Container, OverlayTrigger, Popover, Row, Spinner } from "react-bootstrap";
+import { ExclamationTriangle, InfoCircle } from "react-bootstrap-icons";
 import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
 import "./ClassifierReport.css";
@@ -80,29 +80,82 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
     return <ScoreIndicator value={value} maxValue={100} />;
   }
 
+  renderAucDisclaimer = (props: any) => (
+    <Popover {...props} id="auc-disclaimer-popover">
+      <Popover.Body className="ClassifierReport__disclaimer">
+        This score can be low even when the synthetic data is still faithful and
+        useful. A classifier that struggles to tell real and synthetic records
+        apart can also mean the two datasets are very similar.
+      </Popover.Body>
+    </Popover>
+  );
+
+  renderAucWarning = (aucScore: number | null) => {
+    if (this.state.isLoading || aucScore === null || aucScore >= 40) {
+      return null;
+    }
+    return (
+      <OverlayTrigger
+        trigger="click"
+        rootClose
+        placement="right"
+        overlay={this.renderAucDisclaimer}
+      >
+        <span
+          className="ResultsMetric__icon ResultsMetric__icon--warning"
+          role="button"
+          tabIndex={0}
+          aria-label="About this low score"
+        >
+          <ExclamationTriangle />
+        </span>
+      </OverlayTrigger>
+    );
+  };
+
+  renderInfoIcon = (overlay: any, label: string) => (
+    <OverlayTrigger trigger="click" rootClose placement="right" overlay={overlay}>
+      <span
+        className="ResultsMetric__icon"
+        role="button"
+        tabIndex={0}
+        aria-label={label}
+      >
+        <InfoCircle />
+      </span>
+    </OverlayTrigger>
+  );
+
   renderTooltipAUC = (props: any) => (
-    <Tooltip id="button-tooltip" {...props}>
-      The computed score is based on the calculated ROC <b>Area Under Curve</b>{" "}
-      score of a random forest classifier, which tries to differentiate real
-      from synthetic patient data.
-    </Tooltip>
+    <Popover {...props} id="auc-info-popover">
+      <Popover.Body>
+        The computed score is based on the calculated ROC <b>Area Under Curve</b>{" "}
+        score of a random forest classifier, which tries to differentiate real
+        from synthetic patient data.
+      </Popover.Body>
+    </Popover>
   );
 
   renderTooltipJSD = (props: any) => (
-    <Tooltip id="button-tooltip2" {...props}>
-      The computed score is based on the calculated{" "}
-      <b>Jennson-Shannon Divergence</b> of the two patient distributions.
-    </Tooltip>
+    <Popover {...props} id="jsd-info-popover">
+      <Popover.Body>
+        The computed score is based on the calculated{" "}
+        <b>Jennson-Shannon Divergence</b> of the two patient distributions.
+      </Popover.Body>
+    </Popover>
   );
 
   renderTooltipFrobeniusNorm = (props: any) => (
-    <Tooltip id="button-tooltip2" {...props}>
-      The computed score is based on the fraction of the calculated{" "}
-      <b>Frobenius Norm</b> of the two patient distributions.
-    </Tooltip>
+    <Popover {...props} id="norm-info-popover">
+      <Popover.Body>
+        The computed score is based on the fraction of the calculated{" "}
+        <b>Frobenius Norm</b> of the two patient distributions.
+      </Popover.Body>
+    </Popover>
   );
 
   render() {
+    const aucScore = ScoreUtils.calculateAucScore(this.state.auc);
     return (
       <section className="card ResultsSection ClassifierReport">
         <div className="ResultsSection__header">
@@ -113,18 +166,11 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
           <Row className="g-4">
             <Col md={4}>
               <div className="ResultsMetric">
-                {this.renderScore(ScoreUtils.calculateAucScore(this.state.auc))}
+                {this.renderScore(aucScore)}
                 <div className="ResultsMetric__label">
                   <h4>Discrimination Complexity</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipAUC}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipAUC, "More info")}
+                  {this.renderAucWarning(aucScore)}
                 </div>
               </div>
             </Col>
@@ -134,15 +180,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
                 {this.renderScore(ScoreUtils.calculateJsdScore(this.state.jsd))}
                 <div className="ResultsMetric__label">
                   <h4>Distribution Similarity</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipJSD}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipJSD, "More info")}
                 </div>
               </div>
             </Col>
@@ -152,15 +190,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
                 {this.renderScore(ScoreUtils.calculateNormScore(this.state.norm))}
                 <div className="ResultsMetric__label">
                   <h4>Correlation Score</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipFrobeniusNorm}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipFrobeniusNorm, "More info")}
                 </div>
               </div>
             </Col>

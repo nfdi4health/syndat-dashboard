@@ -160,3 +160,42 @@ nav#footer {
   color: var(--muted);
 }
 
+.tooltip {
+  --bs-tooltip-bg: var(--surface);
+  --bs-tooltip-color: var(--muted);
+  --bs-tooltip-opacity: 1;
+  --bs-tooltip-border-radius: var(--radius-sm);
+  font-size: var(--fs-200);
+}
+
+.tooltip-inner {
+  max-width: 320px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(16, 24, 40, 0.12));
+  text-align: left;
+  line-height: 1.5;
+}
+
+.tooltip-inner b {
+  color: var(--text);
+}
+
+.popover {
+  --bs-popover-bg: var(--surface);
+  --bs-popover-border-color: var(--border);
+  --bs-popover-border-radius: var(--radius-sm);
+  --bs-popover-inner-border-radius: var(--radius-sm);
+  --bs-popover-body-padding-x: var(--space-3);
+  --bs-popover-body-padding-y: var(--space-2);
+  --bs-popover-max-width: 320px;
+  box-shadow: var(--shadow-md);
+}
+
+.popover-body {
+  color: var(--muted);
+  font-size: var(--fs-200);
+  line-height: 1.5;
+}
+
