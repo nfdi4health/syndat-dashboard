@@ -36,7 +36,7 @@
 .ResultsSection__info {
     color: var(--muted);
     line-height: 0;
-    cursor: help;
+    cursor: pointer;
 }
 
 .ResultsMetric {
@@ -71,6 +71,7 @@
 .ResultsMetric__icon {
     color: var(--muted);
     line-height: 0;
+    cursor: pointer;
 }
 
 .ResultsCallout {

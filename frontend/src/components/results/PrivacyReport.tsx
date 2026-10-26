@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { Alert, Col, Container, OverlayTrigger, Row, Spinner, Tooltip } from "react-bootstrap";
+import { Alert, Col, Container, OverlayTrigger, Popover, Row, Spinner } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
 import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
@@ -93,37 +93,59 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
     return <ScoreIndicator value={value} maxValue={100} stepsColors={this.colors} />;
   }
 
+  renderInfoIcon = (overlay: any, label: string) => (
+    <OverlayTrigger trigger="click" rootClose placement="right" overlay={overlay}>
+      <span
+        className="ResultsMetric__icon"
+        role="button"
+        tabIndex={0}
+        aria-label={label}
+      >
+        <InfoCircle />
+      </span>
+    </OverlayTrigger>
+  );
+
   renderTooltipSinglingOut = (props: any) => (
-    <Tooltip id="button-tooltip" {...props}>
-      Singling out risk involves identifying rare or unique attributes in
-      synthetic data that could potentially reveal specific individuals in the
-      original dataset, potentially leading to privacy breaches.
-    </Tooltip>
+    <Popover {...props} id="singling-out-info-popover">
+      <Popover.Body>
+        Singling out risk involves identifying rare or unique attributes in
+        synthetic data that could potentially reveal specific individuals in the
+        original dataset, potentially leading to privacy breaches.
+      </Popover.Body>
+    </Popover>
   );
 
   renderTooltipLinkability = (props: any) => (
-    <Tooltip id="button-tooltip" {...props}>
-      Linkability risk is the concern that, using the synthetic dataset, one can
-      determine if two separate sets of attributes belong to the same individual
-      in external datasets A and B, assuming that these attributes are also
-      found in the synthetic data.
-    </Tooltip>
+    <Popover {...props} id="linkability-info-popover">
+      <Popover.Body>
+        Linkability risk is the concern that, using the synthetic dataset, one
+        can determine if two separate sets of attributes belong to the same
+        individual in external datasets A and B, assuming that these attributes
+        are also found in the synthetic data.
+      </Popover.Body>
+    </Popover>
   );
 
   renderTooltipInferrence = (props: any) => (
-    <Tooltip id="button-tooltip" {...props}>
-      Inference risk pertains to the ability of an attacker, who knows the
-      values of certain attributes for specific target records, to accurately
-      deduce secret attributes of those targets using the synthetic dataset.
-    </Tooltip>
+    <Popover {...props} id="inference-info-popover">
+      <Popover.Body>
+        Inference risk pertains to the ability of an attacker, who knows the
+        values of certain attributes for specific target records, to accurately
+        deduce secret attributes of those targets using the synthetic dataset.
+      </Popover.Body>
+    </Popover>
   );
 
   renderTooltipCitation = (props: any) => (
-    <Tooltip id="privacy-citation-tooltip" {...props}>
-      Displayed metrics are based on: Giomi, Matteo, et al. "A Unified Framework
-      for Quantifying Privacy Risk in Synthetic Data." <i>arXiv</i> preprint{" "}
-      <a href="https://arxiv.org/abs/2211.10459">arXiv:2211.10459</a> (2022).
-    </Tooltip>
+    <Popover {...props} id="privacy-citation-popover">
+      <Popover.Body>
+        Displayed metrics are based on: Giomi, Matteo, et al. "A Unified
+        Framework for Quantifying Privacy Risk in Synthetic Data." <i>arXiv</i>{" "}
+        preprint <a href="https://arxiv.org/abs/2211.10459">arXiv:2211.10459</a>{" "}
+        (2022).
+      </Popover.Body>
+    </Popover>
   );
 
   render() {
@@ -132,11 +154,17 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
         <div className="ResultsSection__header">
           <h2 className="ResultsSection__title">Privacy Evaluation</h2>
           <OverlayTrigger
+            trigger="click"
+            rootClose
             placement="right"
-            delay={{ show: 250, hide: 250 }}
             overlay={this.renderTooltipCitation}
           >
-            <span className="ResultsSection__info" aria-label="Citation">
+            <span
+              className="ResultsSection__info"
+              role="button"
+              tabIndex={0}
+              aria-label="Citation"
+            >
               <InfoCircle />
             </span>
           </OverlayTrigger>
@@ -151,15 +179,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Singling Out Risk</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipSinglingOut}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipSinglingOut, "More info")}
                 </div>
               </div>
             </Col>
@@ -171,15 +191,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Linkability Risk</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipLinkability}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipLinkability, "More info")}
                 </div>
               </div>
             </Col>
@@ -191,15 +203,7 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Inferrence Risk</h4>
-                  <OverlayTrigger
-                    placement="right"
-                    delay={{ show: 250, hide: 400 }}
-                    overlay={this.renderTooltipInferrence}
-                  >
-                    <span className="ResultsMetric__icon" aria-label="More info">
-                      <InfoCircle />
-                    </span>
-                  </OverlayTrigger>
+                  {this.renderInfoIcon(this.renderTooltipInferrence, "More info")}
                 </div>
               </div>
             </Col>
