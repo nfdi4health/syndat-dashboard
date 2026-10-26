@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { Alert, Col, Container, OverlayTrigger, Row, Spinner, Tooltip } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
 import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
@@ -14,15 +14,19 @@ type PrivacyRisks = {
   singling_out_risk: number | null;
   inference_risk: number | null;
   linkability_risk: number | null;
+  isLoading: boolean;
+  error: string | null;
 };
 
 class PrivacyReport extends React.Component<Props, PrivacyRisks> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      singling_out_risk: 1,
-      inference_risk: 1,
-      linkability_risk: 1,
+      singling_out_risk: null,
+      inference_risk: null,
+      linkability_risk: null,
+      isLoading: true,
+      error: null,
     };
     this.getMetrics();
   }
@@ -46,34 +50,48 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
   }
 
   getMetrics = () => {
-    axios
-      .get(
-        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/risk_singling_out`
-      )
-      .then((response) => {
-        this.setState({ singling_out_risk: response.data.risk });
-      })
-      .catch((error) => {
-        console.log(error);
+    this.setState({ isLoading: true, error: null });
+    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
+    Promise.all([
+      axios
+        .get(`${resultsUrl}/risk_singling_out`)
+        .then((response) => response.data.risk)
+        .catch(() => null),
+      axios
+        .get(`${resultsUrl}/risk_inference`)
+        .then((response) => response.data.risk)
+        .catch(() => null),
+      axios
+        .get(`${resultsUrl}/risk_linkability`)
+        .then((response) => response.data.risk)
+        .catch(() => null),
+    ]).then(([singling_out_risk, inference_risk, linkability_risk]) => {
+      const allFailed =
+        singling_out_risk === null &&
+        inference_risk === null &&
+        linkability_risk === null;
+      this.setState({
+        singling_out_risk,
+        inference_risk,
+        linkability_risk,
+        isLoading: false,
+        error: allFailed
+          ? "Failed to load privacy risks. The API may be unavailable or the data could not be read."
+          : null,
       });
-    axios
-      .get(
-        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/risk_inference`
-      )
-      .then((response) => {
-        this.setState({ inference_risk: response.data.risk });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    axios
-      .get(
-        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/risk_linkability`
-      )
-      .then((response) => {
-        this.setState({ linkability_risk: response.data.risk });
-      });
+    });
   };
+
+  renderScore(value: number | null) {
+    if (this.state.isLoading) {
+      return (
+        <div className="ResultsMetric__spinner">
+          <Spinner animation="border" role="status" aria-label="Loading score" />
+        </div>
+      );
+    }
+    return <ScoreIndicator value={value} maxValue={100} stepsColors={this.colors} />;
+  }
 
   renderTooltipSinglingOut = (props: any) => (
     <Tooltip id="button-tooltip" {...props}>
@@ -123,17 +141,14 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             </span>
           </OverlayTrigger>
         </div>
+        {this.state.error && <Alert variant="warning">{this.state.error}</Alert>}
         <Container fluid className="p-0">
           <Row className="g-4">
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.displayPrivacyScore(
-                    this.state.singling_out_risk
-                  )}
-                  maxValue={100}
-                  stepsColors={this.colors}
-                />
+                {this.renderScore(
+                  ScoreUtils.displayPrivacyScore(this.state.singling_out_risk)
+                )}
                 <div className="ResultsMetric__label">
                   <h4>Singling Out Risk</h4>
                   <OverlayTrigger
@@ -151,13 +166,9 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.displayPrivacyScore(
-                    this.state.linkability_risk
-                  )}
-                  maxValue={100}
-                  stepsColors={this.colors}
-                />
+                {this.renderScore(
+                  ScoreUtils.displayPrivacyScore(this.state.linkability_risk)
+                )}
                 <div className="ResultsMetric__label">
                   <h4>Linkability Risk</h4>
                   <OverlayTrigger
@@ -175,13 +186,9 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.displayPrivacyScore(
-                    this.state.inference_risk
-                  )}
-                  maxValue={100}
-                  stepsColors={this.colors}
-                />
+                {this.renderScore(
+                  ScoreUtils.displayPrivacyScore(this.state.inference_risk)
+                )}
                 <div className="ResultsMetric__label">
                   <h4>Inferrence Risk</h4>
                   <OverlayTrigger

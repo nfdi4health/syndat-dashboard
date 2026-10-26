@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import { Alert, CircularProgress } from "@mui/material";
 import axios from "axios";
 import React from "react";
 import DatasetsEvaluationComparisionChart from "../components/results/summary/DatasetsEvaluationComparisionChart";
@@ -17,6 +17,7 @@ type State = {
   linkabilityRisk: Metric[];
   inferenceRisk: Metric[];
   dataReady: boolean;
+  error: string | null;
 };
 
 class ResultsSummaryPage extends React.Component<{}, State> {
@@ -31,50 +32,60 @@ class ResultsSummaryPage extends React.Component<{}, State> {
       linkabilityRisk: [],
       inferenceRisk: [],
       dataReady: false,
+      error: null,
     };
     this.getAvailableDatasets();
   }
 
   async getAvailableDatasets() {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/datasets`
-    );
-    const datasets: string[] = response.data;
-    const results = await Promise.all(
-      datasets.map(async (dataset) => {
-        const auc = await AxiosUtils.getAUC(dataset);
-        const jsd = await AxiosUtils.getJSD(dataset);
-        const norm = await AxiosUtils.getNorm(dataset);
-        const singlingOutRisk = await AxiosUtils.getSinglingOutRisk(dataset);
-        const inferenceRisk = await AxiosUtils.getInferenceRisk(dataset);
-        const linkabilityRisk = await AxiosUtils.getLinkabilityRisk(dataset);
-        return {
-          dataset,
-          auc,
-          jsd,
-          norm,
-          singlingOutRisk,
-          inferenceRisk,
-          linkabilityRisk,
-        };
-      })
-    );
-    this.setState({
-      datasets: results.map((result) => result.dataset),
-      auc: results.map((result) => ScoreUtils.calculateAucScore(result.auc)),
-      jsd: results.map((result) => ScoreUtils.calculateJsdScore(result.jsd)),
-      norm: results.map((result) => ScoreUtils.calculateNormScore(result.norm)),
-      singlingOutRisk: results.map((result) =>
-        ScoreUtils.displayPrivacyScore(result.singlingOutRisk)
-      ),
-      inferenceRisk: results.map((result) =>
-        ScoreUtils.displayPrivacyScore(result.inferenceRisk)
-      ),
-      linkabilityRisk: results.map((result) =>
-        ScoreUtils.displayPrivacyScore(result.linkabilityRisk)
-      ),
-      dataReady: true,
-    });
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/datasets`
+      );
+      const datasets: string[] = response.data;
+      const results = await Promise.all(
+        datasets.map(async (dataset) => {
+          const auc = await AxiosUtils.getAUC(dataset);
+          const jsd = await AxiosUtils.getJSD(dataset);
+          const norm = await AxiosUtils.getNorm(dataset);
+          const singlingOutRisk = await AxiosUtils.getSinglingOutRisk(dataset);
+          const inferenceRisk = await AxiosUtils.getInferenceRisk(dataset);
+          const linkabilityRisk = await AxiosUtils.getLinkabilityRisk(dataset);
+          return {
+            dataset,
+            auc,
+            jsd,
+            norm,
+            singlingOutRisk,
+            inferenceRisk,
+            linkabilityRisk,
+          };
+        })
+      );
+      this.setState({
+        datasets: results.map((result) => result.dataset),
+        auc: results.map((result) => ScoreUtils.calculateAucScore(result.auc)),
+        jsd: results.map((result) => ScoreUtils.calculateJsdScore(result.jsd)),
+        norm: results.map((result) => ScoreUtils.calculateNormScore(result.norm)),
+        singlingOutRisk: results.map((result) =>
+          ScoreUtils.displayPrivacyScore(result.singlingOutRisk)
+        ),
+        inferenceRisk: results.map((result) =>
+          ScoreUtils.displayPrivacyScore(result.inferenceRisk)
+        ),
+        linkabilityRisk: results.map((result) =>
+          ScoreUtils.displayPrivacyScore(result.linkabilityRisk)
+        ),
+        dataReady: true,
+        error: null,
+      });
+    } catch (error) {
+      this.setState({
+        dataReady: false,
+        error:
+          "Failed to load the dataset summary. The API may be unavailable or the data could not be read.",
+      });
+    }
   }
 
   render() {
@@ -120,8 +131,17 @@ class ResultsSummaryPage extends React.Component<{}, State> {
     } else {
       return (
         <div className="ResultsPage">
-          <section className="card ResultsSection" style={{ display: "flex", justifyContent: "center" }}>
-            <CircularProgress />
+          <section
+            className="card ResultsSection"
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            {this.state.error ? (
+              <Alert severity="warning" style={{ width: "100%" }}>
+                {this.state.error}
+              </Alert>
+            ) : (
+              <CircularProgress />
+            )}
           </section>
         </div>
       );

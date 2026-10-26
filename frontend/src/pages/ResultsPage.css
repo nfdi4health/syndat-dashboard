@@ -60,6 +60,14 @@
     gap: var(--space-2);
 }
 
+.ResultsMetric__spinner {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .ResultsMetric__icon {
     color: var(--muted);
     line-height: 0;
