@@ -35,9 +35,27 @@ def test_scores_and_risk_results(api_client):
         "jsd": 0.5,
         "norm": 0.75,
     }
+    assert api_client.get("/datasets/default/results/auc").json() == {
+        "auc_score": 0.25,
+        "real_rows": 2,
+        "total_real_rows": 2,
+    }
     assert api_client.get("/datasets/default/results/risk_inference").json() == {"risk": 0.3}
     assert api_client.get("/datasets/default/results/outliers?anomaly_score=true").json() == {
         "Outlier_Scores": [0.2, 0.8]
+    }
+
+
+def test_auc_omits_real_row_counts_for_older_datasets(api_client):
+    import os
+
+    os.remove("datasets/default/results/real_row_counts.npy")
+    response = api_client.get("/datasets/default/results/auc")
+    assert response.status_code == 200
+    assert response.json() == {
+        "auc_score": 0.25,
+        "real_rows": None,
+        "total_real_rows": None,
     }
 
 
@@ -52,7 +70,7 @@ def test_non_finite_scores_serialize_as_null(api_client):
     np.save("datasets/default/results/auc.npy", np.inf)
     response = api_client.get("/datasets/default/results/auc")
     assert response.status_code == 200
-    assert response.json() == {"auc_score": None}
+    assert response.json()["auc_score"] is None
 
 
 def test_tsne_result(api_client):

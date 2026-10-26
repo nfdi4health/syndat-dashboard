@@ -12,6 +12,21 @@ def process_auc(dataset_name):
     real_enc, virtual_enc = load_and_decode(dataset_name)
     auc = classification.get_auc(real_enc, virtual_enc)
     np.save("datasets/" + dataset_name + "/results/auc.npy", auc)
+    np.save(
+        "datasets/" + dataset_name + "/results/real_row_counts.npy",
+        get_real_row_counts(dataset_name),
+    )
+
+
+def get_real_row_counts(dataset_name):
+    # Number of real rows total and usable (no missing values) for the AUC score.
+    # Persisted so the frontend can warn when the score rests on very few rows,
+    # since the raw real data is not kept for stored datasets.
+    data_root_dir = "datasets/" + dataset_name + "/patients"
+    real, _ = data_loader.load_data_decoded(data_root_dir)
+    total_rows = int(real.shape[0])
+    usable_rows = int(real.dropna().shape[0])
+    return np.array([total_rows, usable_rows])
 
 
 def process_jsd(dataset_name):

@@ -14,6 +14,8 @@ type ReportState = {
   auc: number | null;
   jsd: number | null;
   norm: number | null;
+  realRows: number | null;
+  totalRealRows: number | null;
   isLoading: boolean;
   error: string | null;
 };
@@ -25,6 +27,8 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
       auc: null,
       jsd: null,
       norm: null,
+      realRows: null,
+      totalRealRows: null,
       isLoading: true,
       error: null,
     };
@@ -44,7 +48,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
     Promise.all([
       axios
         .get(`${resultsUrl}/auc`)
-        .then((response) => response.data.auc_score)
+        .then((response) => response.data)
         .catch(() => null),
       axios
         .get(`${resultsUrl}/jsd`)
@@ -54,13 +58,16 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
         .get(`${resultsUrl}/norm`)
         .then((response) => response.data.norm)
         .catch(() => null),
-    ]).then(([auc, jsd, norm]) => {
+    ]).then(([aucData, jsd, norm]) => {
+      const auc = aucData ? aucData.auc_score : null;
       const allFailed =
         auc === null && jsd === null && norm === null;
       this.setState({
         auc,
         jsd,
         norm,
+        realRows: aucData?.real_rows ?? null,
+        totalRealRows: aucData?.total_real_rows ?? null,
         isLoading: false,
         error: allFailed
           ? "Failed to load quality scores. The API may be unavailable or the data could not be read."
@@ -80,18 +87,60 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
     return <ScoreIndicator value={value} maxValue={100} />;
   }
 
-  renderAucDisclaimer = (props: any) => (
-    <Popover {...props} id="auc-disclaimer-popover">
-      <Popover.Body className="ClassifierReport__disclaimer">
-        This score can be low even when the synthetic data is still faithful and
-        useful. A classifier that struggles to tell real and synthetic records
-        apart can also mean the two datasets are very similar.
-      </Popover.Body>
-    </Popover>
-  );
+  getMissingDataInfo = () => {
+    const { realRows, totalRealRows } = this.state;
+    if (
+      realRows === null ||
+      totalRealRows === null ||
+      totalRealRows <= 0
+    ) {
+      return null;
+    }
+    const droppedRows = totalRealRows - realRows;
+    const missingRatio = droppedRows / totalRealRows;
+    if (missingRatio <= 0.2) {
+      return null;
+    }
+    return { droppedRows, totalRealRows };
+  };
+
+  renderAucDisclaimer = (props: any) => {
+    const missingDataInfo = this.getMissingDataInfo();
+    const aucScore = ScoreUtils.calculateAucScore(this.state.auc);
+    const lowScore = aucScore !== null && aucScore < 40;
+    return (
+      <Popover {...props} id="auc-disclaimer-popover">
+        <Popover.Body className="ClassifierReport__disclaimer">
+          {missingDataInfo && (
+            <p>
+              For the calculation of the Discrimination Score,{" "}
+              <b>
+                {missingDataInfo.droppedRows} out of{" "}
+                {missingDataInfo.totalRealRows}
+              </b>{" "}
+              incomplete records had to be dropped from the original dataset.
+              With this many records missing, the score may be unrepresentative
+              of the full dataset.
+            </p>
+          )}
+          {missingDataInfo && lowScore && <hr />}
+          {lowScore && (
+            <p>
+              This score can be low even when the synthetic data is still
+              faithful and useful. A classifier that struggles to tell real and
+              synthetic records apart can also mean the two datasets are very
+              similar.
+            </p>
+          )}
+        </Popover.Body>
+      </Popover>
+    );
+  };
 
   renderAucWarning = (aucScore: number | null) => {
-    if (this.state.isLoading || aucScore === null || aucScore >= 40) {
+    const missingDataInfo = this.getMissingDataInfo();
+    const lowScore = aucScore !== null && aucScore < 40;
+    if (this.state.isLoading || (!lowScore && !missingDataInfo)) {
       return null;
     }
     return (
@@ -105,7 +154,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
           className="ResultsMetric__icon ResultsMetric__icon--warning"
           role="button"
           tabIndex={0}
-          aria-label="About this low score"
+          aria-label="About this score"
         >
           <ExclamationTriangle />
         </span>
