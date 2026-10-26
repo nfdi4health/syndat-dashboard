@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { Alert, Col, Container, OverlayTrigger, Row, Spinner, Tooltip } from "react-bootstrap";
 import { InfoCircle } from "react-bootstrap-icons";
 import ScoreIndicator from "../shared/ScoreIndicator";
 import ScoreUtils from "../../utils/ScoreUtils";
@@ -11,18 +11,22 @@ type ReportProps = {
 };
 
 type ReportState = {
-  auc: number;
-  jsd: number;
-  norm: number;
+  auc: number | null;
+  jsd: number | null;
+  norm: number | null;
+  isLoading: boolean;
+  error: string | null;
 };
 
 class ClassifierReport extends React.Component<ReportProps, ReportState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      auc: 1,
-      jsd: 1,
-      norm: 1,
+      auc: null,
+      jsd: null,
+      norm: null,
+      isLoading: true,
+      error: null,
     };
     this.getMetrics();
   }
@@ -35,30 +39,46 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
   }
 
   getMetrics = () => {
-    axios
-      .get(`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/auc`)
-      .then((response) => {
-        this.setState({ auc: response.data.auc_score });
-      })
-      .catch((error) => {
-        console.log(error);
+    this.setState({ isLoading: true, error: null });
+    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
+    Promise.all([
+      axios
+        .get(`${resultsUrl}/auc`)
+        .then((response) => response.data.auc_score)
+        .catch(() => null),
+      axios
+        .get(`${resultsUrl}/jsd`)
+        .then((response) => response.data.jsd_score)
+        .catch(() => null),
+      axios
+        .get(`${resultsUrl}/norm`)
+        .then((response) => response.data.norm)
+        .catch(() => null),
+    ]).then(([auc, jsd, norm]) => {
+      const allFailed =
+        auc === null && jsd === null && norm === null;
+      this.setState({
+        auc,
+        jsd,
+        norm,
+        isLoading: false,
+        error: allFailed
+          ? "Failed to load quality scores. The API may be unavailable or the data could not be read."
+          : null,
       });
-    axios
-      .get(`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/jsd`)
-      .then((response) => {
-        this.setState({ jsd: response.data.jsd_score });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    axios
-      .get(`${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/norm`)
-      .then((response) => {
-        this.setState({
-          norm: response.data.norm,
-        });
-      });
+    });
   };
+
+  renderScore(value: number | null) {
+    if (this.state.isLoading) {
+      return (
+        <div className="ResultsMetric__spinner">
+          <Spinner animation="border" role="status" aria-label="Loading score" />
+        </div>
+      );
+    }
+    return <ScoreIndicator value={value} maxValue={100} />;
+  }
 
   renderTooltipAUC = (props: any) => (
     <Tooltip id="button-tooltip" {...props}>
@@ -88,14 +108,12 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
         <div className="ResultsSection__header">
           <h2 className="ResultsSection__title">Quality Evaluation</h2>
         </div>
+        {this.state.error && <Alert variant="warning">{this.state.error}</Alert>}
         <Container fluid className="p-0">
           <Row className="g-4">
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.calculateAucScore(this.state.auc)}
-                  maxValue={100}
-                />
+                {this.renderScore(ScoreUtils.calculateAucScore(this.state.auc))}
                 <div className="ResultsMetric__label">
                   <h4>Discrimination Complexity</h4>
                   <OverlayTrigger
@@ -113,10 +131,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.calculateJsdScore(this.state.jsd)}
-                  maxValue={100}
-                />
+                {this.renderScore(ScoreUtils.calculateJsdScore(this.state.jsd))}
                 <div className="ResultsMetric__label">
                   <h4>Distribution Similarity</h4>
                   <OverlayTrigger
@@ -134,10 +149,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                <ScoreIndicator
-                  value={ScoreUtils.calculateNormScore(this.state.norm)}
-                  maxValue={100}
-                />
+                {this.renderScore(ScoreUtils.calculateNormScore(this.state.norm))}
                 <div className="ResultsMetric__label">
                   <h4>Correlation Score</h4>
                   <OverlayTrigger
