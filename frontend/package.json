@@ -61,8 +61,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.2",
-    "dotenv": "^18.0.8",
-    "vite": "^8.3.4",
+    "dotenv": "^18.0.9",
+    "vite": "^8.3.5",
     "@babel/core": "^8.0.7",
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-react": "^8.0.1",
