@@ -14,15 +14,44 @@ updates:
     schedule:
       interval: weekly
     groups:
-      backend-dependencies:
+      # Split the web stack from the numeric stack so a blocked numeric bump
+      # cannot fail an otherwise-compatible web-stack update.
+      backend-web:
         patterns:
-          - "*"
+          - "aiofiles"
+          - "fastapi"
+          - "httpx"
+          - "plotly"
+          - "pydantic"
+          - "pytest"
+          - "python-dotenv"
+          - "python-multipart"
+          - "starlette"
+          - "uvicorn"
+      backend-numeric:
+        patterns:
+          - "anonymeter"
+          - "matplotlib"
+          - "numpy"
+          - "pandas"
+          - "scipy"
+          - "seaborn"
+          - "syndat"
     ignore:
       # scipy >= 1.18 requires numpy >= 2, but numpy is held at 1.26.4 by
       # anonymeter 1.1.0 (numpy<1.27).
       - dependency-name: scipy
         versions:
           - ">=1.18"
+      # pandas 3.1+ requires numpy >= 2.0.2, which conflicts with the
+      # numpy<1.27 hold imposed by anonymeter 1.1.0.
+      - dependency-name: pandas
+        versions:
+          - ">=3.1"
+      # numpy is held below 2 by anonymeter 1.1.0 (numpy<1.27).
+      - dependency-name: numpy
+        versions:
+          - ">=2"
 
   - package-ecosystem: docker
     directory: /frontend
