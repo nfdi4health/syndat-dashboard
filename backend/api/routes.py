@@ -141,9 +141,26 @@ def get_output_auc(identifier: str):
         raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
     if os.path.isfile(auc_path):
         auc_score = _json_safe_metric(np.load(auc_path).item())
-        return {"auc_score": auc_score}
+        real_rows, total_real_rows = _load_real_row_counts(os.path.dirname(auc_path))
+        return {
+            "auc_score": auc_score,
+            "real_rows": real_rows,
+            "total_real_rows": total_real_rows,
+        }
     else:
         raise HTTPException(status_code=404, detail="No saved results found for dataset ID {}".format(identifier))
+
+
+def _load_real_row_counts(results_dir):
+    """Read persisted real-row counts, tolerating older datasets without the file."""
+    counts_path = os.path.join(results_dir, "real_row_counts.npy")
+    if not os.path.isfile(counts_path):
+        return None, None
+    counts = np.load(counts_path)
+    if counts.shape[0] != 2:
+        return None, None
+    total_rows, usable_rows = int(counts[0]), int(counts[1])
+    return usable_rows, total_rows
 
 
 @app.get("/datasets/{identifier}/results/jsd", tags=["results"])

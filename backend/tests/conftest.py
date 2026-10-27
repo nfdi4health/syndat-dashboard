@@ -41,6 +41,7 @@ def api_client(tmp_path, monkeypatch):
     }.items():
         np.save(results / f"{name}.npy", value)
     np.save(results / "anomaly_scores.npy", np.array([0.2, 0.8]))
+    np.save(results / "real_row_counts.npy", np.array([2, 2]))
     for name, value in {
         "x_real": [[1.0, 2.0]],
         "y_real": [3.0],
