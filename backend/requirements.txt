@@ -2,9 +2,9 @@ aiofiles==25.1.0
 uvicorn==0.54.0
 python-multipart==0.0.32
 numpy==1.26.4
-fastapi==0.143.3
+fastapi==0.162.0
 pydantic==2.14.1
-starlette==1.8.0
+starlette==1.9.0
 anonymeter==1.1.0
 matplotlib==3.11.2
 seaborn==0.13.2
