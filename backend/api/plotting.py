@@ -67,15 +67,40 @@ def create_violin_plots(real_patients, virtual_patients, store_destination):
 
 def create_correlation_plots(real_patients, virtual_patients, store_destination):
     names = ["dec_rp", "dec_vp"]
-    for idx, patient_type in enumerate([real_patients, virtual_patients]):
-        plt.figure()
-        plt.title("Correlation")
+    correlation_matrices = []
+    for patient_type in [real_patients, virtual_patients]:
         numeric_df = patient_type.select_dtypes(include=[np.number])
         if numeric_df.shape[1] == 0:
+            correlation_matrices.append(None)
+        else:
+            correlation_matrices.append(numeric_df.corr())
+
+    # Use a shared color scale across real and synthetic plots so that equal
+    # correlation values map to equal colors and the plots stay comparable.
+    finite_values = [
+        matrix.to_numpy()
+        for matrix in correlation_matrices
+        if matrix is not None
+    ]
+    if finite_values:
+        combined = np.concatenate([values.ravel() for values in finite_values])
+        combined = combined[np.isfinite(combined)]
+    else:
+        combined = np.array([])
+    if combined.size == 0:
+        vmin, vmax = -1.0, 1.0
+    else:
+        vmin, vmax = float(combined.min()), float(combined.max())
+
+    for idx, correlation_matrix in enumerate(correlation_matrices):
+        plt.figure()
+        plt.title("Correlation")
+        if correlation_matrix is None:
             ax = plt.gca()
             ax.axis('off')
             ax.text(0.5, 0.5, "No numeric columns for correlation", ha='center', va='center')
         else:
-            ax = sns.heatmap(numeric_df.corr())
+            ax = sns.heatmap(correlation_matrix, vmin=vmin, vmax=vmax)
         fig = ax.get_figure()
         fig.savefig(store_destination + "/" + names[idx] + '.png', bbox_inches="tight")
+        matplotlib.pyplot.close(fig)
