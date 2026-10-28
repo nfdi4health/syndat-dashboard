@@ -16,11 +16,15 @@ type ReportState = {
   norm: number | null;
   realRows: number | null;
   totalRealRows: number | null;
-  isLoading: boolean;
+  isLoadingAuc: boolean;
+  isLoadingJsd: boolean;
+  isLoadingNorm: boolean;
   error: string | null;
 };
 
 class ClassifierReport extends React.Component<ReportProps, ReportState> {
+  private requestId = 0;
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -29,7 +33,9 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
       norm: null,
       realRows: null,
       totalRealRows: null,
-      isLoading: true,
+      isLoadingAuc: true,
+      isLoadingJsd: true,
+      isLoadingNorm: true,
       error: null,
     };
     this.getMetrics();
@@ -43,41 +49,69 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
   }
 
   getMetrics = () => {
-    this.setState({ isLoading: true, error: null });
-    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
-    Promise.all([
-      axios
-        .get(`${resultsUrl}/auc`)
-        .then((response) => response.data)
-        .catch(() => null),
-      axios
-        .get(`${resultsUrl}/jsd`)
-        .then((response) => response.data.jsd_score)
-        .catch(() => null),
-      axios
-        .get(`${resultsUrl}/norm`)
-        .then((response) => response.data.norm)
-        .catch(() => null),
-    ]).then(([aucData, jsd, norm]) => {
-      const auc = aucData ? aucData.auc_score : null;
-      const allFailed =
-        auc === null && jsd === null && norm === null;
-      this.setState({
-        auc,
-        jsd,
-        norm,
-        realRows: aucData?.real_rows ?? null,
-        totalRealRows: aucData?.total_real_rows ?? null,
-        isLoading: false,
-        error: allFailed
-          ? "Failed to load quality scores. The API may be unavailable or the data could not be read."
-          : null,
-      });
+    const requestId = ++this.requestId;
+    this.setState({
+      auc: null,
+      jsd: null,
+      norm: null,
+      realRows: null,
+      totalRealRows: null,
+      isLoadingAuc: true,
+      isLoadingJsd: true,
+      isLoadingNorm: true,
+      error: null,
     });
+
+    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
+    const failures = { count: 0 };
+    const isStale = () => requestId !== this.requestId;
+
+    const onFailure = () => {
+      if (isStale()) return;
+      failures.count += 1;
+      if (failures.count === 3) {
+        this.setState({
+          isLoadingAuc: false,
+          isLoadingJsd: false,
+          isLoadingNorm: false,
+          error:
+            "Failed to load quality scores. The API may be unavailable or the data could not be read.",
+        });
+      }
+    };
+
+    axios
+      .get(`${resultsUrl}/auc`)
+      .then((response) => {
+        if (isStale()) return;
+        this.setState({
+          auc: response.data.auc_score,
+          realRows: response.data.real_rows ?? null,
+          totalRealRows: response.data.total_real_rows ?? null,
+          isLoadingAuc: false,
+        });
+      })
+      .catch(onFailure);
+
+    axios
+      .get(`${resultsUrl}/jsd`)
+      .then((response) => {
+        if (isStale()) return;
+        this.setState({ jsd: response.data.jsd_score, isLoadingJsd: false });
+      })
+      .catch(onFailure);
+
+    axios
+      .get(`${resultsUrl}/norm`)
+      .then((response) => {
+        if (isStale()) return;
+        this.setState({ norm: response.data.norm, isLoadingNorm: false });
+      })
+      .catch(onFailure);
   };
 
-  renderScore(value: number | null) {
-    if (this.state.isLoading) {
+  renderScore(value: number | null, isLoading: boolean) {
+    if (isLoading) {
       return (
         <div className="ResultsMetric__spinner">
           <Spinner animation="border" role="status" aria-label="Loading score" />
@@ -140,7 +174,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
   renderAucWarning = (aucScore: number | null) => {
     const missingDataInfo = this.getMissingDataInfo();
     const lowScore = aucScore !== null && aucScore < 40;
-    if (this.state.isLoading || (!lowScore && !missingDataInfo)) {
+    if (this.state.isLoadingAuc || (!lowScore && !missingDataInfo)) {
       return null;
     }
     return (
@@ -215,7 +249,7 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
           <Row className="g-4">
             <Col md={4}>
               <div className="ResultsMetric">
-                {this.renderScore(aucScore)}
+                {this.renderScore(aucScore, this.state.isLoadingAuc)}
                 <div className="ResultsMetric__label">
                   <h4>Discrimination Complexity</h4>
                   {this.renderInfoIcon(this.renderTooltipAUC, "More info")}
@@ -226,7 +260,10 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                {this.renderScore(ScoreUtils.calculateJsdScore(this.state.jsd))}
+                {this.renderScore(
+                  ScoreUtils.calculateJsdScore(this.state.jsd),
+                  this.state.isLoadingJsd
+                )}
                 <div className="ResultsMetric__label">
                   <h4>Distribution Similarity</h4>
                   {this.renderInfoIcon(this.renderTooltipJSD, "More info")}
@@ -236,7 +273,10 @@ class ClassifierReport extends React.Component<ReportProps, ReportState> {
 
             <Col md={4}>
               <div className="ResultsMetric">
-                {this.renderScore(ScoreUtils.calculateNormScore(this.state.norm))}
+                {this.renderScore(
+                  ScoreUtils.calculateNormScore(this.state.norm),
+                  this.state.isLoadingNorm
+                )}
                 <div className="ResultsMetric__label">
                   <h4>Correlation Score</h4>
                   {this.renderInfoIcon(this.renderTooltipFrobeniusNorm, "More info")}

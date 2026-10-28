@@ -1,7 +1,7 @@
 import React from "react";
 import { Col } from "react-bootstrap";
 import { Alert } from "@mui/material";
-import ProcessingStatusIndicator from "./ProcessingStatusIndicator copy";
+import ProcessingStatusIndicator from "./ProcessingStatusIndicator";
 
 type State = {
   processingTriggered: Boolean;

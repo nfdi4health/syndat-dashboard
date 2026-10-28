@@ -48,6 +48,8 @@ type LayoutShape = {
 };
 
 class OutlierPlot extends React.Component<Props, State> {
+  private requestId = 0;
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -96,25 +98,20 @@ class OutlierPlot extends React.Component<Props, State> {
   }
 
   loadData = () => {
-    this.setState({ isLoading: true, error: null });
+    const requestId = ++this.requestId;
+    this.setState({ isLoading: true, error: null, outlierScores: [] });
 
-    Promise.all([
-      axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/outliers`,
-        { params: { anomaly_score: true } }
-      ),
-      axios.get(
+    const isStale = () => requestId !== this.requestId;
+
+    axios
+      .get(
         `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/tsne`
-      ),
-    ])
-      .then(([outliersRes, tsneRes]) => {
-        const outlierScores = outliersRes.data?.Outlier_Scores ?? [];
-        const patient_coordinates = tsneRes.data;
-
+      )
+      .then((tsneRes) => {
+        if (isStale()) return;
         this.setState(
           {
-            outlierScores,
-            patient_coordinates,
+            patient_coordinates: tsneRes.data,
             removedIndices: [],
             selectedIndex: -1,
             isLoading: false,
@@ -122,18 +119,37 @@ class OutlierPlot extends React.Component<Props, State> {
           },
           () => {
             this.initializeTraces();
-            this.upscaleOutlierScores();
           }
         );
       })
-      .catch((error) => {
+      .catch(() => {
+        if (isStale()) return;
         this.setState({
           isLoading: false,
-          error:
-            error?.message === "Network Error"
-              ? "Failed to load outlier plot data. API may be unavailable."
-              : error?.message || "Failed to load outlier plot data.",
+          error: "Failed to load outlier plot data. API may be unavailable.",
         });
+      });
+
+    // Outlier scores are optional: the scatter plot is still useful without
+    // them, so a failing score request must not hide the plot.
+    axios
+      .get(
+        `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results/outliers`,
+        { params: { anomaly_score: true } }
+      )
+      .then((outliersRes) => {
+        if (isStale()) return;
+        const outlierScores = (outliersRes.data?.Outlier_Scores ?? []).map(
+          (score: number) => score * 100
+        );
+        this.setState({ outlierScores }, () => {
+          if (!this.state.isLoading) {
+            this.initializeTraces();
+          }
+        });
+      })
+      .catch(() => {
+        // keep the plot usable; scores stay empty
       });
   };
 
@@ -151,7 +167,7 @@ class OutlierPlot extends React.Component<Props, State> {
   }
 
   initializeTraces() {
-    var patient_coordinates = this.state.patient_coordinates;
+    const patient_coordinates = this.state.patient_coordinates;
     var trace1 = {
       x: patient_coordinates.trace_real.x,
       y: patient_coordinates.trace_real.y,

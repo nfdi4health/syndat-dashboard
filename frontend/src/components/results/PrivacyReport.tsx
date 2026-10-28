@@ -14,18 +14,24 @@ type PrivacyRisks = {
   singling_out_risk: number | null;
   inference_risk: number | null;
   linkability_risk: number | null;
-  isLoading: boolean;
+  isLoadingSinglingOut: boolean;
+  isLoadingLinkability: boolean;
+  isLoadingInference: boolean;
   error: string | null;
 };
 
 class PrivacyReport extends React.Component<Props, PrivacyRisks> {
+  private requestId = 0;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       singling_out_risk: null,
       inference_risk: null,
       linkability_risk: null,
-      isLoading: true,
+      isLoadingSinglingOut: true,
+      isLoadingLinkability: true,
+      isLoadingInference: true,
       error: null,
     };
     this.getMetrics();
@@ -50,40 +56,60 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
   }
 
   getMetrics = () => {
-    this.setState({ isLoading: true, error: null });
-    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
-    Promise.all([
-      axios
-        .get(`${resultsUrl}/risk_singling_out`)
-        .then((response) => response.data.risk)
-        .catch(() => null),
-      axios
-        .get(`${resultsUrl}/risk_inference`)
-        .then((response) => response.data.risk)
-        .catch(() => null),
-      axios
-        .get(`${resultsUrl}/risk_linkability`)
-        .then((response) => response.data.risk)
-        .catch(() => null),
-    ]).then(([singling_out_risk, inference_risk, linkability_risk]) => {
-      const allFailed =
-        singling_out_risk === null &&
-        inference_risk === null &&
-        linkability_risk === null;
-      this.setState({
-        singling_out_risk,
-        inference_risk,
-        linkability_risk,
-        isLoading: false,
-        error: allFailed
-          ? "Failed to load privacy risks. The API may be unavailable or the data could not be read."
-          : null,
-      });
+    const requestId = ++this.requestId;
+    this.setState({
+      singling_out_risk: null,
+      inference_risk: null,
+      linkability_risk: null,
+      isLoadingSinglingOut: true,
+      isLoadingLinkability: true,
+      isLoadingInference: true,
+      error: null,
     });
+
+    const resultsUrl = `${process.env.REACT_APP_API_BASE_URL}/datasets/${this.props.dataset}/results`;
+    const failures = { count: 0 };
+    const isStale = () => requestId !== this.requestId;
+
+    const onFailure = () => {
+      if (isStale()) return;
+      failures.count += 1;
+      if (failures.count === 3) {
+        this.setState({
+          isLoadingSinglingOut: false,
+          isLoadingLinkability: false,
+          isLoadingInference: false,
+          error:
+            "Failed to load privacy risks. The API may be unavailable or the data could not be read.",
+        });
+      }
+    };
+
+    const load = (
+      path: string,
+      onSuccess: (risk: number | null) => void,
+    ) =>
+      axios
+        .get(`${resultsUrl}/${path}`)
+        .then((response) => {
+          if (isStale()) return;
+          onSuccess(response.data.risk);
+        })
+        .catch(onFailure);
+
+    void load("risk_singling_out", (risk) =>
+      this.setState({ singling_out_risk: risk, isLoadingSinglingOut: false }),
+    );
+    void load("risk_inference", (risk) =>
+      this.setState({ inference_risk: risk, isLoadingInference: false }),
+    );
+    void load("risk_linkability", (risk) =>
+      this.setState({ linkability_risk: risk, isLoadingLinkability: false }),
+    );
   };
 
-  renderScore(value: number | null) {
-    if (this.state.isLoading) {
+  renderScore(value: number | null, isLoading: boolean) {
+    if (isLoading) {
       return (
         <div className="ResultsMetric__spinner">
           <Spinner animation="border" role="status" aria-label="Loading score" />
@@ -175,7 +201,8 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 {this.renderScore(
-                  ScoreUtils.displayPrivacyScore(this.state.singling_out_risk)
+                  ScoreUtils.displayPrivacyScore(this.state.singling_out_risk),
+                  this.state.isLoadingSinglingOut
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Singling Out Risk</h4>
@@ -187,7 +214,8 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 {this.renderScore(
-                  ScoreUtils.displayPrivacyScore(this.state.linkability_risk)
+                  ScoreUtils.displayPrivacyScore(this.state.linkability_risk),
+                  this.state.isLoadingLinkability
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Linkability Risk</h4>
@@ -199,7 +227,8 @@ class PrivacyReport extends React.Component<Props, PrivacyRisks> {
             <Col md={4}>
               <div className="ResultsMetric">
                 {this.renderScore(
-                  ScoreUtils.displayPrivacyScore(this.state.inference_risk)
+                  ScoreUtils.displayPrivacyScore(this.state.inference_risk),
+                  this.state.isLoadingInference
                 )}
                 <div className="ResultsMetric__label">
                   <h4>Inferrence Risk</h4>

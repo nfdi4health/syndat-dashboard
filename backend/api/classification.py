@@ -8,22 +8,38 @@ from sklearn.model_selection import cross_val_score
 from api.domain import OutlierPredictionMode
 
 
+def _is_empty(data):
+    return data is None or data.shape[0] == 0
+
+
 def get_auc(real, virtual):
-    if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
+    # Raw ROC AUC of a classifier separating real from synthetic samples. This is
+    # the legacy contract the frontend rescales: 0.5 means indistinguishable, so
+    # clamp away float noise and inverted classifiers below chance.
+    if _is_empty(real) or _is_empty(virtual):
         return np.nan
-    return syndat.scores.auc(real, virtual, score=False)
+    return float(max(syndat.metrics.discriminator_auc(real, virtual), 0.5))
 
 
 def get_jsd(real, virtual):
-    if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
+    # Mean per-feature Jensen-Shannon distance in [0, 1], where 0 is identical.
+    if _is_empty(real) or _is_empty(virtual):
         return np.nan
-    return syndat.scores.jsd(real, virtual, score=False)
+    distances = syndat.metrics.jensen_shannon_distance(real, virtual)
+    if not distances:
+        return np.nan
+    return float(np.mean(list(distances.values())))
 
 
 def get_norm_score(real_data, synthetic_data):
-    if real_data is None or synthetic_data is None or real_data.shape[0] == 0 or synthetic_data.shape[0] == 0:
+    # Norm quotient of the real and synthetic correlation matrices: 0 for equal
+    # correlation structure and 1 for completely different ones. The quotient can
+    # exceed 1 when correlations oppose each other, so clamp it to the [0, 1]
+    # range the frontend expects.
+    if _is_empty(real_data) or _is_empty(synthetic_data):
         return np.nan
-    return syndat.scores.correlation(real_data, synthetic_data, score=False)
+    quotient = syndat.metrics.normalized_correlation_difference(real_data, synthetic_data)
+    return float(min(max(quotient, 0.0), 1.0))
 
 def get_outliers(virtual_patients, mode=OutlierPredictionMode.isolationForest, anomaly_score=False):
     if mode == OutlierPredictionMode.isolationForest:
