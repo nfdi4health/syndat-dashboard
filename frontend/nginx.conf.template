@@ -10,10 +10,28 @@ http {
    default_type  application/octet-stream;
     server {
           listen 80;
+          # where the root here
+          root /var/www;
+          index index.html;
+
+          # Never cache the HTML entrypoint so new deployments are picked up
+          # immediately instead of serving a stale app shell.
+          location = /index.html {
+            add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+            add_header Pragma "no-cache" always;
+            add_header Expires "0" always;
+            try_files $uri =404;
+          }
+
+          # Vite emits content-hashed filenames under /assets/, so they can be
+          # cached aggressively.
+          location /assets/ {
+            add_header Cache-Control "public, max-age=31536000, immutable" always;
+            try_files $uri =404;
+          }
+
           location / {
-            # where the root here
-            root /var/www;
-            index index.html;
+            add_header Cache-Control "no-store, no-cache, must-revalidate" always;
             try_files $uri $uri/ /index.html;
           }
     }
