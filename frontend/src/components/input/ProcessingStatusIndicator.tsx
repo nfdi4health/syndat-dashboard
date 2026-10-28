@@ -13,6 +13,29 @@ type Props = {
   resource: string;
 };
 
+const MAX_DETAIL_LENGTH = 200;
+
+const describeFailure = (error: any): string => {
+  const status = error?.response?.status;
+  const detail = error?.response?.data?.detail;
+
+  if (status === undefined) {
+    return "Processing failed: could not reach the server.";
+  }
+
+  if (
+    typeof detail === "string" &&
+    detail.length > 0 &&
+    detail.length <= MAX_DETAIL_LENGTH &&
+    !detail.includes("\n") &&
+    !/traceback/i.test(detail)
+  ) {
+    return `Processing failed (status ${status}): ${detail}`;
+  }
+
+  return `Processing failed (status ${status}).`;
+};
+
 class ProcessingStatusIndicator extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -22,56 +45,58 @@ class ProcessingStatusIndicator extends React.Component<Props, State> {
       triggerFailure: false,
       uploadResponseMessage: "",
     };
+  }
+
+  componentDidMount() {
     this.triggerBackendProcessing();
   }
 
+  processLabel = () =>
+    this.props.resource.replace("/", " > ").replaceAll("_", " ");
+
   triggerBackendProcessing = () => {
-    // reset response message state
     this.setState({
       triggerSuccess: false,
       triggerFailure: false,
       processingActive: true,
       uploadResponseMessage: "",
     });
-    let responseMessage;
+
     axios
       .patch(
         `${process.env.REACT_APP_API_BASE_URL}/datasets/default/${this.props.resource}`
       )
       .then((response) => {
-        responseMessage = `Status ${response.status}: ${response.data.message}`;
         this.setState({
           triggerSuccess: true,
           processingActive: false,
-          uploadResponseMessage: responseMessage,
+          triggerFailure: false,
+          uploadResponseMessage: `Status ${response.status}: ${response.data?.message ?? ""}`,
         });
       })
       .catch((error) => {
-        responseMessage = `Status ${error.response.status}: ${error.response.data.detail}`;
         this.setState({
-          triggerFailure: true,
+          triggerSuccess: false,
           processingActive: false,
-          uploadResponseMessage: responseMessage,
+          triggerFailure: true,
+          uploadResponseMessage: describeFailure(error),
         });
       });
   };
 
   renderTriggerResponse = () => {
-    const processLabel = this.props.resource.replace("/", " > ").replaceAll("_", " ");
     if (this.state.triggerSuccess) {
       return (
         <Alert severity="success">
-          <b>{processLabel} </b> computation successful!
+          <b>{this.processLabel()} </b> computation successful!
         </Alert>
       );
     } else if (this.state.triggerFailure) {
       return <Alert severity="error">{this.state.uploadResponseMessage}</Alert>;
-    } else if (this.state.processingActive) {
-      return <Alert severity="warning">Waiting for API response.</Alert>;
     } else {
       return (
         <Alert severity="warning">
-          <b>{processLabel} </b> computing.. <LinearProgress />
+          <b>{this.processLabel()} </b> computing.. <LinearProgress />
         </Alert>
       );
     }
