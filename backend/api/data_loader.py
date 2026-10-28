@@ -8,6 +8,8 @@ import pandas as pd
 from pandas.core.dtypes.common import is_numeric_dtype
 from typing import List
 
+from api import sanity
+
 
 def load_virtual_patients_decoded(output_path):
     df_virtual = pd.read_csv(output_path + "/synthetic.csv", dtype={"SUBJID": str})
@@ -35,25 +37,14 @@ def load_real_patients_decoded(output_path):
     return frame
 
 
-def load_data_decoded(output_path):
-    # real = load_real_patients_decoded().dropna()
-    real = pd.read_csv(output_path + '/real.csv')
-    virtual = pd.read_csv(output_path + "/synthetic.csv")
+def load_data_decoded(output_path, row_limit=sanity.MAX_PROCESSING_ROWS):
+    """Load, validate and align the real and synthetic patient data.
 
-    # Drop identifiers that should not be evaluated
-    real = real.drop("SUBJID", axis=1, errors='ignore')
-    virtual = virtual.drop("SUBJID", axis=1, errors='ignore')
-
-    # Align by shared columns only.
-    # Using reindex(real.columns) can create all-NaN columns if synthetic is missing cols,
-    # which later leads to dropna() producing empty frames and downstream 500s.
-    common_cols = sorted(set(real.columns).intersection(set(virtual.columns)))
-    if len(common_cols) == 0:
-        raise HTTPException(status_code=422, detail="Real and synthetic datasets share no common columns.")
-
-    real = real[common_cols]
-    virtual = virtual[common_cols]
-    return real, virtual
+    Validation happens here so that every processing step is guarded, including
+    data that arrived through a dataset import or was already on disk. Pass
+    ``row_limit=None`` to keep all rows.
+    """
+    return sanity.load_prepared_pair(output_path, row_limit=row_limit)
 
 
 def load_data_encoded(directory_name):
@@ -169,52 +160,3 @@ def create_datasets_archive():
         shutil.rmtree(temp_dir, ignore_errors=True)
         os.remove(archive_name, ignore_errors=True)
         raise HTTPException(status_code=500, detail=str(e))
-
-
-def sanity_check_data(csv_file_path: str) -> dict:
-    """
-    Perform sanity checks on uploaded CSV files to ensure data quality before processing.
-    Returns a dictionary with 'valid' status and 'warnings' list.
-    """
-    warnings = []
-    
-    try:
-        df = pd.read_csv(csv_file_path)
-        
-        # Check 1: Empty DataFrame
-        if df.empty:
-            return {"valid": False, "error": "File contains no data rows"}
-        
-        # Check 2: Column count
-        if len(df.columns) == 0:
-            return {"valid": False, "error": "File contains no columns"}
-        
-        # Check 3: All-NaN columns or rows
-        if df.isnull().all(axis=0).any():
-            warnings.append("Some columns are completely empty")
-        
-        if df.isnull().all(axis=1).any():
-            warnings.append("Some rows are completely empty")
-        
-        # Check 4: Data type consistency
-        obj_cols = len(df.select_dtypes(include=['object']).columns)
-        if obj_cols > len(df.columns) * 0.8:
-            warnings.append("Most columns are stored as text (possible encoding issue)")
-        
-        # Check 5: Row count validation
-        if len(df) > 5000:
-            warnings.append(f"Dataset has {len(df)} rows (>5000). May be subsampled for performance.")
-        
-        # Check 6: Missing values
-        missing_ratio = df.isnull().sum().sum() / (len(df) * len(df.columns))
-        if missing_ratio > 0.5:
-            warnings.append(f"High missing data ratio: {missing_ratio*100:.1f}%")
-        elif missing_ratio > 0.2:
-            warnings.append(f"Moderate missing data: {missing_ratio*100:.1f}%")
-        
-        return {"valid": True, "warnings": warnings, "rows": len(df), "columns": len(df.columns)}
-        
-    except pd.errors.ParserError as e:
-        return {"valid": False, "error": f"CSV parsing error: {str(e)}"}
-    except Exception as e:
-        return {"valid": False, "error": f"Error reading file: {str(e)}"}

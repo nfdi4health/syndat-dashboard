@@ -25,8 +25,16 @@ class OutputUpload extends React.Component {
                 not accepted and will yield an error response.
               </li>
               <li>
-                Both real and synthetic data should have the same column names
-                to make them comparable.
+                Real and synthetic data must share the column names you want to
+                compare. Extra columns are allowed but will be ignored, and a
+                column named <code>SUBJID</code> is treated as an identifier.
+                Files are validated on upload; the comparison itself is checked
+                when you trigger processing.
+              </li>
+              <li>
+                Large files are supported: only a random sample of 1,000 rows is
+                used for the results computation, so plots and metrics stay
+                responsive.
               </li>
             </ol>
           </p>

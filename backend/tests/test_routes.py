@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import zipfile
 
 
@@ -133,3 +134,120 @@ def test_protected_import_requires_basic_auth(api_client):
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid file type. Only .zip files are accepted."
+
+
+def _upload(client, data_type, content, filename="data.csv"):
+    return client.post(
+        f"/datasets/default/patients/{data_type}",
+        files={"file": (filename, content.encode("utf-8"), "text/csv")},
+    )
+
+
+def test_upload_rejects_malformed_file_and_keeps_previous_data(api_client):
+    original = open("datasets/default/patients/real.csv", encoding="utf-8").read()
+
+    response = _upload(api_client, "real", "SUBJID,age,sex\n1,30,F\n2,40\n")
+
+    assert response.status_code == 422
+    assert "row 3 has 2 fields" in response.json()["detail"]
+    assert open("datasets/default/patients/real.csv", encoding="utf-8").read() == original
+    assert not [name for name in os.listdir("datasets/default/patients") if name.endswith(".upload")]
+
+
+def test_upload_rejects_empty_file(api_client):
+    response = _upload(api_client, "synthetic", "")
+    assert response.status_code == 422
+    assert "the file is empty" in response.json()["detail"]
+
+
+def test_upload_returns_warnings_for_large_file(api_client):
+    rows = "\n".join(f"{index},{20 + index},F" for index in range(1, 1201))
+    response = _upload(api_client, "real", "SUBJID,age,sex\n" + rows + "\n")
+
+    assert response.status_code == 200
+    assert any("random sample of 1,000 rows" in warning for warning in response.json()["warnings"])
+
+
+def test_upload_of_one_side_is_not_judged_against_stale_counterpart(api_client):
+    # synthetic still holds the fixture schema; uploading a differently shaped
+    # real file must succeed because alignment is only checked on processing.
+    rows = "\n".join(f"{index},{index}" for index in range(1, 6))
+    response = _upload(api_client, "real", "SUBJID,height\n" + rows + "\n")
+
+    assert response.status_code == 200
+
+
+def test_validation_endpoint_accepts_aligned_data(api_client):
+    report = api_client.get("/datasets/default/patients/validation").json()
+
+    assert report["valid"] is True
+    assert report["errors"] == []
+    assert report["details"]["real_rows"] == 2
+    assert report["details"]["synthetic_rows"] == 2
+    assert report["details"]["processing_rows"] == 2
+    assert report["details"]["shared_columns"] == 2
+
+
+def test_validation_endpoint_reports_missing_file(api_client):
+    os.remove("datasets/default/patients/real.csv")
+
+    report = api_client.get("/datasets/default/patients/validation").json()
+
+    assert report["valid"] is False
+    assert report["errors"] == ["Real data has not been uploaded yet."]
+
+
+def test_validation_endpoint_reports_unrelated_datasets(api_client):
+    with open("datasets/default/patients/synthetic.csv", "w", encoding="utf-8") as handle:
+        handle.write("foo,bar\n1,2\n3,4\n")
+
+    report = api_client.get("/datasets/default/patients/validation").json()
+
+    assert report["valid"] is False
+    assert "share no column names" in " ".join(report["errors"])
+
+
+def test_processing_rejects_unrelated_datasets_without_writing_results(api_client):
+    with open("datasets/default/patients/synthetic.csv", "w", encoding="utf-8") as handle:
+        handle.write("foo,bar\n1,2\n3,4\n")
+
+    response = api_client.patch("/datasets/default/results/column_types")
+
+    assert response.status_code == 422
+    assert "Patient data" in response.json()["detail"]
+    assert not os.path.exists("datasets/default/results/column_types.npy")
+
+
+def test_processing_runs_for_aligned_data(api_client):
+    response = api_client.patch("/datasets/default/results/column_types")
+
+    assert response.status_code == 201
+    assert os.path.exists("datasets/default/results/column_types.npy")
+
+
+def test_violin_processing_keeps_existing_plots_on_validation_failure(api_client):
+    plot_path = "datasets/default/plots/violin/age.png"
+    with open(plot_path, "wb") as handle:
+        handle.write(b"existing")
+    with open("datasets/default/patients/synthetic.csv", "w", encoding="utf-8") as handle:
+        handle.write("foo,bar\n1,2\n3,4\n")
+
+    response = api_client.patch("/datasets/default/plots/violin")
+
+    assert response.status_code == 422
+    assert os.path.exists(plot_path)
+    assert not [name for name in os.listdir("datasets/default/plots") if name.startswith("violin-")]
+
+
+def test_violin_processing_replaces_plots_on_success(api_client):
+    plots = "datasets/default/plots/violin"
+    with open(f"{plots}/stale.png", "wb") as handle:
+        handle.write(b"stale")
+
+    response = api_client.patch("/datasets/default/plots/violin")
+
+    assert response.status_code == 201
+    names = set(os.listdir(plots))
+    assert "stale.png" not in names
+    assert {"age.png", "sex.png"} <= names
+    assert not [name for name in os.listdir("datasets/default/plots") if name.startswith("violin-")]
