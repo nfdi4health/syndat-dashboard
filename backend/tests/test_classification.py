@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+import syndat
 
 from api import classification
 
@@ -37,6 +38,44 @@ def test_get_auc_uses_installed_syndat_api(real_data, similar_synthetic):
     score = classification.get_auc(real_data, similar_synthetic)
 
     assert np.isfinite(score)
+
+
+def test_score_helpers_delegate_to_syndat_metrics(monkeypatch, real_data, similar_synthetic):
+    # The direct metrics are already in the units the frontend consumes, so the
+    # helpers must not re-derive them from the 0-100 complexity scores.
+    calls = {}
+
+    def fake_auc(real, synthetic, **kwargs):
+        calls["auc"] = True
+        return 0.73
+
+    def fake_jsd(real, synthetic, **kwargs):
+        calls["jsd"] = True
+        return {"a": 0.2, "b": 0.4}
+
+    def fake_norm(real, synthetic, **kwargs):
+        calls["norm"] = True
+        return 0.25
+
+    monkeypatch.setattr(syndat.metrics, "discriminator_auc", fake_auc)
+    monkeypatch.setattr(syndat.metrics, "jensen_shannon_distance", fake_jsd)
+    monkeypatch.setattr(syndat.metrics, "normalized_correlation_difference", fake_norm)
+
+    assert classification.get_auc(real_data, similar_synthetic) == 0.73
+    assert classification.get_jsd(real_data, similar_synthetic) == pytest.approx(0.3)
+    assert classification.get_norm_score(real_data, similar_synthetic) == 0.25
+    assert calls == {"auc": True, "jsd": True, "norm": True}
+
+
+def test_norm_score_clamps_quotients_above_one(monkeypatch, real_data, similar_synthetic):
+    # Opposing correlation structure can push the quotient past 1.
+    monkeypatch.setattr(
+        syndat.metrics,
+        "normalized_correlation_difference",
+        lambda *args, **kwargs: 1.7,
+    )
+
+    assert classification.get_norm_score(real_data, similar_synthetic) == 1.0
 
 
 def test_get_jsd_uses_installed_syndat_api(real_data, similar_synthetic):
