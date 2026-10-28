@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
 import React from "react";
 import { vi, test, expect, beforeEach, afterEach } from "vitest";
@@ -109,8 +109,7 @@ test("a failing metric on one dataset does not hang the page", async () => {
   expect(quality?.metric3).toEqual([expect.any(Number), null]);
 });
 
-test("a null (non-finite) metric value renders as a gap, not zero", async () => {
-  mockedAxiosGet.mockImplementation(async (url: string) => {
+test("a null (non-finite) metric value renders as a gap, not zero", async () => {  mockedAxiosGet.mockImplementation(async (url: string) => {
     if (url.endsWith("/datasets")) {
       return { data: ["ds-a"] };
     }
@@ -134,4 +133,62 @@ test("a null (non-finite) metric value renders as a gap, not zero", async () => 
   expect(privacy?.metric1).toEqual([null]);
   expect(privacy?.metric2).toEqual([10]);
   expect(privacy?.metric3).toEqual([null]);
+});
+
+test("renders the dataset rows before every metric has arrived", async () => {
+  mockedAxiosGet.mockImplementation((url: string) => {
+    if (url.endsWith("/datasets")) {
+      return Promise.resolve({ data: ["ds-a"] }) as any;
+    }
+    return new Promise(() => {}) as any;
+  });
+
+  render(<DatasetSummaryPage />);
+  await waitFor(() => expect(captured.length).toBeGreaterThan(0));
+
+  const quality = captured.filter((c) => c.plotTitle === "Quality Score").pop();
+  expect(quality?.datasets).toEqual(["ds-a"]);
+  expect(quality?.metric1).toEqual([null]);
+  expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+});
+
+test("updates the chart as each dataset's metrics arrive", async () => {
+  let resolveAucA: (value: any) => void = () => {};
+  let resolveAucB: (value: any) => void = () => {};
+
+  mockedAxiosGet.mockImplementation((url: string) => {
+    if (url.endsWith("/datasets")) {
+      return Promise.resolve({ data: ["ds-a", "ds-b"] }) as any;
+    }
+    if (url.endsWith("/auc") && url.includes("/ds-a/")) {
+      return new Promise((resolve) => {
+        resolveAucA = resolve;
+      }) as any;
+    }
+    if (url.endsWith("/auc") && url.includes("/ds-b/")) {
+      return new Promise((resolve) => {
+        resolveAucB = resolve;
+      }) as any;
+    }
+    return Promise.resolve({ data: {} }) as any;
+  });
+
+  render(<DatasetSummaryPage />);
+  await waitFor(() => expect(captured.length).toBeGreaterThan(0));
+
+  resolveAucA({ data: { auc_score: 0.5 } });
+
+  await waitFor(() => {
+    const quality = captured.filter((c) => c.plotTitle === "Quality Score").pop();
+    expect(quality?.metric1[0]).not.toBeNull();
+  });
+
+  const afterFirst = captured.filter((c) => c.plotTitle === "Quality Score").pop();
+  expect(afterFirst?.metric1[1]).toBeNull();
+
+  resolveAucB({ data: { auc_score: 0.5 } });
+  await waitFor(() => {
+    const quality = captured.filter((c) => c.plotTitle === "Quality Score").pop();
+    expect(quality?.metric1[1]).not.toBeNull();
+  });
 });
