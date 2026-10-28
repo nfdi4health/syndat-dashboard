@@ -9,21 +9,24 @@ from api.domain import OutlierPredictionMode
 
 
 def get_auc(real, virtual):
+    # syndat>=0.13 reports a 0-100 discrimination score (100 == indistinguishable,
+    # i.e. faithful synthetic data). The frontend expects the legacy raw ROC AUC
+    # in [0.5, 1.0] where 0.5 means the classifier cannot tell the sets apart.
     if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
         return np.nan
-    return syndat.scores.auc(real, virtual, score=False)
+    return 1 - syndat.scores.discrimination(real, virtual) / 200
 
 
 def get_jsd(real, virtual):
     if real is None or virtual is None or real.shape[0] == 0 or virtual.shape[0] == 0:
         return np.nan
-    return syndat.scores.jsd(real, virtual, score=False)
+    return 1 - syndat.scores.distribution(real, virtual) / 100
 
 
 def get_norm_score(real_data, synthetic_data):
     if real_data is None or synthetic_data is None or real_data.shape[0] == 0 or synthetic_data.shape[0] == 0:
         return np.nan
-    return syndat.scores.correlation(real_data, synthetic_data, score=False)
+    return 1 - syndat.scores.correlation(real_data, synthetic_data) / 100
 
 def get_outliers(virtual_patients, mode=OutlierPredictionMode.isolationForest, anomaly_score=False):
     if mode == OutlierPredictionMode.isolationForest:
