@@ -2,15 +2,17 @@ import React from "react";
 import axios from "axios";
 import { Alert } from "@mui/material";
 import { DataType } from "../../enums/DataType";
+import MessageUtils from "../../utils/MessageUtils";
 import PostProcessingOptions, {
   PostProcessingOptions as Options,
 } from "./PostProcessingOptions";
 
 type State = {
   selectedFile: any;
-  uploadSuccess: Boolean;
-  uploadFailure: Boolean;
-  uploadResponseMessage: String;
+  uploadSuccess: boolean;
+  uploadFailure: boolean;
+  uploadResponseMessage: string;
+  uploadWarnings: string[];
   postProcessingOptions: Options;
 };
 
@@ -26,6 +28,7 @@ class UploadForm extends React.Component<Props, State> {
       uploadSuccess: false,
       uploadFailure: false,
       uploadResponseMessage: "",
+      uploadWarnings: [],
       postProcessingOptions: {
         normalize_scale: false,
         assert_minmax: false,
@@ -43,6 +46,7 @@ class UploadForm extends React.Component<Props, State> {
       uploadSuccess: false,
       uploadFailure: false,
       uploadResponseMessage: "",
+      uploadWarnings: [],
     });
 
     const formData = new FormData();
@@ -54,7 +58,8 @@ class UploadForm extends React.Component<Props, State> {
         formData
       );
 
-      let message = `Upload successful: ${uploadRes.status} ${uploadRes.data.message}`;
+      let message = `Upload successful: ${uploadRes.data.message}`;
+      const warnings = MessageUtils.sanitizeList(uploadRes.data?.warnings);
 
       // Apply postprocessing if synthetic data and options selected
       if (this.props.dataType === DataType.synthetic) {
@@ -71,20 +76,19 @@ class UploadForm extends React.Component<Props, State> {
               },
             }
           );
-          message += ` | Post-processing: ${postprocessRes.status} ${postprocessRes.data.message}`;
+          message += ` Post-processing: ${postprocessRes.data.message}`;
         }
       }
 
       this.setState({
         uploadSuccess: true,
         uploadResponseMessage: message,
+        uploadWarnings: warnings,
       });
     } catch (error: any) {
-      const status = error?.response?.status ?? "Unknown";
-      const detail = error?.response?.data?.detail ?? error?.message ?? "Unknown error";
       this.setState({
         uploadFailure: true,
-        uploadResponseMessage: `Status ${status}: ${detail}`,
+        uploadResponseMessage: MessageUtils.describeError(error),
       });
     }
   };
@@ -95,7 +99,21 @@ class UploadForm extends React.Component<Props, State> {
 
   renderUploadResponse = () => {
     if (this.state.uploadSuccess) {
-      return <Alert severity="success">{this.state.uploadResponseMessage}</Alert>;
+      return (
+        <div>
+          <Alert severity="success">{this.state.uploadResponseMessage}</Alert>
+          {this.state.uploadWarnings.length > 0 && (
+            <Alert severity="warning" style={{ marginTop: "0.5rem" }}>
+              <b>Please review:</b>
+              <ul style={{ marginBottom: 0 }}>
+                {this.state.uploadWarnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+            </Alert>
+          )}
+        </div>
+      );
     } else if (this.state.uploadFailure) {
       return <Alert severity="error">{this.state.uploadResponseMessage}</Alert>;
     } else {

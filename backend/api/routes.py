@@ -1,6 +1,7 @@
 import io
 import os
 import shutil
+import tempfile
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasicCredentials
 
@@ -17,7 +18,7 @@ from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse, RedirectResponse, Response
 
-from api import processing
+from api import processing, sanity
 from api.data_loader import create_datasets_archive, extract_zip_safely, load_data_decoded, load_virtual_patients_decoded, validate_datasets_archive_structure
 from api.filtering import get_column_types, get_similar_patients
 from api.auth import authenticate_user, init_credentials
@@ -406,9 +407,20 @@ async def process_outliers():
 
 @app.patch("/datasets/default/plots/violin", status_code=201, tags=["processing"])
 async def process_violin_plots():
-    for f in [f for f in os.listdir("datasets/default/plots/violin")]:
-        os.remove(os.path.join("datasets/default/plots/violin", f))
-    processing.create_violin_plots("default")
+    plots_dir = "datasets/default/plots/violin"
+    staging_dir = tempfile.mkdtemp(prefix="violin-", dir="datasets/default/plots")
+    try:
+        # Render next to the target first so a validation or plotting failure
+        # leaves the previously generated plots untouched.
+        processing.create_violin_plots("default", store_destination=staging_dir)
+        fresh = set(os.listdir(staging_dir))
+        for name in fresh:
+            os.replace(os.path.join(staging_dir, name), os.path.join(plots_dir, name))
+        for name in os.listdir(plots_dir):
+            if name not in fresh:
+                os.remove(os.path.join(plots_dir, name))
+    finally:
+        shutil.rmtree(staging_dir, ignore_errors=True)
     return {"message:": "Successfully finished processing."}
 
 
@@ -418,38 +430,55 @@ async def process_correlation_plots():
     return {"message:": "Successfully finished processing."}
 
 
-@app.post("/datasets/default/patients/real", tags=["processing"])
-def upload_real_patients(file: UploadFile = File(...)):
-    filename, file_extension = os.path.splitext(file.filename)
+def _store_patient_upload(file: UploadFile, data_type: str, label: str, extension_detail: str):
+    """Validate an uploaded patient file and only then make it the active file.
+
+    The data is streamed to a temporary file in the target directory. If the
+    file does not pass validation it is discarded, so a failed upload never
+    replaces a working dataset.
+    """
+    filename, file_extension = os.path.splitext(file.filename or "")
     if file_extension != '.csv':
-        raise HTTPException(status_code=403, detail="Only csv files supported.")
-    file_path = "datasets/default/patients/real.csv"
+        raise HTTPException(status_code=403, detail=extension_detail)
+
+    patients_dir = "datasets/default/patients"
+    target_path = os.path.join(patients_dir, f"{data_type}.csv")
+    descriptor, temporary_path = tempfile.mkstemp(dir=patients_dir, suffix=".upload")
     try:
-        with open(file_path, 'wb+') as f:
+        with os.fdopen(descriptor, "wb") as f:
             while contents := file.file.read():
                 f.write(contents)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="An error occurred during processing of the uploaded file.")
+        _, warnings = sanity.validate_upload(temporary_path, label)
+        os.replace(temporary_path, target_path)
+    except Exception:
+        if os.path.exists(temporary_path):
+            os.remove(temporary_path)
+        raise
     finally:
         file.file.close()
-    return {"message": f"Successfully uploaded {file.filename}"}
+
+    return {"message": f"Successfully uploaded {file.filename}", "warnings": warnings}
+
+
+@app.post("/datasets/default/patients/real", tags=["processing"])
+def upload_real_patients(file: UploadFile = File(...)):
+    return _store_patient_upload(file, "real", "Real data", "Only csv files supported.")
 
 
 @app.post("/datasets/default/patients/synthetic", tags=["processing"])
 def upload_synthetic_patients(file: UploadFile = File(...)):
-    filename, file_extension = os.path.splitext(file.filename)
-    if file_extension != '.csv':
-        raise HTTPException(status_code=403, detail="Only csv files are supported.")
-    file_path = "datasets/default/patients/synthetic.csv"
-    try:
-        with open(file_path, 'wb+') as f:
-            while contents := file.file.read():
-                f.write(contents)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="An error occurred during processing of the uploaded file.")
-    finally:
-        file.file.close()
-    return {"message": f"Successfully uploaded {file.filename}"}
+    return _store_patient_upload(file, "synthetic", "Synthetic data", "Only csv files are supported.")
+
+
+@app.get("/datasets/default/patients/validation", tags=["info"])
+def get_patient_data_validation():
+    """Report whether the current patient files can be processed.
+
+    Findings are returned as data with a 200 response so the frontend can
+    explain problems before any computation is started. The processing
+    endpoints enforce the same rules, so this is advisory only.
+    """
+    return sanity.build_report("datasets/default/patients")
 
 
 @app.put("/datasets/{identifier}", status_code=201, tags=["processing"])

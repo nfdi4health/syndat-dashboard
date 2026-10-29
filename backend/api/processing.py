@@ -23,7 +23,7 @@ def get_real_row_counts(dataset_name):
     # Persisted so the frontend can warn when the score rests on very few rows,
     # since the raw real data is not kept for stored datasets.
     data_root_dir = "datasets/" + dataset_name + "/patients"
-    real, _ = data_loader.load_data_decoded(data_root_dir)
+    real, _ = data_loader.load_data_decoded(data_root_dir, row_limit=None)
     total_rows = int(real.shape[0])
     usable_rows = int(real.dropna().shape[0])
     return np.array([total_rows, usable_rows])
@@ -69,8 +69,8 @@ def get_column_types(dataset_name):
 def process_tsne(dataset_name):
     real_enc, virtual_enc = load_and_decode(dataset_name)
     if real_enc.shape[0] > 1000:
-        real_subsampled = real_enc.sample(1000)
-        virtual_subsampled = virtual_enc.sample(1000)
+        real_subsampled = real_enc.sample(1000, random_state=42)
+        virtual_subsampled = virtual_enc.sample(1000, random_state=42)
         x_real, y_real, x_virtual, y_virtual = visualization.get_tsne_plot_data(real_subsampled, virtual_subsampled)
     else:
         x_real, y_real, x_virtual, y_virtual = visualization.get_tsne_plot_data(real_enc, virtual_enc)
@@ -86,10 +86,11 @@ def get_outlier_scores(dataset_name):
     np.save("datasets/" + dataset_name + "/results/anomaly_scores.npy", outlier_scores)
 
 
-def create_violin_plots(dataset_name):
+def create_violin_plots(dataset_name, store_destination=None):
     data_root_dir = "datasets/" + dataset_name + "/patients"
     real, virtual = data_loader.load_data_decoded(data_root_dir)
-    plotting.create_violin_plots(real, virtual, "datasets/" + dataset_name + "/plots/violin")
+    destination = store_destination or "datasets/" + dataset_name + "/plots/violin"
+    plotting.create_violin_plots(real, virtual, destination)
 
 
 def create_correlation_plots(dataset_name):

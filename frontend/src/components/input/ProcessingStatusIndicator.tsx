@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { Alert, LinearProgress } from "@mui/material";
+import MessageUtils from "../../utils/MessageUtils";
 
 type State = {
   triggerSuccess: Boolean;
@@ -11,29 +12,6 @@ type State = {
 
 type Props = {
   resource: string;
-};
-
-const MAX_DETAIL_LENGTH = 200;
-
-const describeFailure = (error: any): string => {
-  const status = error?.response?.status;
-  const detail = error?.response?.data?.detail;
-
-  if (status === undefined) {
-    return "Processing failed: could not reach the server.";
-  }
-
-  if (
-    typeof detail === "string" &&
-    detail.length > 0 &&
-    detail.length <= MAX_DETAIL_LENGTH &&
-    !detail.includes("\n") &&
-    !/traceback/i.test(detail)
-  ) {
-    return `Processing failed (status ${status}): ${detail}`;
-  }
-
-  return `Processing failed (status ${status}).`;
 };
 
 class ProcessingStatusIndicator extends React.Component<Props, State> {
@@ -79,7 +57,7 @@ class ProcessingStatusIndicator extends React.Component<Props, State> {
           triggerSuccess: false,
           processingActive: false,
           triggerFailure: true,
-          uploadResponseMessage: describeFailure(error),
+          uploadResponseMessage: `Processing failed: ${MessageUtils.describeError(error)}`,
         });
       });
   };
