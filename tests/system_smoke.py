@@ -1,5 +1,6 @@
 """Run a smoke test against the locally built Docker Compose deployment."""
 
+import argparse
 import json
 import os
 import subprocess
@@ -15,17 +16,19 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 TIMEOUT_SECONDS = int(os.getenv("SYSTEM_TEST_TIMEOUT", "180"))
 
 
-def fetch(url: str) -> tuple[int, str]:
-    request = Request(url, headers={"Accept": "application/json"})
+def fetch(url: str, accept: str = "application/json") -> tuple[int, str]:
+    request = Request(url, headers={"Accept": accept})
     with closing(urlopen(request, timeout=5)) as response:
         return response.status, response.read().decode("utf-8")
 
 
-def wait_for(url: str, deadline: float) -> tuple[int, str]:
+def wait_for(
+    url: str, deadline: float, accept: str = "application/json"
+) -> tuple[int, str]:
     last_error: Exception | None = None
     while time.monotonic() < deadline:
         try:
-            return fetch(url)
+            return fetch(url, accept=accept)
         except (OSError, URLError) as error:
             last_error = error
             time.sleep(2)
@@ -57,26 +60,38 @@ def assert_backend_contract() -> None:
 
 
 def assert_frontend_contract() -> None:
-    status, body = fetch(FRONTEND_URL)
+    status, body = fetch(FRONTEND_URL, accept="text/html")
     assert status == 200
     assert '<div id="root">' in body
 
 
 def main() -> None:
-    command = ["docker", "compose", "-f", COMPOSE_FILE, "up", "--build", "-d"]
-    subprocess.run(command, check=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--no-compose",
+        action="store_true",
+        help="Assume the stack is already running and do not start or stop it.",
+    )
+    arguments = parser.parse_args()
+
+    if not arguments.no_compose:
+        subprocess.run(
+            ["docker", "compose", "-f", COMPOSE_FILE, "up", "--build", "-d"],
+            check=True,
+        )
     try:
         deadline = time.monotonic() + TIMEOUT_SECONDS
         wait_for(f"{BACKEND_URL}/version", deadline)
-        wait_for(FRONTEND_URL, deadline)
+        wait_for(FRONTEND_URL, deadline, accept="text/html")
         assert_backend_contract()
         assert_frontend_contract()
         print("Docker Compose system smoke test passed.")
     finally:
-        subprocess.run(
-            ["docker", "compose", "-f", COMPOSE_FILE, "down", "--remove-orphans"],
-            check=False,
-        )
+        if not arguments.no_compose:
+            subprocess.run(
+                ["docker", "compose", "-f", COMPOSE_FILE, "down", "--remove-orphans"],
+                check=False,
+            )
 
 
 if __name__ == "__main__":

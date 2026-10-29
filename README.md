@@ -5,7 +5,7 @@
 	</picture>
 </p>
 
-<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-smoke.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
+<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
 
 SYNDAT compares synthetic patient-level data with the original tabular data.
 The dashboard brings together quality metrics, privacy risk estimates, and plots
@@ -99,6 +99,24 @@ REACT_APP_API_BASE_URL=http://localhost:8000 npm run dev
 
 Open [localhost:3000](http://localhost:3000). The API URL can also be set in
 [`frontend/.env`](frontend/.env); it is read when Vite starts or builds the frontend.
+
+### System tests
+
+The end-to-end tests live in [`e2e/`](e2e) and use
+[Playwright](https://playwright.dev/). They expect a running deployment, which
+CI provides through Docker Compose:
+
+```bash
+docker compose up --build -d
+cd e2e
+npm ci
+npx playwright install --with-deps chromium
+npm test
+```
+
+`E2E_BASE_URL` and `E2E_API_URL` default to `http://localhost:3000` and
+`http://127.0.0.1:8000`. The HTML report is written to
+`e2e/playwright-report/`.
 
 ### Python package
 

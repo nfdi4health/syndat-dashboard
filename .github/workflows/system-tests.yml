@@ -1,0 +1,76 @@
+name: System tests
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "e2e/**"
+      - "tests/**"
+      - "docker-compose*.yml"
+      - "Makefile"
+      - ".github/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "e2e/**"
+      - "tests/**"
+      - "docker-compose*.yml"
+      - "Makefile"
+      - ".github/**"
+
+permissions:
+  contents: read
+
+jobs:
+  system-tests:
+    name: Docker Compose system tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - name: Build frontend assets
+        working-directory: frontend
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Start the Docker Compose stack
+        run: docker compose up --build -d
+      - name: Run the API and frontend smoke test
+        run: python tests/system_smoke.py --no-compose
+      - name: Install Playwright dependencies
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Run Playwright system tests
+        working-directory: e2e
+        run: npm test
+        env:
+          E2E_BASE_URL: http://localhost:3000
+          E2E_API_URL: http://127.0.0.1:8000
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 14
+      - name: Tear down the stack
+        if: always()
+        run: docker compose down -v
