@@ -3,8 +3,8 @@ uvicorn==0.54.0
 python-multipart==0.0.32
 numpy==1.26.4
 fastapi==0.162.0
-pydantic==2.14.1
-starlette==1.9.0
+pydantic==2.14.2
+starlette==1.10.0
 anonymeter==1.1.0
 matplotlib==3.11.2
 seaborn==0.13.2
@@ -13,5 +13,5 @@ plotly==7.1.0
 scipy==1.17.1
 syndat==0.13.9
 python-dotenv
-pytest==9.1.1
+pytest==9.2.0
 httpx==0.28.1
