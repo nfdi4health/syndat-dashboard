@@ -1,13 +1,29 @@
 cff-version: "1.2.0"
 message: "If you use this software, please cite the following publications in your research."
-title: "syndat"
+title: "SYNDAT Dashboard"
+abstract: "A dashboard for the evaluation and visualization of synthetic patient-level data. It compares synthetic records with the original tabular data and reports quality, utility, and privacy risk metrics."
+type: software
 authors:
   - family-names: "Adams"
     given-names: "Tim"
+    orcid: "https://orcid.org/0000-0002-2823-0102"
+    affiliation: "Fraunhofer Institute for Algorithms and Scientific Computing (SCAI)"
   - family-names: "Fröhlich"
     given-names: "Holger"
+    orcid: "https://orcid.org/0000-0002-5328-1243"
+    affiliation: "Fraunhofer Institute for Algorithms and Scientific Computing (SCAI)"
 date-released: "2024-12-08"
-url: "https://github.com/SCAI-BIO/syndat"
+version: "1.1.0"
+license: CC-BY-NC-ND-4.0
+repository-code: "https://github.com/nfdi4health/syndat-dashboard"
+url: "https://syndat.scai.fraunhofer.de/"
+doi: "10.5281/zenodo.15399485"
+keywords:
+  - synthetic data
+  - data quality
+  - privacy
+  - visualization
+  - dashboard
 preferred-citation:
   type: article
   authors:
@@ -36,7 +52,7 @@ preferred-citation:
   issue: 5
   doi: "10.1016/j.isci.2025.112382"
 references:
-  - id: iScience2025
+  -
     type: article
     title: "On the fidelity versus privacy and utility trade-off of synthetic patient data"
     authors:
@@ -64,7 +80,7 @@ references:
     issue: 5
     doi: "10.1016/j.isci.2025.112382"
     url: "https://doi.org/10.1016/j.isci.2025.112382"
-  - id: SHTI2024
+  -
     type: article
     title: "NFDI4Health Workflow and Service for Synthetic Data Generation, Assessment and Risk Management"
     authors:
