@@ -12,6 +12,9 @@ function Footer() {
         <Nav className="footer__links">
           <Nav.Link href="https://www.nfdi4health.de/en/helpdesk.html">Helpdesk</Nav.Link>
           <Nav.Link href="https://www.scai.fraunhofer.de/en/business-research-areas/bioinformatics/fields-of-research/AI-DAS.html">Contact</Nav.Link>
+          <Nav.Link href="/third-party-licenses.txt" target="_blank" rel="noreferrer">
+            Third-party licenses
+          </Nav.Link>
           <Nav.Link href="https://www.scai.fraunhofer.de/en/business-research-areas/bioinformatics/fields-of-research/AI-DAS.html">Imprint</Nav.Link>
           <Nav.Link href="https://www.scai.fraunhofer.de/en/business-research-areas/bioinformatics/fields-of-research/AI-DAS.html">Terms &amp; Conditions</Nav.Link>
           <Nav.Link href="https://www.scai.fraunhofer.de/en/business-research-areas/bioinformatics/fields-of-research/AI-DAS.html">Data Protection Information</Nav.Link>

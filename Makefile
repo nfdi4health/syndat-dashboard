@@ -17,6 +17,10 @@ install-local:
 	pip install --requirement backend/requirements.txt
 	cd frontend && npm install --legacy-peer-deps
 
+# Regenerate the bundled third-party license texts
+licenses:
+	python3 tools/generate_third_party_licenses.py
+
 # Target for running the backend and frontend locally
 run-local:
 	cd backend && uvicorn api.routes:app --reload &

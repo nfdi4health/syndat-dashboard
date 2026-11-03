@@ -162,6 +162,22 @@ If you use **SYNDAT** in your research, please cite:
 }
 ```
 
+## Acknowledgements
+
+SYNDAT Dashboard builds on the following projects:
+
+- [`syndat`](https://github.com/SCAI-BIO/syndat) (MIT) — evaluation and
+  visualization of synthetic tabular data.
+- [`anonymeter`](https://github.com/statice/anonymeter) (Clear BSD) — privacy
+  risk metrics. Its license is vendored at
+  [`backend/credits/anonymeter/LICENSE.md`](backend/credits/anonymeter/LICENSE.md)
+  and shipped inside the backend image.
+
+Third-party license texts are bundled with the distributed artifacts:
+`backend/credits/THIRD_PARTY_LICENSES.txt` in the backend image and
+`/third-party-licenses.txt` in the frontend build. Regenerate both with
+`python3 tools/generate_third_party_licenses.py` after changing dependencies.
+
 ## Support and license
 
 For questions or support, contact the NFDI4Health helpdesk at
@@ -170,4 +186,6 @@ For bugs and feature requests, use the
 [issue tracker](https://github.com/nfdi4health/syndat-dashboard/issues).
 
 The repository is licensed under
-[CC BY-NC-ND 4.0](LICENSE.md).
+[CC BY-NC-ND 4.0](LICENSE.md). This license covers the dashboard's own source
+code; bundled third-party components keep their upstream licenses, listed in
+the files referenced above.
