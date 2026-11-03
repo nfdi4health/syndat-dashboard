@@ -26,8 +26,3 @@ repository's `docker-compose.yml`.
 cd backend
 pytest
 ```
-
-## Third-party credits
-
-License texts for bundled dependencies live in [`credits/`](credits). See
-[`credits/README.md`](credits/README.md) for the index.
