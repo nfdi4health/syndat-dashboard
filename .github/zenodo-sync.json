@@ -1,0 +1,125 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tiadams/zenodo-schema-sync/main/schema/zenodo-sync.schema.json",
+  "concept": "15399485",
+  "repository": "https://github.com/nfdi4health/syndat-dashboard",
+  "access": {
+    "record": "public",
+    "files": "public",
+    "embargo": {
+      "active": false
+    }
+  },
+  "files": {
+    "enabled": true
+  },
+  "metadata": {
+    "resource_type": "software",
+    "title": "SYNDAT Dashboard",
+    "description": "<p>A Dashboard for evaluation &amp; visualization of synthetic patient level data.</p>",
+    "creators": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "name": "Adams, Tim",
+          "given_name": "Tim",
+          "family_name": "Adams",
+          "identifiers": [
+            {
+              "identifier": "0000-0002-2823-0102",
+              "scheme": "orcid"
+            }
+          ]
+        },
+        "affiliations": [
+          "Fraunhofer Institute for Algorithms and Scientific Computing"
+        ]
+      }
+    ],
+    "contributors": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "name": "Fröhlich, Holger",
+          "given_name": "Holger",
+          "family_name": "Fröhlich",
+          "identifiers": [
+            {
+              "identifier": "0000-0002-5328-1243",
+              "scheme": "orcid"
+            }
+          ]
+        },
+        "role": "supervisor",
+        "affiliations": [
+          "Fraunhofer Institute for Algorithms and Scientific Computing",
+          "University Hospital Bonn, Institute for Digital Medicine",
+          "Bonn-Aachen International Center for Information Technology (b-it)"
+        ]
+      }
+    ],
+    "subjects": [
+      "synthetic data",
+      "data quality",
+      "privacy",
+      "visualization",
+      "dashboard"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "rights": [
+      "cc-by-nc-nd-4.0"
+    ],
+    "copyright": "Copyright 2025 Fraunhofer SCAI",
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/nfdi4health/syndat-dashboard",
+        "scheme": "url",
+        "relation_type": "issupplementto",
+        "resource_type": "software"
+      },
+      {
+        "identifier": "10.5281/zenodo.21675503",
+        "scheme": "doi",
+        "relation_type": "requires",
+        "resource_type": "software"
+      },
+      {
+        "identifier": "10.1016/j.isci.2025.112382",
+        "scheme": "doi",
+        "relation_type": "references",
+        "resource_type": "publication-article"
+      },
+      {
+        "identifier": "10.3233/SHTI240834",
+        "scheme": "doi",
+        "relation_type": "references",
+        "resource_type": "publication-conferencepaper"
+      },
+      {
+        "identifier": "https://syndat.scai.fraunhofer.de/",
+        "scheme": "url",
+        "relation_type": "references",
+        "resource_type": "other"
+      }
+    ],
+    "funding": [
+      {
+        "funder": {
+          "id": "0305k8y39"
+        }
+      }
+    ]
+  },
+  "custom_fields": {
+    "code:codeRepository": "https://github.com/nfdi4health/syndat-dashboard",
+    "code:programmingLanguage": [
+      "python",
+      "typescript"
+    ],
+    "code:developmentStatus": "active",
+    "legacy:communities": [
+      "0b37260a-f619-4216-b12c-2a21548b9c89"
+    ]
+  }
+}
