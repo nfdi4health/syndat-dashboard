@@ -51,7 +51,9 @@
         },
         "role": "supervisor",
         "affiliations": [
-          "Fraunhofer Institute for Algorithms and Scientific Computing"
+          "Fraunhofer Institute for Algorithms and Scientific Computing",
+          "University Hospital Bonn, Institute for Digital Medicine",
+          "Bonn-Aachen International Center for Information Technology (b-it)"
         ]
       }
     ],
