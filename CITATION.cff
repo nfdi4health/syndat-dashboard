@@ -14,7 +14,7 @@ authors:
     affiliation: "Fraunhofer Institute for Algorithms and Scientific Computing (SCAI)"
 date-released: "2024-12-08"
 version: "1.1.0"
-license: CC-BY-NC-ND-4.0
+license: GPL-3.0-only
 repository-code: "https://github.com/nfdi4health/syndat-dashboard"
 url: "https://syndat.scai.fraunhofer.de/"
 doi: "10.5281/zenodo.15399485"

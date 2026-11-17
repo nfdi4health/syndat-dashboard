@@ -5,7 +5,7 @@
 	</picture>
 </p>
 
-<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg?style=flat-square&logo=creative-commons&logoColor=white" alt="License: CC BY-NC-ND 4.0"></a></p>
+<p align="left"><a href="https://doi.org/10.5281/zenodo.15399485"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.15399485-blue.svg" alt="DOI"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml"><img src="https://github.com/nfdi4health/syndat-dashboard/actions/workflows/system-tests.yml/badge.svg" alt="Tests"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/releases"><img src="https://img.shields.io/github/v/release/nfdi4health/syndat-dashboard" alt="Latest Release"></a>&nbsp;<a href="https://github.com/nfdi4health/syndat-dashboard/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0--only-blue.svg?style=flat-square&logo=gnu&logoColor=white" alt="License: GPL-3.0-only"></a></p>
 
 SYNDAT compares synthetic patient-level data with the original tabular data.
 The dashboard brings together quality metrics, privacy risk estimates, and plots
@@ -169,5 +169,7 @@ For questions or support, contact the NFDI4Health helpdesk at
 For bugs and feature requests, use the
 [issue tracker](https://github.com/nfdi4health/syndat-dashboard/issues).
 
+Copyright (C) 2025 Fraunhofer SCAI.
+
 The repository is licensed under
-[CC BY-NC-ND 4.0](LICENSE.md).
+[GPL-3.0-only](LICENSE).
