@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "description": "System/end-to-end tests against the docker-compose stack",
-  "license": "CC-BY-NC-ND-4.0",
+  "license": "GPL-3.0-only",
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
