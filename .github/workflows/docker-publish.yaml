@@ -53,6 +53,8 @@ jobs:
       with:
         context: ./backend
         file: ./backend/Dockerfile
+        build-args: |
+          SYNDAT_VERSION=${{ steps.version.outputs.VERSION }}
         push: true
         tags: |
           ghcr.io/${{ github.repository }}/backend:latest

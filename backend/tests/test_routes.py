@@ -4,10 +4,18 @@ import os
 import zipfile
 
 
-def test_info_endpoints_are_deterministic(api_client):
-    assert api_client.get("/version").json() == "1.0.0"
+def test_info_endpoints_are_deterministic(api_client, monkeypatch):
+    monkeypatch.delenv("SYNDAT_VERSION", raising=False)
+    assert api_client.get("/version").json() == "dev"
     assert api_client.get("/datasets").json() == ["other"]
     assert api_client.get("/error").status_code == 204
+
+
+def test_app_version_uses_environment(monkeypatch):
+    from api.routes import get_app_version
+
+    monkeypatch.setenv("SYNDAT_VERSION", "1.2.3")
+    assert get_app_version() == "1.2.3"
 
 
 def test_synthetic_patient_and_column_types(api_client):

@@ -21,16 +21,22 @@ test.describe("app shell", () => {
     ).toBeVisible();
   });
 
-  test("shows the backend version in the header", async ({ page }) => {
+  test("shows the backend version in the header", async ({ page, request }) => {
+    const version = await request.get(`${E2E_API_URL}/version`);
+    expect(version.ok()).toBeTruthy();
+    const appVersion = await version.json();
+
     await page.goto("/");
 
-    await expect(page.getByText("App Version: 1.0.0")).toBeVisible();
+    await expect(page.getByText(`App Version: ${appVersion}`)).toBeVisible();
   });
 
   test("exposes the documented backend API contract", async ({ request }) => {
     const version = await request.get(`${E2E_API_URL}/version`);
     expect(version.ok()).toBeTruthy();
-    expect(await version.json()).toBe("1.0.0");
+    const appVersion = await version.json();
+    expect(typeof appVersion).toBe("string");
+    expect(appVersion.length).toBeGreaterThan(0);
 
     const datasets = await request.get(`${E2E_API_URL}/datasets`);
     expect(datasets.ok()).toBeTruthy();
