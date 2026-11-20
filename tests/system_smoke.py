@@ -38,7 +38,8 @@ def wait_for(
 def assert_backend_contract() -> None:
     status, body = fetch(f"{BACKEND_URL}/version")
     assert status == 200
-    assert body.strip('"') == "1.0.0"
+    version = json.loads(body)
+    assert isinstance(version, str) and version
 
     status, body = fetch(f"{BACKEND_URL}/datasets")
     assert status == 200

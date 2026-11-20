@@ -18,7 +18,9 @@ HTTP Basic Authentication; set `SYNDAT_ADMIN_USERNAME` and
 ## Docker
 
 The image is built from `backend/Dockerfile` and is normally started through the
-repository's `docker-compose.yml`.
+repository's `docker-compose.yml`. The image reports the value of the
+`SYNDAT_VERSION` build argument from its `/version` endpoint. Release builds pass
+the published tag; local builds default to `dev`.
 
 ## Tests
 

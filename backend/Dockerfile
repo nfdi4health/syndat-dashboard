@@ -1,6 +1,11 @@
 # Define the base image
 FROM python:3.12
 
+# Version reported by the /version endpoint. Release builds override this with
+# the published tag; local builds report "dev".
+ARG SYNDAT_VERSION=dev
+ENV SYNDAT_VERSION=${SYNDAT_VERSION}
+
 # Create a folder and copy the folder structure from local
 RUN mkdir -p /api
 RUN mkdir -p /datasets

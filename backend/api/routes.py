@@ -25,10 +25,14 @@ from api.auth import authenticate_user, init_credentials
 from api.paths import resolve_dataset_path, safe_component
 
 
+def get_app_version() -> str:
+    return os.getenv("SYNDAT_VERSION") or "dev"
+
+
 app = FastAPI(
     title="SYNDAT API",
     description="API interface to access programmatic functionalities of SYNDAT.",
-    version="1.0.0",
+    version=get_app_version(),
     terms_of_service="https://www.scai.fraunhofer.de/",
     contact={
         "name": "Prof. Dr. Holger Fröhlich",
