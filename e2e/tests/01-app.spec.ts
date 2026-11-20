@@ -10,6 +10,13 @@ test.describe("app shell", () => {
     await expect(page.getByRole("heading", { name: "Contact" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "How to Use" })).toBeVisible();
 
+    // The home page must disclose that this instance is a demo and point to the
+    // GitHub repository for deployment instructions.
+    await expect(page.getByRole("heading", { name: "Demo instance" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Syndat-Dashboard GitHub repository" })
+    ).toHaveAttribute("href", "https://github.com/nfdi4health/syndat-dashboard");
+
     await navigateTo(page, "Input");
     await expect(
       page.getByRole("heading", { name: "Data Upload & Processing" })

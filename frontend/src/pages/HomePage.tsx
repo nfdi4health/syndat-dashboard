@@ -1,13 +1,39 @@
+import { InfoCircle } from "react-bootstrap-icons";
 import "./HomePage.css";
+
+const DASHBOARD_REPO_URL = "https://github.com/nfdi4health/syndat-dashboard";
+const SYNDAT_PACKAGE_URL = "https://github.com/SCAI-BIO/syndat";
 
 function HomePage() {
   return (
     <div className="HomePage">
+      <section className="card notice" aria-labelledby="demo-notice-heading">
+        <h3 id="demo-notice-heading">
+          <InfoCircle aria-hidden="true" className="notice__icon" />
+          Demo instance
+        </h3>
+        <p>
+          This deployment is a <b>public demo</b> of the Syndat-Dashboard, intended for
+          exploration and testing. While Syndat never stores real data, please refrain from
+          uploading any non-public or sensitive data to this demo instance.
+        </p>
+        <p>
+          The Dashboard is specifically built to run on-site at data holding
+          organisations.
+        </p>
+        <p>
+          For instructions on local installation and deployment, please visit the{" "}
+          <a href={DASHBOARD_REPO_URL}>Syndat-Dashboard GitHub repository</a>.
+        </p>
+      </section>
+
       <section className="card">
         <h3>About</h3>
         <p>
           SYNDAT was developed as part of TA6.4 of the{" "}
-          <a href="https://www.nfdi4health.de/">NFDI4Health Initiative</a>. Main
+          <a href="https://www.nfdi4health.de/">NFDI4Health Initiative</a>. The Dashboard is
+          a user-friendly platform for evaluating synthetic data that does not require
+          extensive background knowledge or a data science background. Main
           functionalities include:
         </p>
         <ul>
@@ -16,6 +42,11 @@ function HomePage() {
           <li>Detection of possible outliers in the synthetic data population</li>
           <li>Visualization of distribution metrics such as violin or correlation plots</li>
         </ul>
+        <p>
+          The evaluation and plotting routines are provided by the separate{" "}
+          <a href={SYNDAT_PACKAGE_URL}>syndat Python package</a>, which can also be used
+          directly in Python for scripted analyses (<code>pip install syndat</code>).
+        </p>
         <p>
           We are currently working on extending SYNDAT for synthetic Randomized
           Clinical Trial (RCT) data as part of the{" "}
@@ -35,9 +66,9 @@ function HomePage() {
           <br />
           <br />
           If you find any bugs or have further feature suggestions, feel free to{" "}
-          <a href="https://github.com/nfdi4health/syndat-dashboard/issues/new">create an issue</a>{" "}
+          <a href={`${DASHBOARD_REPO_URL}/issues/new`}>create an issue</a>{" "}
           on the{" "}
-          <a href="https://github.com/nfdi4health/syndat-dashboard">Syndat Github page</a>.
+          <a href={DASHBOARD_REPO_URL}>Syndat Github page</a>.
         </p>
       </section>
 
