@@ -16,3 +16,34 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
+
+/* Demo notice */
+.HomePage .notice {
+  background: var(--brand-50);
+  border-color: var(--brand-200);
+  border-left: 4px solid var(--brand-600);
+}
+
+.HomePage .notice h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--brand-700);
+}
+
+.HomePage .notice__icon {
+  flex: none;
+  color: var(--brand-600);
+}
+
+.HomePage .notice p:last-child {
+  margin-bottom: 0;
+}
+
+.HomePage code {
+  padding: 2px 6px;
+  background: var(--brand-50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-300);
+}
